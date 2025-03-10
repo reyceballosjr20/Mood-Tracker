@@ -13,11 +13,21 @@ require_once '../../../models/Mood.php';
 
 // Handle AJAX request to save mood
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_mood') {
+    // Create log for debugging
+    error_log("Saving mood for user {$_SESSION['user_id']}: " . print_r($_POST, true));
+    
     $mood = new Mood();
     
     // Get data from POST
     $mood_type = $_POST['mood_type'] ?? '';
     $mood_text = $_POST['mood_text'] ?? '';
+    
+    // Validate input
+    if (empty($mood_type)) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Missing mood type']);
+        exit;
+    }
     
     // Convert mood type to numerical value (1-5)
     $mood_value_map = [
@@ -34,15 +44,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $mood_value = $mood_value_map[$mood_type] ?? 3; // Default to neutral
     
-    // Save the mood
-    $result = $mood->saveMood($_SESSION['user_id'], $mood_type, $mood_value, $mood_text);
-    
-    // Return JSON response
-    header('Content-Type: application/json');
-    if ($result) {
-        echo json_encode(['success' => true, 'message' => 'Mood saved successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to save mood']);
+    // Save the mood with error checking
+    try {
+        $result = $mood->saveMood($_SESSION['user_id'], $mood_type, $mood_value, $mood_text);
+        
+        // Return JSON response
+        header('Content-Type: application/json');
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Mood saved successfully']);
+        } else {
+            error_log("Failed to save mood: DB insert failed");
+            echo json_encode(['success' => false, 'message' => 'Database error: Failed to save mood']);
+        }
+    } catch (Exception $e) {
+        error_log("Exception saving mood: " . $e->getMessage());
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
     }
     exit;
 }
@@ -127,14 +144,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     <div class="card" style="background-color: #f5d7e3; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; margin-left: 0; border-radius: 0 10px 10px 0;">
         <div style="padding: 25px; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center;">
-            <div id="inspirationalMessage" style="max-width: 260px;">
-                <p style="font-size: 1.1rem; line-height: 1.6; color: #8a5878; font-style: italic;">"You are surrounded by peace, and everything is unfolding as it should"</p>
+            <div id="inspirationalMessage" style="max-width: 260px; transition: opacity 0.3s ease;">
+                <p style="font-size: 1.1rem; line-height: 1.6; color: #8a5878; font-style: italic;">"Select a mood to see a personalized message"</p>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    /* Updated styles for mood circles with enhanced hover and selection effects */
     .mood-options {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -150,12 +168,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         background: none;
         border: none;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: all 0.3s ease;
         padding: 10px 5px;
+        position: relative;
     }
     
     .mood-circle:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
+    }
+    
+    .mood-circle:hover .mood-icon {
+        box-shadow: 0 8px 20px rgba(245, 182, 208, 0.4);
+        background-color: #feeef5;
+    }
+    
+    .mood-circle:hover .mood-icon i {
+        transform: scale(1.15);
+        color: #c25f86;
     }
     
     .mood-icon {
@@ -169,32 +198,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         font-size: 40px;
         margin-bottom: 10px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        transition: all 0.2s;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
     }
     
+    /* Updated style for Font Awesome icons */
+    .mood-icon i {
+        font-size: 40px;
+        color: #d1789c;
+        transition: all 0.3s ease;
+    }
+    
+    /* Updated style for selected mood icons - using a darker color instead of white */
+    .mood-circle.selected .mood-icon i {
+        color: #7d2b4c; /* Dark burgundy instead of white for better contrast */
+        transform: scale(1.15);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Enhanced selected state with darker background */
     .mood-circle.selected .mood-icon {
-        background-color: #f5b6d0;
+        background-color: #e8a1c0; /* Darker pink background */
         transform: scale(1.1);
-        box-shadow: 0 5px 15px rgba(245, 182, 208, 0.4);
+        box-shadow: 0 8px 20px rgba(209, 120, 156, 0.45);
+        border: 2px solid #d1789c;
+    }
+    
+    .mood-circle.selected::after {
+        content: '';
+        position: absolute;
+        bottom: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 12px;
+        height: 12px;
+        background-color: #d1789c;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: translateX(-50%) scale(0.8);
+            opacity: 0.7;
+        }
+        50% {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(-50%) scale(0.8);
+            opacity: 0.7;
+        }
     }
     
     .mood-circle span {
         font-size: 14px;
         color: #8a5878;
-        margin-top: 8px;
+        margin-top: 12px;
         font-weight: 500;
+        transition: all 0.3s ease;
     }
     
-    #saveMoodBtn {
-        transition: all 0.2s;
+    .mood-circle.selected span {
+        color: #d1789c;
+        font-weight: 600;
+        letter-spacing: 0.5px;
     }
     
-    #saveMoodBtn:hover {
-        background-color: #d1789c;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(209, 120, 156, 0.3);
-    }
-    
+    /* Responsive adjustments */
     @media (max-width: 1200px) {
         .mood-icon {
             width: 70px;
@@ -254,28 +326,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             font-size: 35px;
         }
     }
-    
-    /* Updated style for Font Awesome icons */
-    .mood-icon i {
-        font-size: 40px;
-        color: #d1789c;
-        transition: all 0.2s ease;
-    }
-    
-    .mood-circle.selected .mood-icon i {
-        color: white;
-        transform: scale(1.1);
-    }
-    
-    /* Style for image-based icons */
-    .mood-icon img {
-        max-width: 80%;
-        max-height: 80%;
-        object-fit: contain;
-    }
-    
-    .mood-circle.selected .mood-icon {
-        background-color: #f5b6d0;
-    }
 </style>
+
 
