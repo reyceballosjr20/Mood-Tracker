@@ -1,6 +1,56 @@
 <?php
-// Initialize session or any PHP-specific logic here
+// Initialize session
 session_start();
+
+// If user is already logged in, redirect to dashboard
+if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
+    header("Location: user/dashboard.php");
+    exit;
+}
+
+// Include auth model
+require_once '../models/Auth.php';
+
+// Initialize variables
+$errors = [];
+$success = false;
+$first_name = $last_name = $email = '';
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
+    // Create auth instance
+    $auth = new Auth();
+    
+    // Get form data
+    $userData = [
+        'first_name' => $_POST['name'] ? explode(' ', $_POST['name'], 2)[0] : '',
+        'last_name' => $_POST['name'] && strpos($_POST['name'], ' ') !== false ? explode(' ', $_POST['name'], 2)[1] : '',
+        'email' => $_POST['email'] ?? '',
+        'password' => $_POST['password'] ?? '',
+        'auth_provider' => 'local'
+    ];
+    
+    // Validate confirm password
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        $errors[] = "Passwords do not match";
+    } else {
+        // Register user
+        $result = $auth->register($userData);
+        
+        if ($result['success']) {
+            // Redirect to dashboard
+            header("Location: user/index.php");
+            exit;
+        } else {
+            $errors = $result['errors'];
+            
+            // Keep entered data for form
+            $first_name = $userData['first_name'];
+            $last_name = $userData['last_name'];
+            $email = $userData['email'];
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -192,6 +242,26 @@ session_start();
             font-size: 14px;
         }
         
+        /* Error messages */
+        .error-container {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error-container.show {
+            display: block;
+        }
+        
+        .error-list {
+            margin: 5px 0 0 20px;
+            padding: 0;
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .social-login-divider::before, 
@@ -245,15 +315,26 @@ session_start();
                     Already have an account? <a href="login.php">Login</a>
                 </div>
                 
+                <?php if (!empty($errors)): ?>
+                <div class="error-container show">
+                    <strong>Please fix the following errors:</strong>
+                    <ul class="error-list">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo $error; ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+                
                 <form class="login-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                     <div class="form-group">
                         <label for="name">FULL NAME</label>
-                        <input type="text" id="name" name="name" placeholder="John Doe" required>
+                        <input type="text" id="name" name="name" placeholder="John Doe" required value="<?php echo htmlspecialchars($first_name . ' ' . $last_name); ?>">
                     </div>
                     
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required>
+                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required value="<?php echo htmlspecialchars($email); ?>">
                     </div>
                     
                     <div class="form-group">
@@ -294,46 +375,6 @@ session_start();
                         Continue with Google
                     </button>
                 </form>
-                
-                <?php
-                // Signup processing logic would go here
-                if(isset($_POST['signup'])) {
-                    // Process signup form submission
-                    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-                    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-                    $password = $_POST['password'];
-                    $confirm_password = $_POST['confirm_password'];
-                    
-                    // Validate the input data
-                    $errors = [];
-                    
-                    // Check if passwords match
-                    if ($password !== $confirm_password) {
-                        $errors[] = "Passwords do not match";
-                    }
-                    
-                    // Check password strength (simple check)
-                    if (strlen($password) < 8) {
-                        $errors[] = "Password must be at least 8 characters long";
-                    }
-                    
-                    // If no errors, proceed with registration
-                    if (empty($errors)) {
-                        // Add user registration logic here
-                        // For example: hash password, insert into database, etc.
-                        // ...
-                        
-                        // Redirect to login or dashboard page
-                        // header("Location: login.php");
-                        // exit;
-                    } else {
-                        // Display errors
-                        foreach ($errors as $error) {
-                            echo "<p class='error'>$error</p>";
-                        }
-                    }
-                }
-                ?>
             </div>
         </div>
     </div>
