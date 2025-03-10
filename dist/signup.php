@@ -63,6 +63,8 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
+            height: 48px;
+            min-height: 44px;
         }
         
         .google-btn::before {
@@ -119,6 +121,8 @@
             box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
             position: relative;
             overflow: hidden;
+            height: 48px;
+            min-height: 44px;
         }
         
         .signup-btn::before {
@@ -188,10 +192,15 @@
             font-size: 14px;
             background: transparent;
             border: none;
-            padding: 0;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 1;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 50%;
+            margin-right: -8px;
         }
         
         /* Error messages */
@@ -287,6 +296,16 @@
             .form-card {
                 padding: 20px 15px;
             }
+            
+            .signup-btn, .google-btn {
+                height: 50px;
+            }
+            
+            .remember-me input {
+                width: 22px;
+                height: 22px;
+                margin-right: 10px;
+            }
         }
         
         /* Accessibility improvements */
@@ -331,6 +350,12 @@
             0% { transform: translateY(-50%) rotate(0deg); }
             100% { transform: translateY(-50%) rotate(360deg); }
         }
+        
+        /* For input fields - standardize height */
+        .form-group input {
+            height: 48px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -367,7 +392,7 @@
                     <div class="form-group">
                         <label for="email">EMAIL</label>
                         <input type="email" id="email" name="email" placeholder="hello@gmail.com" required
-                               aria-describedby="email-validation">
+                               aria-describedby="email-validation" autocomplete="email">
                         <div class="validation-message" id="email-validation">Please enter a valid email address.</div>
                     </div>
                     
@@ -375,8 +400,8 @@
                         <label for="password">PASSWORD</label>
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" placeholder="••••••" required
-                                   aria-describedby="password-validation" minlength="8">
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('password')">
+                                   aria-describedby="password-validation" minlength="8" autocomplete="new-password">
+                            <button type="button" class="toggle-password" aria-label="Show password" onclick="togglePasswordVisibility('password')">
                                 <span role="img" aria-hidden="true">👁️</span>
                             </button>
                         </div>
@@ -391,8 +416,8 @@
                         <label for="confirm_password">CONFIRM PASSWORD</label>
                         <div class="password-wrapper">
                             <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••" required
-                                   aria-describedby="confirm-password-validation">
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('confirm_password')">
+                                   aria-describedby="confirm-password-validation" autocomplete="new-password">
+                            <button type="button" class="toggle-password" aria-label="Show password" onclick="togglePasswordVisibility('confirm_password')">
                                 <span role="img" aria-hidden="true">👁️</span>
                             </button>
                         </div>
@@ -430,9 +455,11 @@
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
                 toggleButton.querySelector('span').textContent = '👁️‍🗨️';
+                toggleButton.setAttribute('aria-label', 'Hide password');
             } else {
                 passwordInput.type = "password";
                 toggleButton.querySelector('span').textContent = '👁️';
+                toggleButton.setAttribute('aria-label', 'Show password');
             }
         }
         

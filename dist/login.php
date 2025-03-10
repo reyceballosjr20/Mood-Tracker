@@ -63,6 +63,8 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
+            height: 48px; /* Standard touch target height */
+            min-height: 44px; /* Minimum recommended touch target height */
         }
         
         .google-btn::before {
@@ -103,7 +105,7 @@
         }
         
         /* Enhanced main login button */
-        .signup-btn {
+        .login-btn {
             background: linear-gradient(135deg, #6e8efb, #4a6cf7);
             color: white;
             border: none;
@@ -119,9 +121,11 @@
             box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
             position: relative;
             overflow: hidden;
+            height: 48px; /* Standard touch target height */
+            min-height: 44px; /* Minimum recommended touch target height */
         }
         
-        .signup-btn::before {
+        .login-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -134,19 +138,45 @@
             transition: transform 0.3s ease;
         }
         
-        .signup-btn:hover {
+        .login-btn:hover {
             background: linear-gradient(135deg, #5d7df9, #3959f5);
             box-shadow: 0 6px 15px rgba(74, 108, 247, 0.35);
             transform: translateY(-2px);
         }
         
-        .signup-btn:hover::before {
+        .login-btn:hover::before {
             transform: scaleX(1);
         }
         
-        .signup-btn:active {
+        .login-btn:active {
             transform: translateY(0);
             box-shadow: 0 4px 8px rgba(74, 108, 247, 0.2);
+        }
+        
+        /* Password visibility toggle */
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+            font-size: 14px;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            min-width: 44px; /* Minimum touch target size */
+            min-height: 44px;
+            border-radius: 50%;
+            margin-right: -8px;
         }
         
         /* Error messages */
@@ -169,6 +199,97 @@
             padding: 0;
         }
         
+        /* Form validation styles */
+        input:invalid:not(:focus):not(:placeholder-shown) {
+            border-color: #d32f2f;
+        }
+        
+        input:valid:not(:placeholder-shown) {
+            border-color: #4caf50;
+        }
+        
+        .validation-message {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #d32f2f;
+            display: none;
+        }
+        
+        /* Form elements sizing */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            height: 48px; /* Standard touch target height */
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+            outline: none;
+        }
+        
+        /* Form options (remember me and forgot password) */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .remember-me span {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .forgot-password {
+            color: #4a6cf7;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 5px; /* Increase touch area */
+            margin: -5px;
+        }
+        
+        .forgot-password:hover {
+            color: #3651d3;
+            text-decoration: underline;
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .social-login-divider::before, 
@@ -176,19 +297,57 @@
                 width: 40%;
             }
             
-            .google-btn, .signup-btn {
+            .google-btn, .login-btn {
                 padding: 12px 10px;
-                font-size: 14px;
+                font-size: 15px;
             }
             
             .form-card {
                 padding: 25px 20px;
+                width: 90%;
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            .split-container {
+                flex-direction: column;
+            }
+            
+            .left-side {
+                display: none;
+            }
+            
+            .right-side {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            /* Improve form options on mobile */
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .remember-me, .forgot-password {
+                font-size: 15px; /* Slightly larger for better touch */
+            }
+            
+            .form-group input, .login-btn, .google-btn {
+                height: 50px; /* Slightly taller for mobile */
             }
         }
         
         @media (max-width: 480px) {
-            .google-btn, .signup-btn {
-                padding: 11px 10px;
+            .google-btn, .login-btn {
+                padding: 12px 10px;
+                font-size: 15px;
+                height: 50px;
+            }
+            
+            .form-group input {
+                font-size: 16px; /* Prevent zoom on mobile */
+                height: 50px;
             }
             
             .social-login-divider {
@@ -199,16 +358,119 @@
             .social-login-divider::after {
                 width: 38%;
             }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            
+            .form-card {
+                padding: 20px 15px;
+                width: 95%;
+            }
+            
+            /* Increased spacing for thumbs */
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            /* Allow better tap targets */
+            .remember-me input {
+                width: 22px;
+                height: 22px;
+                margin-right: 10px;
+            }
         }
         
         /* Success message */
         .success-container {
             background-color: #e8f5e9;
             color: #2e7d32;
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-radius: 6px;
             margin-bottom: 20px;
             font-size: 14px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        /* Accessibility improvements */
+        .visually-hidden {
+            border: 0;
+            clip: rect(0 0 0 0);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+        }
+        
+        button:focus, input:focus, a:focus {
+            outline: 2px solid #4a6cf7;
+            outline-offset: 2px;
+        }
+        
+        /* Loading state */
+        .login-btn.loading {
+            background: linear-gradient(135deg, #8ba3fa, #6b8af8);
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .login-btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: rotate 1s infinite linear;
+        }
+        
+        @keyframes rotate {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        /* General improvements */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .already-registered {
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .already-registered a {
+            color: #4a6cf7;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .already-registered a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -228,37 +490,46 @@
                     Don't have an account? <a href="signup.php">Sign up</a>
                 </div>
                 
-                <div class="success-container" style="display: none;">
+                <div class="success-container" id="success-container" style="display: none;">
                     You have been successfully logged out.
                 </div>
                 
-                <div class="error-container">
+                <div class="error-container" id="error-container">
                     <strong>Please fix the following errors:</strong>
-                    <ul class="error-list">
+                    <ul class="error-list" id="error-list">
                         <!-- Error messages will be dynamically added here -->
                     </ul>
                 </div>
                 
-                <form class="login-form" method="post" action="login.php">
+                <form class="login-form" method="post" action="login.php" id="login-form" novalidate>
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required>
+                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required
+                               aria-describedby="email-validation" autocomplete="email">
+                        <div class="validation-message" id="email-validation">Please enter a valid email address.</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" placeholder="••••••" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="••••••" required
+                                   aria-describedby="password-validation" autocomplete="current-password">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('password')">
+                                <span role="img" aria-hidden="true">👁️</span>
+                            </button>
+                        </div>
+                        <div class="validation-message" id="password-validation">Please enter your password.</div>
                     </div>
                     
                     <div class="form-options">
                         <label class="remember-me">
-                            <input type="checkbox" name="remember">
+                            <input type="checkbox" name="remember" id="remember">
                             <span>Remember me</span>
                         </label>
                         <a href="#" class="forgot-password">Forgot password?</a>
                     </div>
                     
-                    <button type="submit" name="login" class="signup-btn">Login</button>
+                    <button type="submit" name="login" class="login-btn" id="login-btn">Login</button>
                     
                     <div class="social-login-divider">
                         <span>OR</span>
@@ -274,14 +545,127 @@
     </div>
     
     <script>
-        // Check for 'logout=success' in URL to show success message
+        // Check URL parameters for success messages
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Show logout success message
         if (urlParams.get('logout') === 'success') {
-            document.querySelector('.success-container').style.display = 'block';
+            document.getElementById('success-container').style.display = 'block';
         }
         
-        // Optional: Add password visibility toggle similar to signup page
-        // You could add this functionality if desired
+        // Show signup success message
+        if (urlParams.get('signup') === 'success') {
+            const successContainer = document.getElementById('success-container');
+            successContainer.textContent = 'Account created successfully. Please log in.';
+            successContainer.style.display = 'block';
+        }
+        
+        // Password visibility toggle
+        function togglePasswordVisibility(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleButton = passwordInput.nextElementSibling;
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleButton.querySelector('span').textContent = '👁️‍🗨️';
+                toggleButton.setAttribute('aria-label', 'Hide password');
+            } else {
+                passwordInput.type = "password";
+                toggleButton.querySelector('span').textContent = '👁️';
+                toggleButton.setAttribute('aria-label', 'Show password');
+            }
+        }
+        
+        // Form validation
+        const form = document.getElementById('login-form');
+        const errorContainer = document.getElementById('error-container');
+        const errorList = document.getElementById('error-list');
+        const loginButton = document.getElementById('login-btn');
+        
+        // Show validation messages on blur
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() !== '') {
+                    validateInput(this);
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.hasAttribute('aria-invalid') && this.getAttribute('aria-invalid') === 'true') {
+                    validateInput(this);
+                }
+            });
+        });
+        
+        function validateInput(input) {
+            const validationMessage = document.getElementById(input.getAttribute('aria-describedby'));
+            
+            if (input.id === 'email') {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(input.value)) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Please enter a valid email address.';
+                    return false;
+                }
+            } else if (input.id === 'password') {
+                if (input.value.length === 0) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Please enter your password.';
+                    return false;
+                }
+            }
+            
+            input.setAttribute('aria-invalid', 'false');
+            validationMessage.style.display = 'none';
+            return true;
+        }
+        
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            errorList.innerHTML = '';
+            errorContainer.classList.remove('show');
+            
+            // Validate all fields
+            let errors = [];
+            let isValid = true;
+            
+            document.querySelectorAll('input[required]').forEach(input => {
+                if (!validateInput(input)) {
+                    isValid = false;
+                    const validationMessage = document.getElementById(input.getAttribute('aria-describedby')).textContent;
+                    errors.push(validationMessage);
+                }
+            });
+            
+            if (!isValid) {
+                // Display errors
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                errorContainer.classList.add('show');
+                
+                // Scroll to error container
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            // Simulate form submission with loading state
+            loginButton.classList.add('loading');
+            loginButton.textContent = 'Logging in...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // For demo purposes, redirect to dashboard
+                window.location.href = 'user/dashboard.php';
+            }, 2000);
+        });
     </script>
 </body>
 </html> 
