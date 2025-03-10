@@ -10,59 +10,6 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 
 // Load the Mood model
 require_once '../../../models/Mood.php';
-
-// Handle AJAX request to save mood
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_mood') {
-    // Create log for debugging
-    error_log("Saving mood for user {$_SESSION['user_id']}: " . print_r($_POST, true));
-    
-    $mood = new Mood();
-    
-    // Get data from POST
-    $mood_type = $_POST['mood_type'] ?? '';
-    $mood_text = $_POST['mood_text'] ?? '';
-    
-    // Validate input
-    if (empty($mood_type)) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Missing mood type']);
-        exit;
-    }
-    
-    // Convert mood type to numerical value (1-5)
-    $mood_value_map = [
-        'sad' => 1,
-        'unhappy' => 2,
-        'neutral' => 3,
-        'good' => 4,
-        'excellent' => 5,
-        'anxious' => 2,
-        'tired' => 2,
-        'energetic' => 4,
-        'focused' => 4
-    ];
-    
-    $mood_value = $mood_value_map[$mood_type] ?? 3; // Default to neutral
-    
-    // Save the mood with error checking
-    try {
-        $result = $mood->saveMood($_SESSION['user_id'], $mood_type, $mood_value, $mood_text);
-        
-        // Return JSON response
-        header('Content-Type: application/json');
-        if ($result) {
-            echo json_encode(['success' => true, 'message' => 'Mood saved successfully']);
-        } else {
-            error_log("Failed to save mood: DB insert failed");
-            echo json_encode(['success' => false, 'message' => 'Database error: Failed to save mood']);
-        }
-    } catch (Exception $e) {
-        error_log("Exception saving mood: " . $e->getMessage());
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
-    }
-    exit;
-}
 ?>
 
 <div class="header">
@@ -137,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
             
             <div style="text-align: right; margin-top: 20px;">
-                <button id="saveMoodBtn" style="background-color: #f5d7e3; color: white; border: none; border-radius: 20px; padding: 8px 24px; font-weight: 500; cursor: pointer; letter-spacing: 1px;">SAVE</button>
+                <button id="saveMoodBtn" style="background-color: #d1789c; color: white; border: none; border-radius: 20px; padding: 10px 30px; font-weight: 600; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 8px rgba(209, 120, 156, 0.3); transition: all 0.3s ease;">SAVE</button>
             </div>
         </div>
     </div>
@@ -304,6 +251,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             height: 75px;
             font-size: 38px;
         }
+        
+        #saveMoodBtn {
+            width: 100%;
+            padding: 12px 30px;
+            margin-top: 25px;
+            font-size: 16px;
+        }
     }
     
     @media (max-width: 576px) {
@@ -317,6 +271,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             height: 85px;
             font-size: 42px;
         }
+        
+        #saveMoodBtn {
+            padding: 14px 30px;
+            font-size: 16px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        h2[style*="font-size: 1.2rem"], 
+        h2[style*="font-size: 1.1rem"] {
+            font-size: 1rem !important;
+            text-align: center;
+        }
     }
     
     @media (max-width: 350px) {
@@ -327,7 +297,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
 </style>
-
-<script src="../../../dist/js/mood-tracker.js"></script>
 
 
