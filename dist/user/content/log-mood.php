@@ -7,6 +7,45 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     echo "Authorization required";
     exit;
 }
+
+// Load the Mood model
+require_once '../../models/Mood.php';
+
+// Handle AJAX request to save mood
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_mood') {
+    $mood = new Mood();
+    
+    // Get data from POST
+    $mood_type = $_POST['mood_type'] ?? '';
+    $mood_text = $_POST['mood_text'] ?? '';
+    
+    // Convert mood type to numerical value (1-5)
+    $mood_value_map = [
+        'sad' => 1,
+        'unhappy' => 2,
+        'neutral' => 3,
+        'good' => 4,
+        'excellent' => 5,
+        'anxious' => 2,
+        'tired' => 2,
+        'energetic' => 4,
+        'focused' => 4
+    ];
+    
+    $mood_value = $mood_value_map[$mood_type] ?? 3; // Default to neutral
+    
+    // Save the mood
+    $result = $mood->saveMood($_SESSION['user_id'], $mood_type, $mood_value, $mood_text);
+    
+    // Return JSON response
+    header('Content-Type: application/json');
+    if ($result) {
+        echo json_encode(['success' => true, 'message' => 'Mood saved successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to save mood']);
+    }
+    exit;
+}
 ?>
 
 <div class="header">
@@ -21,55 +60,55 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             <div class="mood-options">
                 <button class="mood-circle" data-mood="sad">
                     <div class="mood-icon">
-                        <img src="../images/mood-sad.png" alt="Sad mood">
+                        <i class="fas fa-sad-tear"></i>
                     </div>
                     <span>sad</span>
                 </button>
                 <button class="mood-circle" data-mood="unhappy">
                     <div class="mood-icon">
-                        <img src="../images/mood-unhappy.png" alt="Unhappy mood">
+                        <i class="fas fa-frown"></i>
                     </div>
                     <span>unhappy</span>
                 </button>
                 <button class="mood-circle" data-mood="neutral">
                     <div class="mood-icon">
-                        <img src="../images/mood-neutral.png" alt="Neutral mood">
+                        <i class="fas fa-meh"></i>
                     </div>
                     <span>neutral</span>
                 </button>
                 <button class="mood-circle" data-mood="good">
                     <div class="mood-icon">
-                        <img src="../images/mood-good.png" alt="Good mood">
+                        <i class="fas fa-smile"></i>
                     </div>
                     <span>good</span>
                 </button>
                 <button class="mood-circle" data-mood="energetic">
                     <div class="mood-icon">
-                        <img src="../images/brain-lifting-dumbbells.png" alt="Energetic mood">
+                        <i class="fas fa-dumbbell"></i>
                     </div>
                     <span>energetic</span>
                 </button>
                 <button class="mood-circle" data-mood="excellent">
                     <div class="mood-icon">
-                        <img src="../images/mood-excellent.png" alt="Excellent mood">
+                        <i class="fas fa-laugh-beam"></i>
                     </div>
                     <span>excellent</span>
                 </button>
                 <button class="mood-circle" data-mood="anxious">
                     <div class="mood-icon">
-                        <img src="../images/mood-anxious.png" alt="Anxious mood">
+                        <i class="fas fa-bolt"></i>
                     </div>
                     <span>anxious</span>
                 </button>
                 <button class="mood-circle" data-mood="tired">
                     <div class="mood-icon">
-                        <img src="../images/mood-tired.png" alt="Tired mood">
+                        <i class="fas fa-bed"></i>
                     </div>
                     <span>tired</span>
                 </button>
                 <button class="mood-circle" data-mood="focused">
                     <div class="mood-icon">
-                        <img src="../images/mood-focused.png" alt="Focused mood">
+                        <i class="fas fa-bullseye"></i>
                     </div>
                     <span>focused</span>
                 </button>
@@ -218,12 +257,14 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     
     /* Updated style for Font Awesome icons */
     .mood-icon i {
-        font-size: 45px;
+        font-size: 40px;
         color: #d1789c;
+        transition: all 0.2s ease;
     }
     
     .mood-circle.selected .mood-icon i {
         color: white;
+        transform: scale(1.1);
     }
     
     /* Style for image-based icons */
@@ -265,21 +306,50 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             
             const moodInfluence = document.getElementById('moodInfluence').value;
             
-            // Here you would normally save this data to your backend
-            // For now we'll just show a success message
+            // Show loading indicator
+            saveMoodBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveMoodBtn.disabled = true;
             
-            alert('Your mood has been saved!');
+            // Create form data
+            const formData = new FormData();
+            formData.append('action', 'save_mood');
+            formData.append('mood_type', selectedMood);
+            formData.append('mood_text', moodInfluence);
             
-            // Reset form
-            moodCircles.forEach(c => c.classList.remove('selected'));
-            document.getElementById('moodInfluence').value = '';
-            selectedMood = null;
-            
-            // Redirect to dashboard
-            const dashboardLink = document.querySelector('.menu-link[data-page="dashboard"]');
-            if (dashboardLink) {
-                dashboardLink.click();
-            }
+            // Send to server
+            fetch('content/log-mood.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Success message
+                    alert('Your mood has been saved!');
+                    
+                    // Reset form
+                    moodCircles.forEach(c => c.classList.remove('selected'));
+                    document.getElementById('moodInfluence').value = '';
+                    selectedMood = null;
+                    
+                    // Redirect to dashboard
+                    const dashboardLink = document.querySelector('.menu-link[data-page="dashboard"]');
+                    if (dashboardLink) {
+                        dashboardLink.click();
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving your mood');
+            })
+            .finally(() => {
+                // Reset button
+                saveMoodBtn.innerHTML = 'SAVE';
+                saveMoodBtn.disabled = false;
+            });
         });
     });
 </script> 

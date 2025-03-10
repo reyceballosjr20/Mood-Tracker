@@ -7,6 +7,36 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     echo "Authorization required";
     exit;
 }
+
+// Add this near the top of dashboard.php
+require_once '../../models/Mood.php';
+
+// Get the user's latest mood
+$mood = new Mood();
+$latest_mood = $mood->getLatestMood($_SESSION['user_id']);
+
+// Get mood for last 7 days to calculate streak
+$today = date('Y-m-d');
+$week_ago = date('Y-m-d', strtotime('-7 days'));
+$recent_moods = $mood->getMoodsByDateRange($_SESSION['user_id'], $week_ago, $today);
+
+// Calculate streak (consecutive days with mood entries)
+$streak = 0;
+$dates = [];
+foreach ($recent_moods as $entry) {
+    $date = date('Y-m-d', strtotime($entry['created_at']));
+    $dates[$date] = true;
+}
+
+// Count consecutive days from today backwards
+for ($i = 0; $i < 7; $i++) {
+    $check_date = date('Y-m-d', strtotime("-$i days"));
+    if (isset($dates[$check_date])) {
+        $streak++;
+    } else if ($i > 0) { // Allow for today not being logged yet
+        break;
+    }
+}
 ?>
 
 <div class="header">
@@ -66,8 +96,36 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
                 <i class="fas fa-smile"></i>
             </div>
         </div>
-        <div class="card-content">Happy</div>
-        <div class="card-footer">Last updated today at 10:30 AM</div>
+        <div class="card-content">
+            <?php if ($latest_mood): ?>
+                <?php 
+                // Map mood type to emoji
+                $mood_icons = [
+                    'sad' => '<i class="fas fa-sad-tear"></i>',
+                    'unhappy' => '<i class="fas fa-frown"></i>',
+                    'neutral' => '<i class="fas fa-meh"></i>',
+                    'good' => '<i class="fas fa-smile"></i>',
+                    'energetic' => '<i class="fas fa-dumbbell"></i>',
+                    'excellent' => '<i class="fas fa-laugh-beam"></i>',
+                    'anxious' => '<i class="fas fa-bolt"></i>',
+                    'tired' => '<i class="fas fa-bed"></i>',
+                    'focused' => '<i class="fas fa-bullseye"></i>'
+                ];
+                $icon = $mood_icons[$latest_mood['mood_type']] ?? '<i class="fas fa-smile"></i>';
+                ?>
+                <span style="font-size: 24px; margin-right: 10px;"><?php echo $icon; ?></span>
+                <?php echo ucfirst($latest_mood['mood_type']); ?>
+            <?php else: ?>
+                No mood logged yet
+            <?php endif; ?>
+        </div>
+        <div class="card-footer">
+            <?php if ($latest_mood): ?>
+                Last updated <?php echo date('M d, h:i A', strtotime($latest_mood['created_at'])); ?>
+            <?php else: ?>
+                Try logging your mood today!
+            <?php endif; ?>
+        </div>
     </div>
     
     <div class="card">
@@ -77,8 +135,8 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
                 <i class="fas fa-fire"></i>
             </div>
         </div>
-        <div class="card-content">7 Days</div>
-        <div class="card-footer">Keep going to build your streak!</div>
+        <div class="card-content"><?php echo $streak; ?> Days</div>
+        <div class="card-footer">Keep your streak going!</div>
     </div>
     
     <div class="card">

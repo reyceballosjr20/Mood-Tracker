@@ -21,5 +21,28 @@ class Database {
         
         return $this->conn;
     }
+
+    /**
+     * Execute an insert query and return the new ID
+     * 
+     * @param string $sql SQL query with placeholders
+     * @param array $params Parameters to bind
+     * @return int|bool Last inserted ID or false on failure
+     */
+    public function insert($sql, $params = []) {
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $result = $stmt->execute($params);
+            
+            if ($result) {
+                return $this->conn->lastInsertId();
+            }
+            return false;
+        } catch (PDOException $e) {
+            // Log error
+            error_log("Database error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 
