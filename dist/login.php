@@ -13,7 +13,13 @@ require_once '../models/Auth.php';
 
 // Initialize variables
 $errors = [];
+$success_message = '';
 $email = '';
+
+// Check for logout message
+if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
+    $success_message = "You have been successfully logged out.";
+}
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
@@ -248,6 +254,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 width: 38%;
             }
         }
+        
+        /* Success message */
+        .success-container {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -265,6 +281,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 <div class="already-registered">
                     Don't have an account? <a href="signup.php">Sign up</a>
                 </div>
+                
+                <?php if (!empty($success_message)): ?>
+                <div class="success-container">
+                    <?php echo $success_message; ?>
+                </div>
+                <?php endif; ?>
                 
                 <?php if (!empty($errors)): ?>
                 <div class="error-container show">

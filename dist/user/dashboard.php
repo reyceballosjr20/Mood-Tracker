@@ -553,7 +553,7 @@ session_start();
                 </a>
             </li>
             <li class="menu-item">
-                <a href="../login.php" class="menu-link">
+                <a href="../logout.php" class="menu-link">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
