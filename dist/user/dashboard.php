@@ -585,6 +585,117 @@ if(isset($_GET['page'])) {
                 font-size: 14px;
             }
         }
+        
+        /* Add these CSS updates for better mobile hamburger menu */
+        
+        /* Mobile header styles */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 9;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .mobile-toggle {
+            background: none;
+            border: none;
+            color: #6e3b5c;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            background-color: rgba(245, 215, 227, 0.3);
+        }
+        
+        .mobile-toggle:hover, .mobile-toggle:focus {
+            background-color: rgba(245, 215, 227, 0.5);
+        }
+        
+        .mobile-logo {
+            font-weight: 600;
+            color: #6e3b5c;
+            font-size: 18px;
+        }
+        
+        .mobile-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .mobile-action {
+            color: #6e3b5c;
+            font-size: 18px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(245, 215, 227, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-action:hover {
+            background-color: rgba(245, 215, 227, 0.5);
+        }
+        
+        /* Responsive styles for sidebar */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            .mobile-header {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 11;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 10;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -622,6 +733,12 @@ if(isset($_GET['page'])) {
                     <a href="#" class="menu-link" data-page="dashboard">
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item <?php echo $current_page === 'log-mood' ? 'active' : ''; ?>">
+                    <a href="#" class="menu-link" data-page="log-mood">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Log Mood</span>
                     </a>
                 </li>
                 <li class="menu-item <?php echo $current_page === 'mood-history' ? 'active' : ''; ?>">
@@ -828,6 +945,37 @@ if(isset($_GET['page'])) {
         document.addEventListener('DOMContentLoaded', function() {
             updateActiveMenu(currentPage);
             loadPage(currentPage);
+        });
+        
+        // Create sidebar overlay for mobile
+        const createOverlay = () => {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                this.classList.remove('active');
+            });
+            
+            return overlay;
+        };
+        
+        // Initialize the overlay
+        const sidebarOverlay = createOverlay();
+        
+        // Update mobile toggle functionality
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+        
+        // Close sidebar when window is resized to desktop size
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            }
         });
     </script>
 </body>

@@ -17,6 +17,46 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     </div>
 </div>
 
+<!-- New Mood Logging Section -->
+<div class="card" style="margin-bottom: 30px;">
+    <div class="card-header">
+        <h2 class="card-title">How are you feeling today?</h2>
+        <div class="card-icon">
+            <i class="fas fa-heart-pulse"></i>
+        </div>
+    </div>
+    <div class="card-content">
+        <div id="moodSelector" style="display: flex; justify-content: space-between; flex-wrap: wrap; margin-bottom: 15px;">
+            <button class="mood-btn" data-mood="very-happy">
+                <span style="font-size: 32px;">😄</span>
+                <span>Very Happy</span>
+            </button>
+            <button class="mood-btn" data-mood="happy">
+                <span style="font-size: 32px;">🙂</span>
+                <span>Happy</span>
+            </button>
+            <button class="mood-btn" data-mood="neutral">
+                <span style="font-size: 32px;">😐</span>
+                <span>Neutral</span>
+            </button>
+            <button class="mood-btn" data-mood="sad">
+                <span style="font-size: 32px;">🙁</span>
+                <span>Sad</span>
+            </button>
+            <button class="mood-btn" data-mood="very-sad">
+                <span style="font-size: 32px;">😢</span>
+                <span>Very Sad</span>
+            </button>
+        </div>
+        <div id="moodNoteContainer" style="display: none; margin-top: 15px;">
+            <textarea id="moodNote" placeholder="What's making you feel this way? (optional)" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; resize: none; height: 80px;"></textarea>
+            <button id="saveMood" style="background: #ff8fb1; border: none; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                Save Mood
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Dashboard cards -->
 <div class="dashboard-cards">
     <div class="card">
@@ -112,4 +152,113 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         <!-- Chart would be rendered here with a JS library -->
         <p>Mood chart visualization will be displayed here</p>
     </div>
-</div> 
+</div>
+
+<!-- Add styles and JavaScript for the mood selector -->
+<style>
+    .mood-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 18%;
+        min-width: 75px;
+        padding: 12px 5px;
+        border: 2px solid #f0f0f0;
+        background: white;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 10px;
+    }
+    
+    .mood-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mood-btn.selected {
+        border-color: #ff8fb1;
+        background-color: #fff5f8;
+        box-shadow: 0 4px 8px rgba(255, 143, 177, 0.2);
+    }
+    
+    .mood-btn span:last-child {
+        margin-top: 8px;
+        font-size: 12px;
+    }
+    
+    @media (max-width: 768px) {
+        .mood-btn {
+            width: 30%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .mood-btn {
+            width: 45%;
+        }
+    }
+</style>
+
+<script>
+    // Mood selection functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const moodButtons = document.querySelectorAll('.mood-btn');
+        const moodNoteContainer = document.getElementById('moodNoteContainer');
+        const moodNote = document.getElementById('moodNote');
+        const saveMoodBtn = document.getElementById('saveMood');
+        let selectedMood = null;
+        
+        // Add click handlers to mood buttons
+        moodButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove selected class from all buttons
+                moodButtons.forEach(b => b.classList.remove('selected'));
+                
+                // Add selected class to clicked button
+                this.classList.add('selected');
+                
+                // Store selected mood
+                selectedMood = this.dataset.mood;
+                
+                // Show note container
+                moodNoteContainer.style.display = 'block';
+            });
+        });
+        
+        // Handle save mood
+        saveMoodBtn.addEventListener('click', function() {
+            if (!selectedMood) return;
+            
+            // Here you would normally make an AJAX call to save the mood
+            // For demo purposes, we'll just show a success message
+            
+            // Get the emoji from the selected button
+            const emojiElement = document.querySelector('.mood-btn.selected span:first-child');
+            const emoji = emojiElement ? emojiElement.textContent : '';
+            
+            // Update the current mood card
+            const currentMoodContent = document.querySelector('.dashboard-cards .card:first-child .card-content');
+            if (currentMoodContent) {
+                currentMoodContent.innerHTML = emoji + ' ' + selectedMood.replace('-', ' ');
+            }
+            
+            const currentMoodFooter = document.querySelector('.dashboard-cards .card:first-child .card-footer');
+            if (currentMoodFooter) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                currentMoodFooter.textContent = 'Last updated today at ' + timeString;
+            }
+            
+            // Show success message
+            alert('Mood saved successfully!');
+            
+            // Reset the form
+            moodButtons.forEach(b => b.classList.remove('selected'));
+            moodNoteContainer.style.display = 'none';
+            moodNote.value = '';
+            selectedMood = null;
+        });
+    });
+</script> 
