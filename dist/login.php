@@ -1,6 +1,50 @@
 <?php
-// Initialize session or any PHP-specific logic here
+// Initialize session
 session_start();
+
+// If user is already logged in, redirect to dashboard
+if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
+    header("Location: user/dashboard.php");
+    exit;
+}
+
+// Include auth model
+require_once '../models/Auth.php';
+
+// Initialize variables
+$errors = [];
+$email = '';
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+    // Get form data
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $remember = isset($_POST['remember']);
+    
+    // Validate form data
+    if (empty($email)) {
+        $errors[] = "Email is required";
+    }
+    
+    if (empty($password)) {
+        $errors[] = "Password is required";
+    }
+    
+    // If no validation errors, try to login
+    if (empty($errors)) {
+        $auth = new Auth();
+        $result = $auth->login($email, $password);
+        
+        if ($result['success']) {
+            // Redirect to dashboard
+            header("Location: user/dashboard.php");
+            exit;
+        } else {
+            $errors = $result['errors'];
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -153,6 +197,26 @@ session_start();
             box-shadow: 0 4px 8px rgba(74, 108, 247, 0.2);
         }
         
+        /* Error messages */
+        .error-container {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error-container.show {
+            display: block;
+        }
+        
+        .error-list {
+            margin: 5px 0 0 20px;
+            padding: 0;
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .social-login-divider::before, 
@@ -202,10 +266,21 @@ session_start();
                     Don't have an account? <a href="signup.php">Sign up</a>
                 </div>
                 
+                <?php if (!empty($errors)): ?>
+                <div class="error-container show">
+                    <strong>Please fix the following errors:</strong>
+                    <ul class="error-list">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo $error; ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+                
                 <form class="login-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required>
+                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required value="<?php echo htmlspecialchars($email); ?>">
                     </div>
                     
                     <div class="form-group">
@@ -221,7 +296,7 @@ session_start();
                         <a href="#" class="forgot-password">Forgot password?</a>
                     </div>
                     
-                    <button type="submit" name="login" class="signup-btn">login</button>
+                    <button type="submit" name="login" class="signup-btn">Login</button>
                     
                     <div class="social-login-divider">
                         <span>OR</span>
@@ -232,18 +307,6 @@ session_start();
                         Continue with Google
                     </button>
                 </form>
-                
-                <?php
-                // Login processing logic would go here
-                if(isset($_POST['login'])) {
-                    // Process login form submission
-                    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-                    $password = $_POST['password'];
-                    
-                    // Add authentication logic here
-                    // ...
-                }
-                ?>
             </div>
         </div>
     </div>
