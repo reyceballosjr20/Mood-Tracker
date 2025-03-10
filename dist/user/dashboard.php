@@ -560,38 +560,6 @@ if(isset($_GET['page'])) {
             
             .mobile-header {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .header {
-                margin-top: 50px;
-            }
-            
-            .logo {
-                justify-content: flex-start;
-            }
-            
-            .logo i {
-                margin-right: 10px;
-            }
-            
-            .menu-link {
-                justify-content: flex-start;
-                padding: 12px 15px;
-            }
-            
-            .menu-link i {
-                margin-right: 10px;
-            }
-            
-            .user-avatar {
-                margin-right: 10px;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
             }
         }
         
