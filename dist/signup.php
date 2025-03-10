@@ -1,57 +1,3 @@
-<?php
-// Initialize session
-session_start();
-
-// If user is already logged in, redirect to dashboard
-if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-    header("Location: user/dashboard.php");
-    exit;
-}
-
-// Include auth model
-require_once '../models/Auth.php';
-
-// Initialize variables
-$errors = [];
-$success = false;
-$first_name = $last_name = $email = '';
-
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
-    // Create auth instance
-    $auth = new Auth();
-    
-    // Get form data
-    $userData = [
-        'first_name' => $_POST['name'] ? explode(' ', $_POST['name'], 2)[0] : '',
-        'last_name' => $_POST['name'] && strpos($_POST['name'], ' ') !== false ? explode(' ', $_POST['name'], 2)[1] : '',
-        'email' => $_POST['email'] ?? '',
-        'password' => $_POST['password'] ?? '',
-        'auth_provider' => 'local'
-    ];
-    
-    // Validate confirm password
-    if ($_POST['password'] !== $_POST['confirm_password']) {
-        $errors[] = "Passwords do not match";
-    } else {
-        // Register user
-        $result = $auth->register($userData);
-        
-        if ($result['success']) {
-            // Redirect to dashboard
-            header("Location: user/index.php");
-            exit;
-        } else {
-            $errors = $result['errors'];
-            
-            // Keep entered data for form
-            $first_name = $userData['first_name'];
-            $last_name = $userData['last_name'];
-            $email = $userData['email'];
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -240,6 +186,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             cursor: pointer;
             color: #777;
             font-size: 14px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* Error messages */
@@ -262,6 +214,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             padding: 0;
         }
         
+        /* Form validation styles */
+        input:invalid:not(:focus):not(:placeholder-shown) {
+            border-color: #d32f2f;
+        }
+        
+        input:valid:not(:placeholder-shown) {
+            border-color: #4caf50;
+        }
+        
+        .validation-message {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #d32f2f;
+            display: none;
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .social-login-divider::before, 
@@ -276,6 +244,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             
             .form-card {
                 padding: 25px 20px;
+                width: 90%;
+                max-width: 450px;
+            }
+            
+            .split-container {
+                flex-direction: column;
+            }
+            
+            .left-side {
+                display: none;
+            }
+            
+            .right-side {
+                width: 100%;
+                padding: 20px 0;
             }
         }
         
@@ -296,6 +279,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             .form-group {
                 margin-bottom: 15px;
             }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .form-card {
+                padding: 20px 15px;
+            }
+        }
+        
+        /* Accessibility improvements */
+        .visually-hidden {
+            border: 0;
+            clip: rect(0 0 0 0);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+        }
+        
+        button:focus, input:focus, a:focus {
+            outline: 2px solid #4a6cf7;
+            outline-offset: 2px;
+        }
+        
+        /* Loading state */
+        .signup-btn.loading {
+            background: linear-gradient(135deg, #8ba3fa, #6b8af8);
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .signup-btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: rotate 1s infinite linear;
+        }
+        
+        @keyframes rotate {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
         }
     </style>
 </head>
@@ -315,46 +349,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
                     Already have an account? <a href="login.php">Login</a>
                 </div>
                 
-                <?php if (!empty($errors)): ?>
-                <div class="error-container show">
+                <div class="error-container" id="error-container">
                     <strong>Please fix the following errors:</strong>
-                    <ul class="error-list">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
+                    <ul class="error-list" id="error-list">
+                        <!-- Error messages will be dynamically added here -->
                     </ul>
                 </div>
-                <?php endif; ?>
                 
-                <form class="login-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <form class="login-form" method="post" action="signup.php" id="signup-form" novalidate>
                     <div class="form-group">
                         <label for="name">FULL NAME</label>
-                        <input type="text" id="name" name="name" placeholder="John Doe" required value="<?php echo htmlspecialchars($first_name . ' ' . $last_name); ?>">
+                        <input type="text" id="name" name="name" placeholder="John Doe" required 
+                               aria-describedby="name-validation" pattern="^[A-Za-z]+(?: [A-Za-z]+)+$">
+                        <div class="validation-message" id="name-validation">Please enter your first and last name.</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required value="<?php echo htmlspecialchars($email); ?>">
+                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required
+                               aria-describedby="email-validation">
+                        <div class="validation-message" id="email-validation">Please enter a valid email address.</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="password">PASSWORD</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password" name="password" placeholder="••••••" required>
-                            <span class="toggle-password" onclick="togglePasswordVisibility('password')">👁️</span>
+                            <input type="password" id="password" name="password" placeholder="••••••" required
+                                   aria-describedby="password-validation" minlength="8">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('password')">
+                                <span role="img" aria-hidden="true">👁️</span>
+                            </button>
                         </div>
                         <div class="password-strength">
                             <div class="password-strength-meter"></div>
                         </div>
                         <div class="strength-text">Password strength</div>
+                        <div class="validation-message" id="password-validation">Password must be at least 8 characters.</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="confirm_password">CONFIRM PASSWORD</label>
                         <div class="password-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••" required>
-                            <span class="toggle-password" onclick="togglePasswordVisibility('confirm_password')">👁️</span>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••" required
+                                   aria-describedby="confirm-password-validation">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('confirm_password')">
+                                <span role="img" aria-hidden="true">👁️</span>
+                            </button>
                         </div>
+                        <div class="validation-message" id="confirm-password-validation">Passwords must match.</div>
                     </div>
                     
                     <div class="form-options">
@@ -364,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
                         </label>
                     </div>
                     
-                    <button type="submit" name="signup" class="signup-btn">Sign Up</button>
+                    <button type="submit" name="signup" class="signup-btn" id="signup-btn">Sign Up</button>
                     
                     <div class="social-login-divider">
                         <span>OR</span>
@@ -383,10 +425,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
         // Password visibility toggle
         function togglePasswordVisibility(inputId) {
             const passwordInput = document.getElementById(inputId);
+            const toggleButton = passwordInput.nextElementSibling;
+            
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
+                toggleButton.querySelector('span').textContent = '👁️‍🗨️';
             } else {
                 passwordInput.type = "password";
+                toggleButton.querySelector('span').textContent = '👁️';
             }
         }
         
@@ -405,26 +451,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             
             strengthText.style.display = 'block';
             
-            // Simple password strength calculation
+            // Enhanced password strength calculation
             let strength = 0;
+            let feedback = [];
             
             // Length check
-            if (password.length >= 8) {
+            if (password.length < 8) {
+                feedback.push("Use 8+ characters");
+            } else {
                 strength += 25;
             }
             
             // Uppercase check
-            if (/[A-Z]/.test(password)) {
+            if (!/[A-Z]/.test(password)) {
+                feedback.push("Add uppercase letters");
+            } else {
                 strength += 25;
             }
             
             // Number check
-            if (/[0-9]/.test(password)) {
+            if (!/[0-9]/.test(password)) {
+                feedback.push("Add numbers");
+            } else {
                 strength += 25;
             }
             
             // Special character check
-            if (/[^A-Za-z0-9]/.test(password)) {
+            if (!/[^A-Za-z0-9]/.test(password)) {
+                feedback.push("Add special characters");
+            } else {
                 strength += 25;
             }
             
@@ -450,18 +505,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
             }
         });
         
-        // Confirm password validation
-        document.getElementById('confirm_password').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
+        // Form validation
+        const form = document.getElementById('signup-form');
+        const errorContainer = document.getElementById('error-container');
+        const errorList = document.getElementById('error-list');
+        const submitButton = document.getElementById('signup-btn');
+        
+        // Show validation messages on blur
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() !== '') {
+                    validateInput(this);
+                }
+            });
             
-            if (confirmPassword.length > 0) {
-                if (password !== confirmPassword) {
-                    this.setCustomValidity("Passwords don't match");
-                } else {
-                    this.setCustomValidity('');
+            input.addEventListener('input', function() {
+                if (this.hasAttribute('aria-invalid') && this.getAttribute('aria-invalid') === 'true') {
+                    validateInput(this);
+                }
+            });
+        });
+        
+        function validateInput(input) {
+            const validationMessage = document.getElementById(input.getAttribute('aria-describedby'));
+            
+            if (input.id === 'name') {
+                const namePattern = /^[A-Za-z]+(?: [A-Za-z]+)+$/;
+                if (!namePattern.test(input.value)) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Please enter your first and last name.';
+                    return false;
+                }
+            } else if (input.id === 'email') {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(input.value)) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Please enter a valid email address.';
+                    return false;
+                }
+            } else if (input.id === 'password') {
+                if (input.value.length < 8) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Password must be at least 8 characters.';
+                    return false;
+                }
+            } else if (input.id === 'confirm_password') {
+                const passwordInput = document.getElementById('password');
+                if (input.value !== passwordInput.value) {
+                    input.setAttribute('aria-invalid', 'true');
+                    validationMessage.style.display = 'block';
+                    validationMessage.textContent = 'Passwords must match.';
+                    return false;
                 }
             }
+            
+            input.setAttribute('aria-invalid', 'false');
+            validationMessage.style.display = 'none';
+            return true;
+        }
+        
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            errorList.innerHTML = '';
+            errorContainer.classList.remove('show');
+            
+            // Validate all fields
+            let errors = [];
+            let isValid = true;
+            
+            document.querySelectorAll('input[required]').forEach(input => {
+                if (!validateInput(input)) {
+                    isValid = false;
+                    const label = input.previousElementSibling.textContent;
+                    const validationMessage = document.getElementById(input.getAttribute('aria-describedby')).textContent;
+                    errors.push(validationMessage);
+                }
+            });
+            
+            if (!isValid) {
+                // Display errors
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                errorContainer.classList.add('show');
+                
+                // Scroll to error container
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+            
+            // Simulate form submission with loading state
+            submitButton.classList.add('loading');
+            submitButton.textContent = 'Creating Account...';
+            
+            // Simulate API call
+            setTimeout(() => {
+                // For demo purposes, redirect to login page
+                window.location.href = 'login.php?signup=success';
+            }, 2000);
         });
     </script>
 </body>

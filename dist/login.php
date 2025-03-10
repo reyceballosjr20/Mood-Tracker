@@ -1,57 +1,3 @@
-<?php
-// Initialize session
-session_start();
-
-// If user is already logged in, redirect to dashboard
-if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
-    header("Location: user/dashboard.php");
-    exit;
-}
-
-// Include auth model
-require_once '../models/Auth.php';
-
-// Initialize variables
-$errors = [];
-$success_message = '';
-$email = '';
-
-// Check for logout message
-if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
-    $success_message = "You have been successfully logged out.";
-}
-
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    // Get form data
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $remember = isset($_POST['remember']);
-    
-    // Validate form data
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    }
-    
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    }
-    
-    // If no validation errors, try to login
-    if (empty($errors)) {
-        $auth = new Auth();
-        $result = $auth->login($email, $password);
-        
-        if ($result['success']) {
-            // Redirect to dashboard
-            header("Location: user/dashboard.php");
-            exit;
-        } else {
-            $errors = $result['errors'];
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -282,27 +228,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                     Don't have an account? <a href="signup.php">Sign up</a>
                 </div>
                 
-                <?php if (!empty($success_message)): ?>
-                <div class="success-container">
-                    <?php echo $success_message; ?>
+                <div class="success-container" style="display: none;">
+                    You have been successfully logged out.
                 </div>
-                <?php endif; ?>
                 
-                <?php if (!empty($errors)): ?>
-                <div class="error-container show">
+                <div class="error-container">
                     <strong>Please fix the following errors:</strong>
                     <ul class="error-list">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
+                        <!-- Error messages will be dynamically added here -->
                     </ul>
                 </div>
-                <?php endif; ?>
                 
-                <form class="login-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <form class="login-form" method="post" action="login.php">
                     <div class="form-group">
                         <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required value="<?php echo htmlspecialchars($email); ?>">
+                        <input type="email" id="email" name="email" placeholder="hello@gmail.com" required>
                     </div>
                     
                     <div class="form-group">
@@ -332,5 +272,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             </div>
         </div>
     </div>
+    
+    <script>
+        // Check for 'logout=success' in URL to show success message
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('logout') === 'success') {
+            document.querySelector('.success-container').style.display = 'block';
+        }
+        
+        // Optional: Add password visibility toggle similar to signup page
+        // You could add this functionality if desired
+    </script>
 </body>
 </html> 
