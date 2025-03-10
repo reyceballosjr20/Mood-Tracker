@@ -9,7 +9,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 }
 
 // Load the Mood model
-require_once '../../models/Mood.php';
+require_once '../../../models/Mood.php';
 
 // Handle AJAX request to save mood
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_mood') {
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     <div class="card" style="background-color: #f5d7e3; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; margin-left: 0; border-radius: 0 10px 10px 0;">
         <div style="padding: 25px; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center;">
-            <div style="max-width: 260px;">
+            <div id="inspirationalMessage" style="max-width: 260px;">
                 <p style="font-size: 1.1rem; line-height: 1.6; color: #8a5878; font-style: italic;">"You are surrounded by peace, and everything is unfolding as it should"</p>
             </div>
         </div>
@@ -279,77 +279,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const moodCircles = document.querySelectorAll('.mood-circle');
-        const saveMoodBtn = document.getElementById('saveMoodBtn');
-        let selectedMood = null;
-        
-        moodCircles.forEach(circle => {
-            circle.addEventListener('click', function() {
-                // Remove selected class from all circles
-                moodCircles.forEach(c => c.classList.remove('selected'));
-                
-                // Add selected class to clicked circle
-                this.classList.add('selected');
-                
-                // Store selected mood
-                selectedMood = this.dataset.mood;
-            });
-        });
-        
-        saveMoodBtn.addEventListener('click', function() {
-            if (!selectedMood) {
-                alert('Please select how you are feeling today');
-                return;
-            }
-            
-            const moodInfluence = document.getElementById('moodInfluence').value;
-            
-            // Show loading indicator
-            saveMoodBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveMoodBtn.disabled = true;
-            
-            // Create form data
-            const formData = new FormData();
-            formData.append('action', 'save_mood');
-            formData.append('mood_type', selectedMood);
-            formData.append('mood_text', moodInfluence);
-            
-            // Send to server
-            fetch('content/log-mood.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Success message
-                    alert('Your mood has been saved!');
-                    
-                    // Reset form
-                    moodCircles.forEach(c => c.classList.remove('selected'));
-                    document.getElementById('moodInfluence').value = '';
-                    selectedMood = null;
-                    
-                    // Redirect to dashboard
-                    const dashboardLink = document.querySelector('.menu-link[data-page="dashboard"]');
-                    if (dashboardLink) {
-                        dashboardLink.click();
-                    }
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while saving your mood');
-            })
-            .finally(() => {
-                // Reset button
-                saveMoodBtn.innerHTML = 'SAVE';
-                saveMoodBtn.disabled = false;
-            });
-        });
-    });
-</script> 

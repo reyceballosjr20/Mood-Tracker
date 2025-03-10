@@ -9,7 +9,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 }
 
 // Add this near the top of dashboard.php
-require_once '../../models/Mood.php';
+require_once '../../../models/Mood.php';
 
 // Get the user's latest mood
 $mood = new Mood();
@@ -320,3 +320,4 @@ for ($i = 0; $i < 7; $i++) {
         });
     });
 </script> 
+
