@@ -20,28 +20,58 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             
             <div class="mood-options">
                 <button class="mood-circle" data-mood="sad">
-                    <div class="mood-icon">😔</div>
+                    <div class="mood-icon">
+                        <img src="../images/mood-sad.png" alt="Sad mood">
+                    </div>
                     <span>sad</span>
                 </button>
                 <button class="mood-circle" data-mood="unhappy">
-                    <div class="mood-icon">🙁</div>
+                    <div class="mood-icon">
+                        <img src="../images/mood-unhappy.png" alt="Unhappy mood">
+                    </div>
                     <span>unhappy</span>
                 </button>
                 <button class="mood-circle" data-mood="neutral">
-                    <div class="mood-icon">😐</div>
+                    <div class="mood-icon">
+                        <img src="../images/mood-neutral.png" alt="Neutral mood">
+                    </div>
                     <span>neutral</span>
                 </button>
-                <button class="mood-circle" data-mood="pleased">
-                    <div class="mood-icon">🙂</div>
-                    <span>pleased</span>
+                <button class="mood-circle" data-mood="good">
+                    <div class="mood-icon">
+                        <img src="../images/mood-good.png" alt="Good mood">
+                    </div>
+                    <span>good</span>
                 </button>
-                <button class="mood-circle" data-mood="happy">
-                    <div class="mood-icon">😊</div>
-                    <span>happy</span>
+                <button class="mood-circle" data-mood="energetic">
+                    <div class="mood-icon">
+                        <img src="../images/brain-lifting-dumbbells.png" alt="Energetic mood">
+                    </div>
+                    <span>energetic</span>
                 </button>
-                <button class="mood-circle" data-mood="excited">
-                    <div class="mood-icon">😄</div>
-                    <span>excited</span>
+                <button class="mood-circle" data-mood="excellent">
+                    <div class="mood-icon">
+                        <img src="../images/mood-excellent.png" alt="Excellent mood">
+                    </div>
+                    <span>excellent</span>
+                </button>
+                <button class="mood-circle" data-mood="anxious">
+                    <div class="mood-icon">
+                        <img src="../images/mood-anxious.png" alt="Anxious mood">
+                    </div>
+                    <span>anxious</span>
+                </button>
+                <button class="mood-circle" data-mood="tired">
+                    <div class="mood-icon">
+                        <img src="../images/mood-tired.png" alt="Tired mood">
+                    </div>
+                    <span>tired</span>
+                </button>
+                <button class="mood-circle" data-mood="focused">
+                    <div class="mood-icon">
+                        <img src="../images/mood-focused.png" alt="Focused mood">
+                    </div>
+                    <span>focused</span>
                 </button>
             </div>
             
@@ -68,8 +98,10 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 <style>
     .mood-options {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 15px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 100%;
+        margin: 0 auto;
     }
     
     .mood-circle {
@@ -80,6 +112,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         border: none;
         cursor: pointer;
         transition: transform 0.2s;
+        padding: 10px 5px;
     }
     
     .mood-circle:hover {
@@ -87,15 +120,15 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     }
     
     .mood-icon {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         background-color: #feeef5;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
-        margin-bottom: 8px;
+        font-size: 40px;
+        margin-bottom: 10px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         transition: all 0.2s;
     }
@@ -107,9 +140,10 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     }
     
     .mood-circle span {
-        font-size: 12px;
+        font-size: 14px;
         color: #8a5878;
-        margin-top: 5px;
+        margin-top: 8px;
+        font-weight: 500;
     }
     
     #saveMoodBtn {
@@ -122,6 +156,22 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         box-shadow: 0 4px 8px rgba(209, 120, 156, 0.3);
     }
     
+    @media (max-width: 1200px) {
+        .mood-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 35px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .mood-icon {
+            width: 65px;
+            height: 65px;
+            font-size: 32px;
+        }
+    }
+    
     @media (max-width: 768px) {
         div[style*="grid-template-columns: 2fr 1fr"] {
             grid-template-columns: 1fr !important;
@@ -132,6 +182,59 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             border-radius: 10px !important;
             margin: 0 0 15px 0 !important;
         }
+        
+        .mood-options {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .mood-icon {
+            width: 75px;
+            height: 75px;
+            font-size: 38px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .mood-options {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .mood-icon {
+            width: 85px;
+            height: 85px;
+            font-size: 42px;
+        }
+    }
+    
+    @media (max-width: 350px) {
+        .mood-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 35px;
+        }
+    }
+    
+    /* Updated style for Font Awesome icons */
+    .mood-icon i {
+        font-size: 45px;
+        color: #d1789c;
+    }
+    
+    .mood-circle.selected .mood-icon i {
+        color: white;
+    }
+    
+    /* Style for image-based icons */
+    .mood-icon img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+    
+    .mood-circle.selected .mood-icon {
+        background-color: #f5b6d0;
     }
 </style>
 
