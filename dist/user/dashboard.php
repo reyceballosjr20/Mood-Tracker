@@ -1,6 +1,26 @@
 <?php
 // Initialize session
 session_start();
+
+// Check if user is logged in, if not redirect to login page
+if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+    header("Location: ../login.php");
+    exit;
+}
+
+// Get user data from session
+$user = [
+    'user_id' => $_SESSION['user_id'] ?? null,
+    'first_name' => $_SESSION['first_name'] ?? 'User',
+    'last_name' => $_SESSION['last_name'] ?? '',
+    'email' => $_SESSION['email'] ?? '',
+];
+
+// Initialize current page
+$current_page = 'dashboard';
+if(isset($_GET['page'])) {
+    $current_page = $_GET['page'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,6 +147,7 @@ session_start();
             color: #6e3b5c;
             font-weight: 500;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .menu-link i {
@@ -260,6 +281,7 @@ session_start();
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
         }
         
         .section-header {
@@ -300,12 +322,13 @@ session_start();
         .activity-icon {
             width: 36px;
             height: 36px;
-            border-radius: 50%;
-            background-color: rgba(255, 143, 177, 0.2);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: rgba(255, 143, 177, 0.15);
             color: #ff5c8a;
+            font-size: 16px;
             margin-right: 15px;
             flex-shrink: 0;
         }
@@ -318,7 +341,7 @@ session_start();
             font-size: 15px;
             font-weight: 500;
             color: #4a3347;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         
         .activity-time {
@@ -331,8 +354,17 @@ session_start();
             border: none;
             color: #6e3b5c;
             cursor: pointer;
-            margin-left: 10px;
-            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .activity-action:hover {
+            background-color: rgba(0, 0, 0, 0.05);
         }
         
         /* Mood chart section */
@@ -341,108 +373,95 @@ session_start();
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-top: 30px;
-            height: 300px;
         }
         
         .chart-container {
-            height: 100%;
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #7b6175;
-            font-size: 14px;
+            background-color: rgba(240, 240, 240, 0.3);
+            border-radius: 10px;
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f8dfeb;
+            border-top: 5px solid #ff8fb1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* Mobile responsiveness */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 80px;
-                padding: 15px 10px;
-            }
-            
-            .logo span, .user-info, .menu-link span {
-                display: none;
-            }
-            
-            .logo {
-                justify-content: center;
-            }
-            
-            .logo i {
-                margin-right: 0;
-            }
-            
-            .menu-link {
-                justify-content: center;
-                padding: 12px;
-            }
-            
-            .menu-link i {
-                margin-right: 0;
-                font-size: 20px;
-            }
-            
-            .user-profile {
-                justify-content: center;
-                padding: 10px;
-            }
-            
-            .user-avatar {
-                margin-right: 0;
-            }
-            
-            .main-content {
-                margin-left: 80px;
+        @media (max-width: 1024px) {
+            .dashboard-cards {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
         }
         
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: none;
             }
             
-            .search-box {
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .main-content {
+                margin-left: 0;
                 width: 100%;
-                margin-top: 15px;
-            }
-            
-            .search-box input {
-                width: 100%;
-            }
-            
-            .dashboard-cards {
-                grid-template-columns: 1fr;
             }
             
             .toggle-sidebar {
                 display: block;
                 position: fixed;
-                top: 15px;
+                top: 20px;
                 left: 20px;
-                z-index: 20;
+                z-index: 11;
                 background-color: white;
-                border-radius: 50%;
                 width: 40px;
                 height: 40px;
+                border-radius: 50%;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             
-            .sidebar {
-                transform: translateX(-100%);
-                width: 250px;
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .logo span, .user-info, .menu-link span {
-                display: block;
+            .header {
+                margin-top: 50px;
             }
             
             .logo {
@@ -497,6 +516,11 @@ session_start();
     </style>
 </head>
 <body>
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
     <!-- Mobile menu toggle -->
     <button class="toggle-sidebar" id="toggleSidebar">
         <i class="fas fa-bars"></i>
@@ -513,41 +537,41 @@ session_start();
         
         <div class="user-profile">
             <div class="user-avatar">
-                <span>JD</span>
+                <span><?php echo substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1); ?></span>
             </div>
             <div class="user-info">
-                <div class="user-name">John Doe</div>
+                <div class="user-name"><?php echo $user['first_name'] . ' ' . $user['last_name']; ?></div>
                 <div class="user-status">Premium Member</div>
             </div>
         </div>
         
         <ul class="menu-items">
             <li class="menu-item">
-                <a href="#" class="menu-link active">
+                <a class="menu-link <?php echo $current_page == 'dashboard' ? 'active' : ''; ?>" data-page="dashboard">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a class="menu-link <?php echo $current_page == 'mood-history' ? 'active' : ''; ?>" data-page="mood-history">
                     <i class="fas fa-chart-line"></i>
                     <span>Mood History</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a class="menu-link <?php echo $current_page == 'calendar' ? 'active' : ''; ?>" data-page="calendar">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Calendar</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a class="menu-link <?php echo $current_page == 'recommendations' ? 'active' : ''; ?>" data-page="recommendations">
                     <i class="fas fa-lightbulb"></i>
                     <span>Recommendations</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="#" class="menu-link">
+                <a class="menu-link <?php echo $current_page == 'settings' ? 'active' : ''; ?>" data-page="settings">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
@@ -562,124 +586,121 @@ session_start();
     </div>
     
     <!-- Main content -->
-    <div class="main-content">
-        <div class="header">
-            <h1 class="page-title">Dashboard</h1>
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search...">
-            </div>
-        </div>
-        
-        <!-- Dashboard cards -->
-        <div class="dashboard-cards">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Current Mood</h2>
-                    <div class="card-icon">
-                        <i class="fas fa-smile"></i>
-                    </div>
-                </div>
-                <div class="card-content">Happy</div>
-                <div class="card-footer">Last updated today at 10:30 AM</div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Mood Streaks</h2>
-                    <div class="card-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                </div>
-                <div class="card-content">7 Days</div>
-                <div class="card-footer">Keep going to build your streak!</div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Mood Entries</h2>
-                    <div class="card-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                </div>
-                <div class="card-content">42</div>
-                <div class="card-footer">Total entries recorded</div>
-            </div>
-        </div>
-        
-        <!-- Recent activities -->
-        <div class="recent-activities">
-            <div class="section-header">
-                <h2 class="section-title">Recent Activities</h2>
-                <a href="#" class="view-all">View All</a>
-            </div>
-            
-            <ul class="activity-list">
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-pen"></i>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-title">You logged a mood entry</div>
-                        <div class="activity-time">Today at 10:30 AM</div>
-                    </div>
-                    <button class="activity-action">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </li>
-                
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-title">You completed a weekly reflection</div>
-                        <div class="activity-time">Yesterday at 8:15 PM</div>
-                    </div>
-                    <button class="activity-action">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </li>
-                
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-title">You earned a new badge</div>
-                        <div class="activity-time">2 days ago</div>
-                    </div>
-                    <button class="activity-action">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        
-        <!-- Mood chart -->
-        <div class="mood-chart">
-            <div class="section-header">
-                <h2 class="section-title">Mood History</h2>
-                <a href="#" class="view-all">View Details</a>
-            </div>
-            <div class="chart-container">
-                <!-- Chart would be rendered here with a JS library -->
-                <p>Mood chart visualization will be displayed here</p>
-            </div>
-        </div>
+    <div class="main-content" id="mainContent">
+        <!-- Content will be loaded here dynamically -->
     </div>
     
     <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const mainContent = document.getElementById('mainContent');
+        const menuLinks = document.querySelectorAll('.menu-link[data-page]');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Current active page
+        let currentPage = '<?php echo $current_page; ?>';
+        
+        // Function to load page content
+        async function loadPage(page) {
+            // Don't reload if it's the current page
+            if (page === currentPage && mainContent.innerHTML.trim() !== '') {
+                return;
+            }
+            
+            try {
+                // Show loading overlay
+                showLoading();
+                
+                // Fetch the page content
+                const response = await fetch(`content/${page}.php?_=${Date.now()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load page: ${response.status}`);
+                }
+                
+                const html = await response.text();
+                
+                // Update content
+                mainContent.innerHTML = html;
+                
+                // Update active state
+                updateActiveMenu(page);
+                
+                // Update URL without reload
+                window.history.pushState({page}, '', `?page=${page}`);
+                
+                // Update current page
+                currentPage = page;
+                
+                // Initialize any scripts on the new page
+                initPageScripts();
+            } catch (error) {
+                console.error('Error loading page:', error);
+                mainContent.innerHTML = `
+                    <div style="padding: 20px; text-align: center;">
+                        <h2>Error Loading Content</h2>
+                        <p>${error.message}</p>
+                        <button onclick="loadPage('dashboard')" class="signup-btn" style="max-width: 200px; margin: 20px auto;">
+                            Go to Dashboard
+                        </button>
+                    </div>
+                `;
+            } finally {
+                // Hide loading overlay
+                hideLoading();
+            }
+        }
+        
+        // Update active menu item
+        function updateActiveMenu(page) {
+            menuLinks.forEach(link => {
+                if (link.dataset.page === page) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+        
+        // Show loading overlay
+        function showLoading() {
+            loadingOverlay.classList.add('active');
+        }
+        
+        // Hide loading overlay
+        function hideLoading() {
+            loadingOverlay.classList.remove('active');
+        }
+        
+        // Initialize page-specific scripts
+        function initPageScripts() {
+            // Here you can add code to initialize specific functionality
+            // for different pages, like charts, calendars, etc.
+            console.log('Initializing scripts for:', currentPage);
+        }
+        
+        // Handle menu click events
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                loadPage(page);
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+        
         // Toggle sidebar on mobile
-        document.getElementById('toggleSidebar').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
         });
         
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('toggleSidebar');
-            
             if (window.innerWidth <= 768) {
                 if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target) && sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
@@ -687,13 +708,18 @@ session_start();
             }
         });
         
-        // Adjust layout on window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('active');
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page) {
+                loadPage(event.state.page);
+            } else {
+                loadPage('dashboard');
             }
+        });
+        
+        // Load initial page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage(currentPage);
         });
     </script>
 </body>
