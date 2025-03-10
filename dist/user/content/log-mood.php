@@ -298,4 +298,59 @@ require_once '../../../models/Mood.php';
     }
 </style>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedMood = null;
+    const moodCircles = document.querySelectorAll('.mood-circle');
+    const moodInfluence = document.getElementById('moodInfluence');
+    const saveMoodBtn = document.getElementById('saveMoodBtn');
+
+    // Handle mood selection
+    moodCircles.forEach(circle => {
+        circle.addEventListener('click', function() {
+            // Remove selected class from all circles
+            moodCircles.forEach(c => c.classList.remove('selected'));
+            // Add selected class to clicked circle
+            this.classList.add('selected');
+            selectedMood = this.dataset.mood;
+        });
+    });
+
+    // Handle save button click
+    saveMoodBtn.addEventListener('click', async function() {
+        if (!selectedMood) {
+            alert('Please select a mood first');
+            return;
+        }
+
+        try {
+            const response = await fetch('save-mood.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mood_type: selectedMood,
+                    mood_text: moodInfluence.value
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Mood logged successfully!');
+                // Reset form
+                moodCircles.forEach(c => c.classList.remove('selected'));
+                moodInfluence.value = '';
+                selectedMood = null;
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            alert('Error saving mood: ' + error.message);
+        }
+    });
+});
+</script>
+
 
