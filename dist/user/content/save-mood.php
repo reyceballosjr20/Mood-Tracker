@@ -1,5 +1,6 @@
 <?php
-require_once '../../../models/init.php';
+session_start();
+require_once '../../../config/database.php';
 
 header('Content-Type: application/json');
 
@@ -13,6 +14,10 @@ try {
     if (!isset($_SESSION['user_id'])) {
         throw new Exception('User not authenticated');
     }
+    
+    // Get database connection
+    $db = new Database();
+    $conn = $db->getConnection();
     
     // Validate incoming data
     $data = json_decode(file_get_contents('php://input'), true);

@@ -7,9 +7,6 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     echo "Authorization required";
     exit;
 }
-
-// Load the Mood model
-require_once '../../../models/Mood.php';
 ?>
 
 <div class="header">
