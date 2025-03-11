@@ -27,79 +27,106 @@ function setupMonthNavigation() {
     // Get navigation buttons
     const prevMonthBtn = document.getElementById('prevMonthBtn');
     const nextMonthBtn = document.getElementById('nextMonthBtn');
-    const monthYearSelect = document.getElementById('monthYearSelect');
     
+    console.log('Setting up month navigation:');
+    console.log('- Previous month button:', prevMonthBtn);
+    console.log('- Next month button:', nextMonthBtn);
+    
+    // Remove any existing event listeners
     if (prevMonthBtn) {
-        prevMonthBtn.addEventListener('click', function(e) {
+        prevMonthBtn.replaceWith(prevMonthBtn.cloneNode(true));
+        const newPrevBtn = document.getElementById('prevMonthBtn');
+        
+        newPrevBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            console.log('Previous month button clicked!');
             const month = this.getAttribute('data-month');
             const year = this.getAttribute('data-year');
             console.log(`Navigating back to: Month ${month}, Year ${year}`);
-            navigateToMonth(month, year);
+            fetchNewCalendar(month, year);
         });
     }
     
     if (nextMonthBtn) {
-        nextMonthBtn.addEventListener('click', function(e) {
+        nextMonthBtn.replaceWith(nextMonthBtn.cloneNode(true));
+        const newNextBtn = document.getElementById('nextMonthBtn');
+        
+        newNextBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            console.log('Next month button clicked!');
             const month = this.getAttribute('data-month');
             const year = this.getAttribute('data-year');
             console.log(`Navigating forward to: Month ${month}, Year ${year}`);
-            navigateToMonth(month, year);
-        });
-    }
-    
-    if (monthYearSelect) {
-        monthYearSelect.addEventListener('change', function() {
-            const [year, month] = this.value.split('-');
-            console.log(`Select changed to: Month ${month}, Year ${year}`);
-            navigateToMonth(month, year);
+            fetchNewCalendar(month, year);
         });
     }
 }
 
 /**
- * Navigate to a specific month
- * 
- * @param {string} month - Month (1-12)
- * @param {string} year - Year (e.g., 2023)
+ * Fetch new calendar content - using a different function name to avoid confusion
  */
-function navigateToMonth(month, year) {
-    // Don't use window.location.href - it reloads the page
-    // Instead, get the current dashboard page URL
-    const dashboardUrl = window.location.pathname;
+function fetchNewCalendar(month, year) {
+    console.log(`Fetching calendar for: ${month}/${year}`);
     
-    // Build the content URL for the calendar with new month/year
-    const contentUrl = `content/calendar.php?month=${month}&year=${year}`;
+    // Get the ID of the main content element - use the correct one from dashboard.php
+    const contentContainer = document.getElementById('mainContent');
+    if (!contentContainer) {
+        console.error('Main content container not found - unable to update calendar');
+        alert('Cannot update calendar - content container not found');
+        return;
+    }
     
-    // Update browser history without reloading the page
-    const newUrl = `${dashboardUrl}?page=calendar&month=${month}&year=${year}`;
+    // Show loading indicator
+    contentContainer.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #d1789c;"></i><p>Loading calendar...</p></div>';
+    
+    // Try multiple possible paths (the issue might be the path)
+    let contentUrl = `content/calendar.php?month=${month}&year=${year}`;
+    
+    console.log(`Attempting to fetch from: ${contentUrl}`);
+    
+    // Update browser history without reloading
+    const newUrl = `dashboard.php?page=calendar&month=${month}&year=${year}`;
     window.history.pushState({}, '', newUrl);
+    
+    // Add debug info directly to page before fetch
+    contentContainer.innerHTML += `<div style="display:none" id="debug-info">Trying to fetch: ${contentUrl}</div>`;
     
     // Fetch the updated calendar content via AJAX
     fetch(contentUrl)
         .then(response => {
+            console.log('Fetch response:', response);
             if (!response.ok) {
-                throw new Error('Failed to load calendar');
+                // Try alternate path if first one fails
+                console.log('First fetch failed, trying alternate path...');
+                return fetch(`../content/calendar.php?month=${month}&year=${year}`);
             }
             return response.text();
         })
         .then(html => {
-            // Find the content container and update it
-            const contentContainer = document.getElementById('content') || document.getElementById('mainContent');
-            if (contentContainer) {
-                contentContainer.innerHTML = html;
-                
-                // Reinitialize calendar after loading the new content
-                initCalendar();
-            } else {
-                console.error('Content container not found');
+            if (!html) {
+                throw new Error('Empty response received');
             }
+            
+            console.log('Successfully fetched calendar content');
+            
+            // Update content
+            contentContainer.innerHTML = html;
+            
+            // Directly call initCalendar without setTimeout
+            console.log('Reinitializing calendar...');
+            initCalendar();
         })
         .catch(error => {
             console.error('Error navigating to new month:', error);
-            alert('Error loading calendar. Please try again.');
+            
+            // Try a final approach - direct page load
+            window.location.href = newUrl;
         });
+}
+
+// Override the original function to use our new approach
+function navigateToMonth(month, year) {
+    fetchNewCalendar(month, year);
 }
 
 /**
