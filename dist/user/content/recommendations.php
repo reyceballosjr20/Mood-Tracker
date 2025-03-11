@@ -17,206 +17,266 @@ $userId = $_SESSION['user_id'] ?? 0;
 $todaysMood = $mood->getTodaysMood($userId);
 $currentMood = $todaysMood ? $todaysMood['mood_type'] : 'none';
 
-// Define mood-specific recommendations
+// Define mood-specific recommendations with matching icons
 $moodRecommendations = [
+    'happy' => [
+        [
+            'title' => 'Share Your Joy',
+            'icon' => 'fa-smile-beam',
+            'description' => 'Spread your happiness by connecting with others or doing something kind.',
+            'action' => 'Get Ideas',
+        ],
+        [
+            'title' => 'Creative Expression',
+            'icon' => 'fa-paint-brush',
+            'description' => 'Channel your positive energy into a creative project or hobby.',
+            'action' => 'Start Creating',
+        ],
+        [
+            'title' => 'Gratitude Practice',
+            'icon' => 'fa-heart',
+            'description' => 'Write down what made you happy today to remember and revisit later.',
+            'action' => 'Begin Writing',
+        ]
+    ],
     'sad' => [
         [
             'title' => 'Gentle Movement',
-            'icon' => 'walking',
+            'icon' => 'fa-sad-tear',
             'description' => 'A short walk outside can help lift your mood and provide a change of scenery.',
             'action' => 'Get Started',
         ],
         [
             'title' => 'Connect with Someone',
-            'icon' => 'phone',
+            'icon' => 'fa-phone',
             'description' => 'Reaching out to a friend or family member can provide comfort and perspective.',
             'action' => 'See Suggestions',
         ],
         [
             'title' => 'Self-Compassion Practice',
-            'icon' => 'heart',
+            'icon' => 'fa-heart',
             'description' => 'Be kind to yourself today. Try a guided self-compassion meditation.',
             'action' => 'Try Now',
         ]
     ],
-    'unhappy' => [
+    'angry' => [
         [
-            'title' => 'Mood-Boosting Music',
-            'icon' => 'music',
-            'description' => 'Listen to uplifting music that can help shift your emotional state.',
-            'action' => 'Play Playlist',
+            'title' => 'Release Exercise',
+            'icon' => 'fa-angry',
+            'description' => 'Channel your energy into physical activity to release tension.',
+            'action' => 'Start Moving',
         ],
         [
-            'title' => 'Gratitude Exercise',
-            'icon' => 'star',
-            'description' => 'Write down three things you\'re grateful for to help shift perspective.',
-            'action' => 'Start Exercise',
+            'title' => 'Breathing Technique',
+            'icon' => 'fa-wind',
+            'description' => 'Try deep breathing exercises to help calm your nervous system.',
+            'action' => 'Learn More',
         ],
         [
-            'title' => 'Creative Expression',
-            'icon' => 'paint-brush',
-            'description' => 'Try drawing, writing, or another creative outlet to express your feelings.',
-            'action' => 'Get Ideas',
-        ]
-    ],
-    'neutral' => [
-        [
-            'title' => 'Mindfulness Practice',
-            'icon' => 'leaf',
-            'description' => 'A short mindfulness exercise can help you connect with the present moment.',
-            'action' => 'Begin Practice',
-        ],
-        [
-            'title' => 'Goal Setting',
-            'icon' => 'bullseye',
-            'description' => 'Set one small, achievable goal for today to create a sense of purpose.',
-            'action' => 'Set Goal',
-        ],
-        [
-            'title' => 'Nature Connection',
-            'icon' => 'tree',
-            'description' => 'Spending time in nature can help improve your mood and energy levels.',
-            'action' => 'Find Activities',
-        ]
-    ],
-    'good' => [
-        [
-            'title' => 'Skill Building',
-            'icon' => 'brain',
-            'description' => 'Use your positive mood to learn something new or practice a skill.',
-            'action' => 'Explore Options',
-        ],
-        [
-            'title' => 'Acts of Kindness',
-            'icon' => 'hands-helping',
-            'description' => 'Doing something nice for others can maintain and enhance your good mood.',
-            'action' => 'Get Ideas',
-        ],
-        [
-            'title' => 'Reflection Journal',
-            'icon' => 'book',
-            'description' => 'Record what contributed to your good mood to reference in the future.',
+            'title' => 'Express Yourself',
+            'icon' => 'fa-pencil-alt',
+            'description' => 'Write down your thoughts or feelings to process your anger constructively.',
             'action' => 'Start Writing',
-        ]
-    ],
-    'energetic' => [
-        [
-            'title' => 'Physical Exercise',
-            'icon' => 'dumbbell',
-            'description' => 'Channel your energy into a workout that will strengthen your body and mind.',
-            'action' => 'See Workouts',
-        ],
-        [
-            'title' => 'Productive Task',
-            'icon' => 'tasks',
-            'description' => 'Use your high energy to tackle a challenging task on your to-do list.',
-            'action' => 'Plan Task',
-        ],
-        [
-            'title' => 'Creative Project',
-            'icon' => 'lightbulb',
-            'description' => 'Start a creative project that you\'ve been wanting to work on.',
-            'action' => 'Get Started',
-        ]
-    ],
-    'excellent' => [
-        [
-            'title' => 'Share Your Joy',
-            'icon' => 'smile-beam',
-            'description' => 'Connect with others and spread your positive energy through social interaction.',
-            'action' => 'Connect Now',
-        ],
-        [
-            'title' => 'Capture the Moment',
-            'icon' => 'camera',
-            'description' => 'Document this excellent mood through journaling, photos, or voice notes.',
-            'action' => 'Record Moment',
-        ],
-        [
-            'title' => 'Future Planning',
-            'icon' => 'calendar',
-            'description' => 'Use this positive state to plan something you\'re looking forward to.',
-            'action' => 'Start Planning',
         ]
     ],
     'anxious' => [
         [
-            'title' => 'Breathing Exercise',
-            'icon' => 'wind',
-            'description' => 'Try a 4-7-8 breathing technique to help calm your nervous system.',
-            'action' => 'Start Breathing',
+            'title' => 'Grounding Exercise',
+            'icon' => 'fa-bolt',
+            'description' => 'Try the 5-4-3-2-1 technique to anchor yourself in the present moment.',
+            'action' => 'Start Now',
         ],
         [
-            'title' => 'Grounding Practice',
-            'icon' => 'shoe-prints',
-            'description' => 'Use the 5-4-3-2-1 technique to ground yourself in the present moment.',
-            'action' => 'Try Now',
+            'title' => 'Calming Breath',
+            'icon' => 'fa-wind',
+            'description' => 'Practice the 4-7-8 breathing technique to reduce anxiety.',
+            'action' => 'Begin Exercise',
         ],
         [
-            'title' => 'Worry Time',
-            'icon' => 'clock',
-            'description' => 'Schedule a specific time to address your worries, then set them aside for now.',
-            'action' => 'Learn More',
+            'title' => 'Worry List',
+            'icon' => 'fa-list-ul',
+            'description' => 'Write down your worries and categorize them into "can control" and "cannot control".',
+            'action' => 'Make List',
+        ]
+    ],
+    'stressed' => [
+        [
+            'title' => 'Quick Meditation',
+            'icon' => 'fa-head-side-virus',
+            'description' => 'Take a 5-minute break for a guided stress-relief meditation.',
+            'action' => 'Start Now',
+        ],
+        [
+            'title' => 'Priority Reset',
+            'icon' => 'fa-tasks',
+            'description' => 'List and organize your tasks to make them more manageable.',
+            'action' => 'Get Organized',
+        ],
+        [
+            'title' => 'Tension Release',
+            'icon' => 'fa-cloud-sun',
+            'description' => 'Try progressive muscle relaxation to release physical tension.',
+            'action' => 'Begin Exercise',
+        ]
+    ],
+    'calm' => [
+        [
+            'title' => 'Mindful Moment',
+            'icon' => 'fa-peace',
+            'description' => 'Use this peaceful state for mindful reflection or meditation.',
+            'action' => 'Start Practice',
+        ],
+        [
+            'title' => 'Creative Flow',
+            'icon' => 'fa-paint-brush',
+            'description' => 'Engage in a creative activity while in this balanced state.',
+            'action' => 'Explore Ideas',
+        ],
+        [
+            'title' => 'Goal Setting',
+            'icon' => 'fa-bullseye',
+            'description' => 'Use this clear mindset to plan and set meaningful goals.',
+            'action' => 'Plan Now',
         ]
     ],
     'tired' => [
         [
-            'title' => 'Rest & Recovery',
-            'icon' => 'bed',
-            'description' => 'Give yourself permission to rest. A short nap or relaxation period can help.',
+            'title' => 'Rest Timer',
+            'icon' => 'fa-bed',
+            'description' => 'Set a timer for a short power nap or relaxation break.',
             'action' => 'Set Timer',
         ],
         [
             'title' => 'Gentle Stretching',
-            'icon' => 'child',
-            'description' => 'Light stretching can help increase blood flow and reduce fatigue.',
-            'action' => 'See Stretches',
+            'icon' => 'fa-child',
+            'description' => 'Easy stretching exercises to boost energy without exhaustion.',
+            'action' => 'Start Stretching',
         ],
         [
-            'title' => 'Energy Audit',
-            'icon' => 'battery-half',
-            'description' => 'What\'s draining your energy and what might help restore it.',
-            'action' => 'Start Audit',
+            'title' => 'Energy Check',
+            'icon' => 'fa-battery-half',
+            'description' => 'Review your energy levels and identify what might help restore them.',
+            'action' => 'Begin Review',
         ]
     ],
-    'focused' => [
+    'energetic' => [
         [
-            'title' => 'Deep Work Session',
-            'icon' => 'laptop-code',
-            'description' => 'Use your focused state for a productive deep work session on an important task.',
-            'action' => 'Set Timer',
+            'title' => 'Channel Energy',
+            'icon' => 'fa-bolt',
+            'description' => 'Direct your energy into a productive or creative project.',
+            'action' => 'Get Started',
         ],
         [
-            'title' => 'Learning Activity',
-            'icon' => 'graduation-cap',
-            'description' => 'Take advantage of your focus to learn something new or challenging.',
-            'action' => 'Explore Topics',
+            'title' => 'Active Goals',
+            'icon' => 'fa-trophy',
+            'description' => 'Work on challenging tasks that require high energy.',
+            'action' => 'Set Goals',
         ],
+        [
+            'title' => 'Social Connection',
+            'icon' => 'fa-users',
+            'description' => 'Share your energy with others through social activities.',
+            'action' => 'Connect Now',
+        ]
+    ],
+    'neutral' => [
+        [
+            'title' => 'Mood Exploration',
+            'icon' => 'fa-meh',
+            'description' => 'Use this balanced state to explore what might enhance your day.',
+            'action' => 'Explore Now',
+        ],
+        [
+            'title' => 'Mindful Check-in',
+            'icon' => 'fa-bell',
+            'description' => 'Take a moment to check in with your thoughts and feelings.',
+            'action' => 'Start Check-in',
+        ],
+        [
+            'title' => 'New Experience',
+            'icon' => 'fa-star',
+            'description' => 'Try something new while in this receptive state.',
+            'action' => 'Discover More',
+        ]
+    ],
+    'excited' => [
+        [
+            'title' => 'Creative Project',
+            'icon' => 'fa-grin-stars',
+            'description' => 'Channel your excitement into something creative or innovative.',
+            'action' => 'Start Creating',
+        ],
+        [
+            'title' => 'Share Joy',
+            'icon' => 'fa-share-alt',
+            'description' => 'Connect with others and spread your positive energy.',
+            'action' => 'Connect Now',
+        ],
+        [
+            'title' => 'Future Planning',
+            'icon' => 'fa-calendar-alt',
+            'description' => 'Use this enthusiastic energy to plan future activities.',
+            'action' => 'Plan Now',
+        ]
+    ],
+    'frustrated' => [
         [
             'title' => 'Problem Solving',
-            'icon' => 'puzzle-piece',
-            'description' => 'Address a complex problem that requires your full attention and focus.',
-            'action' => 'Get Started',
+            'icon' => 'fa-angry',
+            'description' => 'Break down what\'s frustrating you into smaller, manageable parts.',
+            'action' => 'Start Now',
+        ],
+        [
+            'title' => 'Physical Release',
+            'icon' => 'fa-dumbbell',
+            'description' => 'Channel frustration into physical activity for release.',
+            'action' => 'Get Moving',
+        ],
+        [
+            'title' => 'Perspective Shift',
+            'icon' => 'fa-sync',
+            'description' => 'Try looking at the situation from a different angle.',
+            'action' => 'Learn How',
+        ]
+    ],
+    'grateful' => [
+        [
+            'title' => 'Gratitude Journal',
+            'icon' => 'fa-heart',
+            'description' => 'Write down specific things you\'re thankful for today.',
+            'action' => 'Start Writing',
+        ],
+        [
+            'title' => 'Express Thanks',
+            'icon' => 'fa-envelope',
+            'description' => 'Share your appreciation with someone who made a difference.',
+            'action' => 'Send Message',
+        ],
+        [
+            'title' => 'Pay It Forward',
+            'icon' => 'fa-hand-holding-heart',
+            'description' => 'Channel your gratitude into an act of kindness for others.',
+            'action' => 'Get Ideas',
         ]
     ],
     'none' => [
         [
-            'title' => 'Meditation',
-            'icon' => 'spa',
-            'description' => 'A 10-minute guided meditation can help improve your emotional balance and reduce stress levels.',
-            'action' => 'Start Now',
+            'title' => 'Mood Check-in',
+            'icon' => 'fa-clipboard-check',
+            'description' => 'Take a moment to reflect on how you\'re feeling right now.',
+            'action' => 'Start Check-in',
         ],
         [
-            'title' => 'Physical Activity',
-            'icon' => 'running',
-            'description' => 'A quick 20-minute walk can boost your endorphins and improve your mood immediately.',
-            'action' => 'View Suggestions',
+            'title' => 'Mindful Moment',
+            'icon' => 'fa-leaf',
+            'description' => 'Try a quick mindfulness exercise to connect with your emotions.',
+            'action' => 'Begin Now',
         ],
         [
-            'title' => 'Gratitude Practice',
-            'icon' => 'heart',
-            'description' => 'Writing down three things you\'re grateful for can shift your perspective and improve your mood.',
-            'action' => 'Start Journal',
+            'title' => 'Activity Boost',
+            'icon' => 'fa-walking',
+            'description' => 'Choose a mood-lifting activity to enhance your day.',
+            'action' => 'See Activities',
         ]
     ]
 ];
@@ -449,27 +509,99 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
 ?>
 
 <div class="header">
-    <h1 class="page-title">
-        Recommendations
-        <span class="title-underline"></span>
+    <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
+        Your Recommendations
+        <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
     </h1>
 </div>
 
-<div class="mood-card">
-    <div class="card-header">
-        <h2 class="card-title">Your Mood Today <?php echo $moodEmoji; ?></h2>
-        <div class="card-icon">
-            <i class="fas fa-lightbulb"></i>
+<!-- Current Mood Display -->
+<div class="mood-summary" style="background: white; padding: 20px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.07);">
+    <h2 style="font-size: 1.25rem; margin-bottom: 20px; color: #d1789c; font-weight: 500;">Your Mood Today</h2>
+    <div style="display: flex; align-items: center;">
+        <?php if ($currentMood !== 'none'): ?>
+            <div class="mood-circle selected" style="margin-right: 15px;">
+                <div class="mood-icon" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #feeef5, #ffffff); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(209, 120, 156, 0.2);">
+                    <i class="fas <?php echo $moodRecommendations[$currentMood][0]['icon']; ?>" style="font-size: 28px; color: #d1789c;"></i>
+                </div>
+                <span style="display: block; margin-top: 8px; color: #6e3b5c; font-weight: 500; text-transform: capitalize;">
+                    <?php echo $currentMood; ?>
+                </span>
+            </div>
+        <?php else: ?>
+            <div class="mood-circle" style="margin-right: 15px;">
+                <div class="mood-icon" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f5f5f5, #ffffff); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <i class="fas fa-question" style="font-size: 28px; color: #999;"></i>
+                </div>
+                <span style="display: block; margin-top: 8px; color: #666; font-weight: 500;">
+                    No mood logged
+                </span>
+            </div>
+        <?php endif; ?>
+        <div style="flex: 1;">
+            <p style="color: #6e3b5c; margin-bottom: 5px;">
+                <?php if ($currentMood !== 'none'): ?>
+                    Here are some recommendations based on your current mood.
+                <?php else: ?>
+                    Log your mood to get personalized recommendations.
+                <?php endif; ?>
+            </p>
         </div>
     </div>
-    <div class="card-content">
-        <?php if ($currentMood != 'none'): ?>
-            Based on your <?php echo htmlspecialchars(ucfirst($currentMood)); ?> mood, here are some personalized recommendations
-        <?php else: ?>
-            Log your mood today to get personalized recommendations
-        <?php endif; ?>
-    </div>
 </div>
+
+<!-- Add this CSS for consistent mood icon styling -->
+<style>
+    .mood-circle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .mood-circle.selected .mood-icon {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(209, 120, 156, 0.25);
+    }
+
+    .mood-icon {
+        transition: all 0.3s ease;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .mood-circle .mood-icon {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        .mood-circle .mood-icon i {
+            font-size: 24px !important;
+        }
+        
+        .mood-summary {
+            padding: 15px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .mood-circle .mood-icon {
+            width: 45px !important;
+            height: 45px !important;
+        }
+        
+        .mood-circle .mood-icon i {
+            font-size: 20px !important;
+        }
+        
+        .mood-circle span {
+            font-size: 0.9rem;
+        }
+    }
+</style>
 
 <div class="recommendations-grid">
     <?php foreach ($recommendations as $rec): ?>
