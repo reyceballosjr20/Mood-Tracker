@@ -67,11 +67,21 @@ if ($user_id > 0) {
                 
                 if (!empty($profile_image)): 
                     // Check if it's just a filename or a full path
-                    $image_path = strpos($profile_image, '/') !== false 
-                        ? $profile_image 
-                        : 'uploads/profile_images/' . $profile_image;
+                    if (strpos($profile_image, '/') !== false) {
+                        // It's already a path
+                        $image_path = $profile_image;
+                    } else {
+                        // It's just a filename, construct the path
+                        $image_path = 'uploads/profile_images/' . $profile_image;
+                    }
+                    
+                    // Check if file exists
+                    if (file_exists('../../' . $image_path)):
                 ?>
                     <img src="../../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                <?php else: ?>
+                    <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
+                <?php endif; ?>
                 <?php else: ?>
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>

@@ -308,9 +308,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
                 
                 if (imagePath) {
+                    // Update the avatar with the new image
                     userAvatar.innerHTML = `<img src="../../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    
+                    // Also update any other instances of the user avatar on the page
+                    const otherAvatars = document.querySelectorAll('.user-avatar:not(:first-child)');
+                    otherAvatars.forEach(avatar => {
+                        avatar.innerHTML = `<img src="../../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    });
                 } else {
                     userAvatar.textContent = initials;
+                    
+                    // Also update any other instances of the user avatar on the page
+                    const otherAvatars = document.querySelectorAll('.user-avatar:not(:first-child)');
+                    otherAvatars.forEach(avatar => {
+                        avatar.textContent = initials;
+                    });
                 }
             }
         }
@@ -365,6 +378,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (profileImageContainer) {
                         profileImageContainer.innerHTML = initials;
                     }
+                    
+                    // Also update the user avatar in the sidebar
+                    updateUserAvatar(null);
                     
                     showAlert('success', data.message);
                 } else {
