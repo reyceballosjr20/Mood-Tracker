@@ -35,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
     $result = $auth->register($formData);
     
     if ($result['status'] === 'success') {
-        // Redirect to dashboard instead of login page
-        header('Location: dashboard.php?welcome=new');
+        // Redirect to dashboard with welcome parameter
+        header('Location: user/dashboard.php?welcome=new');
         exit();
     } else {
         // Handle errors

@@ -153,10 +153,128 @@ class Auth {
      */
     public function loginAfterRegistration($userId, $firstName, $lastName, $email, $provider = 'local') {
         $_SESSION['user_id'] = $userId;
-        $_SESSION['user_first_name'] = $firstName;
-        $_SESSION['user_last_name'] = $lastName;
-        $_SESSION['user_email'] = $email;
+        $_SESSION['first_name'] = $firstName;
+        $_SESSION['last_name'] = $lastName;
+        $_SESSION['email'] = $email;
         $_SESSION['auth_provider'] = $provider;
+        $_SESSION['is_logged_in'] = true;
+    }
+    
+    /**
+     * Login a user
+     * 
+     * @param string $email User's email
+     * @param string $password User's password
+     * @param bool $remember Whether to set a remember-me cookie
+     * @return array Login result
+     */
+    public function login($email, $password, $remember = false) {
+        try {
+            // Check if email exists
+            if (!$this->user->emailExists($email)) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Invalid email or password'
+                ];
+            }
+            
+            // Get user details
+            $userData = $this->user->getUserByEmail($email);
+            
+            // Check if the user is a local user
+            if ($userData['auth_provider'] !== 'local') {
+                return [
+                    'status' => 'error',
+                    'message' => 'Please login using ' . ucfirst($userData['auth_provider'])
+                ];
+            }
+            
+            // Verify password
+            if (!password_verify($password, $userData['password'])) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Invalid email or password'
+                ];
+            }
+            
+            // Login successful, set session variables
+            $_SESSION['user_id'] = $userData['id'];
+            $_SESSION['first_name'] = $userData['first_name'];
+            $_SESSION['last_name'] = $userData['last_name'];
+            $_SESSION['email'] = $userData['email'];
+            $_SESSION['auth_provider'] = $userData['auth_provider'];
+            $_SESSION['is_logged_in'] = true;
+            
+            // Handle remember me
+            if ($remember) {
+                $this->setRememberMeCookie($userData['id']);
+            }
+            
+            return [
+                'status' => 'success',
+                'message' => 'Login successful'
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Login failed: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Set remember-me cookie
+     * 
+     * @param int $userId User ID
+     * @return void
+     */
+    private function setRememberMeCookie($userId) {
+        // Generate a token
+        $token = bin2hex(random_bytes(32));
+        
+        // Store the token in the database (implementation depends on your database schema)
+        // For now, we'll just set the cookie
+        
+        // Set cookie to expire in 30 days
+        setcookie(
+            'remember_me',
+            $token,
+            time() + (30 * 24 * 60 * 60),
+            '/',
+            '',
+            true,
+            true
+        );
+    }
+    
+    /**
+     * Logout a user
+     * 
+     * @return void
+     */
+    public function logout() {
+        // Unset all session variables
+        $_SESSION = [];
+        
+        // Delete the session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        
+        // Clear remember-me cookie
+        setcookie('remember_me', '', time() - 3600, '/');
+        
+        // Destroy the session
+        session_destroy();
     }
 }
 ?> 

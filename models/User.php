@@ -154,5 +154,21 @@ class User {
         
         return $errors;
     }
+    
+    /**
+     * Get user by email
+     * 
+     * @param string $email User email
+     * @return array|false User data or false if not found
+     */
+    public function getUserByEmail($email) {
+        $sql = "SELECT id, first_name, last_name, email, password, auth_provider 
+                FROM users WHERE email = :email";
+        $stmt = $this->db->conn->prepare($sql);
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
 ?> 

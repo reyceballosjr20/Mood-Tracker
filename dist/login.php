@@ -1,3 +1,61 @@
+<?php
+// Start session
+session_start();
+
+// Load models
+require_once '../models/Auth.php';
+
+// Initialize auth
+$auth = new Auth();
+
+// Check if user is already logged in
+if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true) {
+    header("Location: user/dashboard.php");
+    exit();
+}
+
+// Define variables
+$email = $password = "";
+$loginError = "";
+$showSuccess = false;
+
+// Check success messages from URL parameters
+if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
+    $successMessage = "You have been successfully logged out.";
+    $showSuccess = true;
+}
+
+if (isset($_GET['signup']) && $_GET['signup'] === 'success') {
+    $successMessage = "Account created successfully. Please log in.";
+    $showSuccess = true;
+}
+
+// Process login form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+    $remember = isset($_POST['remember']) ? true : false;
+    
+    // Basic validation
+    if (empty($email)) {
+        $loginError = "Email is required";
+    } elseif (empty($password)) {
+        $loginError = "Password is required";
+    } else {
+        // Try to login
+        $result = $auth->login($email, $password, $remember);
+        
+        if ($result['status'] === 'success') {
+            // Redirect to dashboard
+            header("Location: user/dashboard.php");
+            exit();
+        } else {
+            $loginError = $result['message'];
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -502,10 +560,26 @@
                 </div>
                 
                 <form class="login-form" method="post" action="login.php" id="login-form" novalidate>
+                    <?php if (!empty($loginError)): ?>
+                    <div class="error-container" style="display: block;">
+                        <strong>Login failed:</strong>
+                        <ul class="error-list">
+                            <li><?php echo htmlspecialchars($loginError); ?></li>
+                        </ul>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($showSuccess): ?>
+                    <div class="success-container" id="success-container" style="display: block;">
+                        <?php echo htmlspecialchars($successMessage); ?>
+                    </div>
+                    <?php endif; ?>
+                    
                     <div class="form-group">
                         <label for="email">EMAIL</label>
                         <input type="email" id="email" name="email" placeholder="hello@gmail.com" required
-                               aria-describedby="email-validation" autocomplete="email">
+                               aria-describedby="email-validation" autocomplete="email"
+                               value="<?php echo htmlspecialchars($email); ?>">
                         <div class="validation-message" id="email-validation">Please enter a valid email address.</div>
                     </div>
                     
@@ -624,12 +698,6 @@
         
         // Form submission
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Clear previous errors
-            errorList.innerHTML = '';
-            errorContainer.classList.remove('show');
-            
             // Validate all fields
             let errors = [];
             let isValid = true;
@@ -637,34 +705,66 @@
             document.querySelectorAll('input[required]').forEach(input => {
                 if (!validateInput(input)) {
                     isValid = false;
-                    const validationMessage = document.getElementById(input.getAttribute('aria-describedby')).textContent;
-                    errors.push(validationMessage);
+                    const validationMessage = document.getElementById(input.getAttribute('aria-describedby'));
+                    if (validationMessage) {
+                        errors.push(validationMessage.textContent);
+                    }
                 }
             });
             
             if (!isValid) {
+                e.preventDefault(); // Prevent form submission only if validation fails
+                
                 // Display errors
+                errorList.innerHTML = '';
                 errors.forEach(error => {
                     const li = document.createElement('li');
                     li.textContent = error;
                     errorList.appendChild(li);
                 });
                 errorContainer.classList.add('show');
+                errorContainer.style.display = 'block';
                 
                 // Scroll to error container
                 errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
-            // Simulate form submission with loading state
+            // Show loading state but don't prevent form submission
             loginButton.classList.add('loading');
             loginButton.textContent = 'Logging in...';
             
-            // Simulate API call
-            setTimeout(() => {
-                // For demo purposes, redirect to dashboard
-                window.location.href = 'user/dashboard.php';
-            }, 2000);
+            // Allow the form to submit normally - this will process with PHP
+            // Do NOT prevent default or use setTimeout to redirect
+        });
+        
+        // Add to the beginning of your script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize error container and error list elements
+            const errorContainer = document.getElementById('error-container');
+            const errorList = document.getElementById('error-list');
+            
+            // If they don't exist, create them
+            if (!errorContainer) {
+                const newErrorContainer = document.createElement('div');
+                newErrorContainer.id = 'error-container';
+                newErrorContainer.className = 'error-container';
+                newErrorContainer.style.display = 'none';
+                
+                const errorHeading = document.createElement('strong');
+                errorHeading.textContent = 'Please fix the following errors:';
+                
+                const newErrorList = document.createElement('ul');
+                newErrorList.id = 'error-list';
+                newErrorList.className = 'error-list';
+                
+                newErrorContainer.appendChild(errorHeading);
+                newErrorContainer.appendChild(newErrorList);
+                
+                // Insert after form heading
+                const form = document.getElementById('login-form');
+                form.insertBefore(newErrorContainer, form.firstChild);
+            }
         });
     </script>
 </body>

@@ -1,15 +1,17 @@
 <?php
-// Initialize the session if not already started
+// Start session
 session_start();
 
-// Include auth model
+// Load auth class
 require_once '../models/Auth.php';
 
-// Create auth instance and logout
+// Initialize auth
 $auth = new Auth();
+
+// Logout the user
 $auth->logout();
 
-// Redirect to login page with a message
+// Redirect to login page with success message
 header("Location: login.php?logout=success");
-exit;
+exit();
 ?> 

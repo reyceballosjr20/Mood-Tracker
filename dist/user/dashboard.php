@@ -978,6 +978,48 @@ if(isset($_GET['page'])) {
                 sidebarOverlay.classList.remove('active');
             }
         });
+        
+        // Add this to the dashboard.php JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display welcome message if coming from login
+            const welcomeUser = function() {
+                const welcomeMessage = document.createElement('div');
+                welcomeMessage.style.position = 'fixed';
+                welcomeMessage.style.top = '20px';
+                welcomeMessage.style.right = '20px';
+                welcomeMessage.style.backgroundColor = '#4CAF50';
+                welcomeMessage.style.color = 'white';
+                welcomeMessage.style.padding = '15px 20px';
+                welcomeMessage.style.borderRadius = '8px';
+                welcomeMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                welcomeMessage.style.zIndex = '1000';
+                welcomeMessage.style.transition = 'opacity 0.5s ease-in-out';
+                
+                // Check if this is new registration or regular login
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('welcome') === 'new') {
+                    welcomeMessage.innerHTML = '<strong>Welcome to Mood Tracker!</strong><br>Your account has been created successfully.';
+                } else {
+                    welcomeMessage.innerHTML = '<strong>Welcome back!</strong><br>You have successfully logged in.';
+                }
+                
+                document.body.appendChild(welcomeMessage);
+                
+                // Remove welcome parameter from URL without page reload
+                window.history.replaceState({}, document.title, 'dashboard.php');
+                
+                // Remove the message after 5 seconds
+                setTimeout(() => {
+                    welcomeMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        welcomeMessage.remove();
+                    }, 500);
+                }, 5000);
+            };
+            
+            // Call the welcome function
+            welcomeUser();
+        });
     </script>
 </body>
 </html> 
