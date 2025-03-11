@@ -18,7 +18,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px;">
-    <div class="card" style="background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: all 0.3s ease; overflow: hidden;">
+    <div class="card" style="background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
         <div style="padding: 30px;">
             <h2 style="font-size: 1.25rem; margin-bottom: 25px; color: #d1789c; font-weight: 500; border-bottom: 1px solid #f9e8f0; padding-bottom: 12px;">How are you feeling today?</h2>
             
@@ -128,6 +128,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         outline: none;
     }
     
+    /* Keep hover animations only for mood icons */
     .mood-circle:hover {
         transform: translateY(-7px);
     }
@@ -174,119 +175,55 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     /* Enhanced selected state with darker background */
     .mood-circle.selected .mood-icon {
         background: linear-gradient(135deg, #e8a1c0, #f5d2e3);
-        transform: scale(1.1);
-        box-shadow: 0 10px 25px rgba(209, 120, 156, 0.45);
-        border: 2px solid #d1789c;
-    }
-    
-    .mood-circle.selected::after {
-        content: '';
-        position: absolute;
-        bottom: 3px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 8px;
-        height: 8px;
-        background-color: #d1789c;
-        border-radius: 50%;
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: translateX(-50%) scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: translateX(-50%) scale(1.5);
-            opacity: 0.5;
-        }
-        100% {
-            transform: translateX(-50%) scale(1);
-            opacity: 1;
-        }
-    }
-    
-    /* New animation for the inspirational message */
-    .message-animation {
-        animation: messageAppear 0.5s ease forwards;
-    }
-    
-    @keyframes messageAppear {
-        0% {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* Enhanced textarea focus state */
-    #moodInfluence:focus {
-        outline: none;
         border-color: #d1789c;
-        box-shadow: 0 0 0 3px rgba(209, 120, 156, 0.2), inset 0 2px 5px rgba(0,0,0,0.02);
     }
     
-    /* Button ripple effect */
+    /* Remove animation from specific elements as requested */
+    .card {
+        transition: none !important;
+    }
+    
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.07) !important;
+    }
+
+    /* Textarea style */
+    #moodInfluence:focus {
+        border-color: #d1789c;
+        box-shadow: 0 0 0 3px rgba(209, 120, 156, 0.15);
+        outline: none;
+    }
+    
+    /* Save button without animations */
     #saveMoodBtn {
         background: linear-gradient(135deg, #d1789c, #e896b8);
         color: white;
         border: none;
-        border-radius: 30px;
-        padding: 12px 35px;
+        border-radius: 25px;
+        padding: 12px 32px;
         font-weight: 600;
         cursor: pointer;
         letter-spacing: 1px;
-        box-shadow: 0 6px 15px rgba(209, 120, 156, 0.3);
-        transition: all 0.3s ease;
-        text-transform: uppercase;
         font-size: 0.95rem;
+        box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);
+        transition: background-color 0.2s ease;
+        border: none;
+        outline: none;
     }
     
-    #saveMoodBtn:after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 5px;
-        height: 5px;
-        background: rgba(255, 255, 255, 0.5);
-        opacity: 0;
-        border-radius: 100%;
-        transform: scale(1, 1) translate(-50%);
-        transform-origin: 50% 50%;
-    }
-    
-    #saveMoodBtn:focus:not(:active)::after {
-        animation: ripple 1s ease-out;
-    }
-    
-    @keyframes ripple {
-        0% {
-            transform: scale(0, 0);
-            opacity: 0.5;
-        }
-        20% {
-            transform: scale(25, 25);
-            opacity: 0.3;
-        }
-        100% {
-            opacity: 0;
-            transform: scale(40, 40);
-        }
+    /* Remove ripple animation and simplify hover/active states */
+    #saveMoodBtn::after {
+        display: none;
     }
     
     #saveMoodBtn:hover:not(:disabled) {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(209, 120, 156, 0.4);
         background: linear-gradient(135deg, #c76490, #e48db0);
+        transform: none;
     }
     
     #saveMoodBtn:active:not(:disabled) {
-        transform: translateY(-1px);
+        transform: none;
     }
     
     #saveMoodBtn.disabled,
@@ -295,10 +232,9 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         color: #999;
         cursor: not-allowed;
         box-shadow: none;
-        transform: none !important;
     }
     
-    /* Mobile responsiveness improvements */
+    /* Keep the mobile responsiveness */
     @media (max-width: 1200px) {
         .mood-icon {
             width: 75px;
@@ -354,11 +290,6 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             padding: 14px 35px;
             margin-top: 25px;
             font-size: 16px;
-        }
-        
-        div.info-message {
-            font-size: 0.85rem !important;
-            padding: 12px 15px !important;
         }
         
         h1.page-title {
