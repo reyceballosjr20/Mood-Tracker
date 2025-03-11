@@ -606,11 +606,19 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
 <div class="recommendations-grid">
     <?php foreach ($recommendations as $rec): ?>
     <div class="recommendation-card">
-        <div class="recommendation-icon">
-            <i class="fas fa-<?php echo htmlspecialchars($rec['icon']); ?>"></i>
+        <div class="recommendation-icon-wrapper">
+            <div class="recommendation-icon">
+                <i class="fas <?php echo htmlspecialchars($rec['icon']); ?>"></i>
+            </div>
         </div>
-        <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
-        <p class="recommendation-text"><?php echo htmlspecialchars($rec['description']); ?></p>
+        <div class="recommendation-content">
+            <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
+            <p class="recommendation-text"><?php echo htmlspecialchars($rec['description']); ?></p>
+            <button class="action-button">
+                <?php echo htmlspecialchars($rec['action']); ?>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
     <?php endforeach; ?>
 </div>
@@ -715,69 +723,95 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     /* Recommendations Grid */
     .recommendations-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-        margin-bottom: 40px;
-        padding: 0 10px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
     }
     
     .recommendation-card {
-        background-color: white;
+        background: white;
         border-radius: 16px;
         padding: 25px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.07);
         display: flex;
         flex-direction: column;
-        position: relative;
-        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     
     .recommendation-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(209, 120, 156, 0.15);
     }
     
-    .recommendation-card:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 100%;
-        background: linear-gradient(to bottom, #d1789c, #f5d7e3);
-        border-radius: 2px 0 0 2px;
+    .recommendation-icon-wrapper {
+        margin-bottom: 20px;
     }
     
     .recommendation-icon {
-        width: 45px;
-        height: 45px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        background-color: #fff3f8;
+        background: linear-gradient(135deg, #feeef5, #ffffff);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #d1789c;
+        box-shadow: 0 4px 15px rgba(209, 120, 156, 0.2);
         margin-bottom: 15px;
-        font-size: 1.1rem;
-        box-shadow: 0 5px 15px rgba(209, 120, 156, 0.12);
+        transition: transform 0.3s ease;
+    }
+    
+    .recommendation-card:hover .recommendation-icon {
+        transform: scale(1.1);
+    }
+    
+    .recommendation-icon i {
+        font-size: 28px;
+        color: #d1789c;
+    }
+    
+    .recommendation-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
     
     .recommendation-title {
         color: #6e3b5c;
         font-size: 1.2rem;
-        font-weight: 500;
-        margin-top: 0;
-        margin-bottom: 15px;
+        font-weight: 600;
+        margin-bottom: 10px;
     }
     
     .recommendation-text {
-        font-size: 1rem;
-        line-height: 1.6;
-        color: #555;
-        margin-bottom: 0;
-        flex-grow: 1;
+        color: #8a5878;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+    
+    .action-button {
+        background: linear-gradient(135deg, #d1789c, #e99ab7);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: transform 0.2s ease;
+        align-self: flex-start;
+    }
+    
+    .action-button i {
+        margin-left: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .action-button:hover {
+        transform: translateX(5px);
     }
     
     /* Section Header */
