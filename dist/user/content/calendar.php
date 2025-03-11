@@ -28,24 +28,60 @@ if ($selectedYear < 2000 || $selectedYear > 2100) {
     $selectedYear = date('Y');
 }
 
-// Get calendar data
-$daysInMonth = date('t', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
-$firstDayOfMonth = date('N', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
-$monthName = date('F', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
+// Define the 4 months to display (2x2 grid)
+$calendarMonths = [];
 
-// Get moods for the selected month
-$userMoods = $mood->getUserMoodsByMonth($userId, $selectedMonth, $selectedYear);
+// Current month (top left)
+$calendarMonths[0] = [
+    'month' => $selectedMonth,
+    'year' => $selectedYear
+];
 
-// Create associative array with day => mood data
-$moodsByDay = [];
-if ($userMoods) {
-    foreach ($userMoods as $moodEntry) {
-        $day = date('j', strtotime($moodEntry['created_at']));
-        $moodsByDay[$day] = $moodEntry;
-    }
+// Next month (top right)
+$nextMonth = $selectedMonth + 1;
+$nextYear = $selectedYear;
+if ($nextMonth > 12) {
+    $nextMonth = 1;
+    $nextYear++;
+}
+$calendarMonths[1] = [
+    'month' => $nextMonth,
+    'year' => $nextYear
+];
+
+// Month after next (bottom left)
+$nextMonth2 = $nextMonth + 1;
+$nextYear2 = $nextYear;
+if ($nextMonth2 > 12) {
+    $nextMonth2 = 1;
+    $nextYear2++;
+}
+$calendarMonths[2] = [
+    'month' => $nextMonth2,
+    'year' => $nextYear2
+];
+
+// Month after that (bottom right)
+$nextMonth3 = $nextMonth2 + 1;
+$nextYear3 = $nextYear2;
+if ($nextMonth3 > 12) {
+    $nextMonth3 = 1;
+    $nextYear3++;
+}
+$calendarMonths[3] = [
+    'month' => $nextMonth3,
+    'year' => $nextYear3
+];
+
+// Get previous month for navigation
+$prevMonth = $selectedMonth - 1;
+$prevYear = $selectedYear;
+if ($prevMonth < 1) {
+    $prevMonth = 12;
+    $prevYear--;
 }
 
-// Define mood-to-emoji mapping
+// Define mood-to-emoji mapping (used across all months)
 $moodEmojis = [
     'sad' => '😢',
     'unhappy' => '😞',
@@ -58,22 +94,7 @@ $moodEmojis = [
     'focused' => '🎯'
 ];
 
-// Get previous and next month/year values for navigation
-$prevMonth = $selectedMonth - 1;
-$prevYear = $selectedYear;
-if ($prevMonth < 1) {
-    $prevMonth = 12;
-    $prevYear--;
-}
-
-$nextMonth = $selectedMonth + 1;
-$nextYear = $selectedYear;
-if ($nextMonth > 12) {
-    $nextMonth = 1;
-    $nextYear++;
-}
-
-// Get mood stats for the selected month
+// Get mood stats for the selected month (for summary cards)
 $moodStats = $mood->getMoodStatsByMonth($userId, $selectedMonth, $selectedYear);
 $moodCounts = [];
 $totalEntries = 0;
@@ -94,6 +115,9 @@ if ($moodStats) {
 
 // Calculate logging streak (simplified approach)
 $streak = $mood->getUserLoggingStreak($userId);
+
+// Get mood trends, best day, etc. (all the existing calculations)
+// ...
 
 // Get the first and last day of the month for date-based queries
 $firstDayOfSelectedMonth = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT) . '-01';
@@ -155,8 +179,8 @@ if ($dayOfWeekPatterns) {
             $currentMonthYear = date('Y-m');
             $showingMonths = [];
             
-            // Add 6 months before and after current month
-            for ($i = -6; $i <= 6; $i++) {
+            // Add 12 months before and after current month
+            for ($i = -12; $i <= 12; $i++) {
                 $timeStamp = strtotime("$i months");
                 $formattedDate = date('Y-m', $timeStamp);
                 $showingMonths[$formattedDate] = date('F Y', $timeStamp);
@@ -185,77 +209,128 @@ if ($dayOfWeekPatterns) {
     </div>
 </div>
 
-<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 30px;">
-    <div style="padding: 20px; background-color: #f8dfeb; text-align: center; display: flex; justify-content: space-between; align-items: center;">
-        <a href="#" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
-           style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
-            <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
-            <?php echo date('M', mktime(0, 0, 0, $prevMonth, 1, $prevYear)); ?>
-        </a>
-        
-        <h2 style="margin: 0; color: #4a3347; font-size: 1.4rem;"><?php echo $monthName . ' ' . $selectedYear; ?></h2>
-        
-        <a href="#" id="nextMonthBtn" data-month="<?php echo $nextMonth; ?>" data-year="<?php echo $nextYear; ?>" 
-           style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
-            <?php echo date('M', mktime(0, 0, 0, $nextMonth, 1, $nextYear)); ?>
-            <i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
-        </a>
-    </div>
+<div class="card" style="padding: 20px; background-color: #f8dfeb; margin-bottom: 20px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; text-align: center; display: flex; justify-content: space-between; align-items: center;">
+    <a href="#" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
+       style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
+        <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
+        <?php echo date('M', mktime(0, 0, 0, $prevMonth, 1, $prevYear)); ?>
+    </a>
     
-    <div style="padding: 20px;">
-        <!-- Calendar grid -->
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center;">
-            <!-- Days of week headers -->
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Mon</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Tue</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Wed</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Thu</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Fri</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Sat</div>
-            <div style="font-weight: 500; color: #6e3b5c; padding: 10px 0;">Sun</div>
-            
-            <?php
-            // Empty cells for days before the 1st of the month
-            for ($i = 1; $i < $firstDayOfMonth; $i++) {
-                echo '<div style="height: 80px;"></div>';
+    <h2 style="margin: 0; color: #4a3347; font-size: 1.4rem;">
+        <?php 
+        // Show range of months being displayed
+        $startMonth = date('M', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
+        $endMonth = date('M', mktime(0, 0, 0, $nextMonth3, 1, $nextYear3));
+        $startYear = $selectedYear;
+        $endYear = $nextYear3;
+        
+        if ($startYear == $endYear) {
+            echo "$startMonth - $endMonth $startYear";
+        } else {
+            echo "$startMonth $startYear - $endMonth $endYear";
+        }
+        ?>
+    </h2>
+    
+    <a href="#" id="nextMonthBtn" data-month="<?php echo $nextMonth3; ?>" data-year="<?php echo $nextYear3; ?>" 
+       style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
+        <?php echo date('M', mktime(0, 0, 0, $nextMonth3, 1, $nextYear3)); ?>
+        <i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
+    </a>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+    <?php foreach ($calendarMonths as $index => $calendarData): ?>
+        <?php
+        // Extract month data
+        $month = $calendarData['month'];
+        $year = $calendarData['year'];
+        $monthName = date('F', mktime(0, 0, 0, $month, 1, $year));
+        $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
+        $firstDayOfMonth = date('N', mktime(0, 0, 0, $month, 1, $year));
+        
+        // Get moods for this specific month
+        $userMoods = $mood->getUserMoodsByMonth($userId, $month, $year);
+        
+        // Create associative array with day => mood data
+        $moodsByDay = [];
+        if ($userMoods) {
+            foreach ($userMoods as $moodEntry) {
+                $day = date('j', strtotime($moodEntry['created_at']));
+                $moodsByDay[$day] = $moodEntry;
             }
+        }
+        ?>
+        
+        <!-- Each month as a separate card -->
+        <div class="card month-calendar" style="padding: 20px; background-color: white; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; overflow: hidden;">
+            <!-- Month header with distinct styling -->
+            <div style="text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f5d7e3;">
+                <h3 style="color: #d1789c; font-size: 1.2rem; margin: 0; font-weight: 500;">
+                    <?php echo $monthName . ' ' . $year; ?>
+                </h3>
+            </div>
             
-            // Calendar days
-            for ($day = 1; $day <= $daysInMonth; $day++) {
-                // Check if we have a mood for this day
-                $hasMood = isset($moodsByDay[$day]);
-                $mood = $hasMood ? $moodsByDay[$day]['mood_type'] : null;
-                $emoji = $hasMood ? ($moodEmojis[$mood] ?? '❓') : '';
-                $moodText = $hasMood ? $moodsByDay[$day]['mood_text'] : '';
-                
-                // Today has special highlighting
-                $isToday = ($day == date('j') && $selectedMonth == date('n') && $selectedYear == date('Y'));
-                $bgColor = $isToday ? '#ffebf3' : ($hasMood ? '#fff9fb' : 'white');
-                $borderColor = $isToday ? '#ff8fb1' : ($hasMood ? '#fde1ec' : '#e0e0e0');
-                
-                echo '<div style="height: 80px; border: 1px solid ' . $borderColor . '; border-radius: 10px; background-color: ' . $bgColor . '; display: flex; flex-direction: column; justify-content: space-between; padding: 5px; position: relative; overflow: hidden;">';
-                
-                // Show day number
-                echo '<div style="text-align: right; font-size: 12px; font-weight: ' . ($isToday ? '600' : '400') . ';">' . $day . '</div>';
-                
-                // Show mood emoji if exists
-                if ($hasMood) {
-                    echo '<div style="font-size: 28px; display: flex; align-items: center; justify-content: center; height: 40px; cursor: pointer;" 
-                              title="' . htmlspecialchars($mood) . (empty($moodText) ? '' : ': ' . htmlspecialchars($moodText)) . '">' 
-                          . $emoji . 
-                         '</div>';
-                    
-                    // Add a small indicator of the mood type
-                    echo '<div style="font-size: 9px; text-align: center; color: #888; text-transform: capitalize; margin-top: -5px;">' . $mood . '</div>';
-                } else {
+            <!-- Day headers -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 10px; font-weight: 500; color: #6e3b5c;">
+                <div>M</div>
+                <div>T</div>
+                <div>W</div>
+                <div>T</div>
+                <div>F</div>
+                <div>S</div>
+                <div>S</div>
+            </div>
+            
+            <!-- Calendar days -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+                <?php 
+                // Add empty cells for days before the 1st of the month
+                for ($i = 1; $i < $firstDayOfMonth; $i++) {
                     echo '<div style="height: 40px;"></div>';
                 }
                 
-                echo '</div>';
-            }
-            ?>
+                // Add days of the month
+                for ($day = 1; $day <= $daysInMonth; $day++) {
+                    $isToday = ($day == date('j') && $month == date('n') && $year == date('Y'));
+                    $hasMood = isset($moodsByDay[$day]);
+                    
+                    $dayStyle = 'height: 40px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;';
+                    
+                    if ($isToday) {
+                        $dayStyle .= 'border: 2px solid #d1789c; background-color: #fff3f8;';
+                    } else {
+                        $dayStyle .= 'border: 1px solid #eee; background-color: white;';
+                    }
+                    
+                    echo '<div style="' . $dayStyle . '">';
+                    echo '<div style="font-size: 0.8rem;">' . $day . '</div>';
+                    
+                    if ($hasMood) {
+                        $moodType = $moodsByDay[$day]['mood_type'];
+                        $moodEmoji = isset($moodEmojis[$moodType]) ? $moodEmojis[$moodType] : '😐';
+                        $moodText = $moodsByDay[$day]['mood_text'];
+                        
+                        echo '<div class="mood-entry" style="font-size: 1rem; cursor: pointer; margin-top: -2px;">';
+                        echo $moodEmoji;
+                        
+                        // Add tooltip with mood details
+                        if (!empty($moodText)) {
+                            echo '<div class="mood-tooltip">';
+                            echo '<div style="font-weight: 500; margin-bottom: 5px; color: #4a3347; text-transform: capitalize;">' . $moodType . '</div>';
+                            echo '<div style="font-size: 0.85rem; color: #666;">"' . htmlspecialchars($moodText) . '"</div>';
+                            echo '</div>';
+                        }
+                        
+                        echo '</div>';
+                    }
+                    
+                    echo '</div>';
+                }
+                ?>
+            </div>
         </div>
-    </div>
+    <?php endforeach; ?>
 </div>
 
 <div class="mood-chart">
@@ -405,7 +480,27 @@ if ($dayOfWeekPatterns) {
 </div>
 
 <style>
+    /* Calendar grid responsive styles */
+    .month-calendar {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .month-calendar:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 992px) {
+        .month-calendar {
+            margin-bottom: 20px;
+        }
+    }
+    
     @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+        
         .card {
             margin-left: 0 !important;
             margin-right: 0 !important;
@@ -426,20 +521,20 @@ if ($dayOfWeekPatterns) {
     }
     
     @media (max-width: 576px) {
-        div[style*="grid-template-columns: repeat(7, 1fr)"] > div {
-            font-size: 12px !important;
+        div[style*="display: grid; grid-template-columns: repeat(7, 1fr)"] > div {
+            font-size: 10px !important;
         }
         
-        div[style*="grid-template-columns: repeat(7, 1fr)"] {
-            gap: 5px !important;
+        div[style*="display: grid; grid-template-columns: repeat(7, 1fr)"] {
+            gap: 3px !important;
         }
         
-        div[style*="height: 80px"] {
-            height: 65px !important;
+        div[style*="height: 40px"] {
+            height: 35px !important;
         }
         
-        div[style*="font-size: 28px"] {
-            font-size: 22px !important;
+        div[style*="font-size: 1rem"] {
+            font-size: 0.9rem !important;
         }
     }
     
