@@ -265,6 +265,50 @@ date_default_timezone_set('Asia/Singapore');
     }
     
     @media (max-width: 768px) {
+        /* Fix the gap between sidebar and content */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container-fluid,
+        .row,
+        main,
+        .content-area {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        /* Ensure the sidebar connects directly with content */
+        .sidebar {
+            margin-right: 0;
+            padding-right: 0;
+        }
+        
+        /* Ensure content fills available width */
+        .log-mood-container {
+            padding: 0 15px;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* Reduce spacing between elements */
+        .mood-options {
+            margin-top: 15px;
+        }
+        
+        h2, h3 {
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
         div[style*="grid-template-columns: 2fr 1fr"] {
             grid-template-columns: 1fr !important;
             gap: 25px !important;
