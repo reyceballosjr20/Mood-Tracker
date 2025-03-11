@@ -253,20 +253,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         .then(data => {
                             console.log('Upload result:', data);
                             
+                            // Reset button state
+                            if (changePhotoBtn) {
+                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                changePhotoBtn.disabled = false;
+                            }
+                            
                             if (data.success) {
-                                showAlert('success', 'Profile image updated successfully. Reloading page...');
+                                // Update profile image display (remove preview badge)
+                                if (profileImageContainer) {
+                                    // Use the full path returned from the server
+                                    profileImageContainer.innerHTML = `<img src="../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                                    console.log('Updated image path:', data.image_path);
+                                }
                                 
-                                // Reload the page after a short delay to show the success message
+                                // Also update the user avatar in the sidebar if it exists
+                                updateUserAvatar(data.image_path);
+                                
+                                showAlert('success', data.message);
+                                
+                                // Reload the page after a short delay to ensure everything is updated
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1500);
                             } else {
-                                // Reset button state
-                                if (changePhotoBtn) {
-                                    changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                                    changePhotoBtn.disabled = false;
-                                }
-                                
                                 showAlert('danger', data.message);
                                 // Restore initials if upload failed
                                 restoreInitialsImage();
@@ -304,13 +314,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
                 
                 if (imagePath) {
-                    // Update the avatar with the new image
-                    userAvatar.innerHTML = `<img src="../../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    // Update the avatar with the new image - use the correct path
+                    userAvatar.innerHTML = `<img src="../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                     
                     // Also update any other instances of the user avatar on the page
                     const otherAvatars = document.querySelectorAll('.user-avatar:not(:first-child)');
                     otherAvatars.forEach(avatar => {
-                        avatar.innerHTML = `<img src="../../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                        avatar.innerHTML = `<img src="../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                     });
                 } else {
                     userAvatar.textContent = initials;
