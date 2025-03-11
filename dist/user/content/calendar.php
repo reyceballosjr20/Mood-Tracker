@@ -8,6 +8,9 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     exit;
 }
 
+// Set timezone to UTC+8
+date_default_timezone_set('Asia/Singapore');
+
 // Load the Mood model
 require_once '../../../models/Mood.php';
 $mood = new Mood();

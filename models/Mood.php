@@ -554,5 +554,108 @@ class Mood {
             return false;
         }
     }
+
+    /**
+     * Get mood history with optional filtering
+     * 
+     * @param int $userId User ID
+     * @param string $period Time period (week, month, quarter, year, all)
+     * @param string $search Optional search query
+     * @return array|bool Array of mood entries or false on failure
+     */
+    public function getMoodHistory($userId, $period = 'month', $search = '') {
+        try {
+            // Determine date range based on period
+            $dateRange = $this->getDateRangeForPeriod($period);
+            
+            // Build search condition if needed
+            $searchCondition = '';
+            $params = [':user_id' => $userId];
+            
+            if (!empty($search)) {
+                $searchCondition = "AND (mood_type LIKE :search OR mood_text LIKE :search)";
+                $params[':search'] = "%$search%";
+            }
+            
+            $sql = "SELECT id, mood_type, mood_text, created_at
+                    FROM mood_entries
+                    WHERE user_id = :user_id 
+                    $dateRange
+                    $searchCondition
+                    ORDER BY created_at DESC";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            if ($stmt->execute()) {
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log('Error retrieving mood history: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get available year-month combinations for a user
+     * 
+     * @param int $userId User ID
+     * @return array Array of YYYY-MM strings
+     */
+    public function getAvailableMonths($userId) {
+        try {
+            $sql = "SELECT DISTINCT YEAR(created_at) as year, MONTH(created_at) as month
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    ORDER BY year DESC, month DESC";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $months = [];
+                
+                foreach ($results as $row) {
+                    $months[] = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
+                }
+                
+                return $months;
+            }
+            
+            return [];
+        } catch (PDOException $e) {
+            error_log('Error retrieving available months: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Helper function to get SQL date range condition
+     * 
+     * @param string $period Period string (week, month, etc.)
+     * @return string SQL condition
+     */
+    private function getDateRangeForPeriod($period) {
+        switch ($period) {
+            case 'week':
+                return 'AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)';
+            case 'month':
+                return 'AND created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)';
+            case 'quarter':
+                return 'AND created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)';
+            case 'year':
+                return 'AND created_at >= DATE_SUB(CURDATE(), INTERVAL 365 DAY)';
+            case 'all':
+                return ''; // No date restriction
+            default:
+                return 'AND created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)';
+        }
+    }
 }
 ?> 

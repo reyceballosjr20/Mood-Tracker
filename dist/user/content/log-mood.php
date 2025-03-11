@@ -7,6 +7,9 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     echo "Authorization required";
     exit;
 }
+
+// Set timezone to UTC+8
+date_default_timezone_set('Asia/Singapore');
 ?>
 
 <div class="header">

@@ -773,12 +773,7 @@ if(isset($_GET['page'])) {
                         <span>Profile</span>
                     </a>
                 </li>
-                <li class="menu-item <?php echo $current_page === 'settings' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
+               
                 <li class="menu-item">
                     <a href="../logout.php" class="menu-link">
                         <i class="fas fa-sign-out-alt"></i>
