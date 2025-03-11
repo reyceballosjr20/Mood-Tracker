@@ -49,7 +49,7 @@ $moodEmojis = [
 $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
 ?>
 
-<div class="dashboard-container">
+<div>
     <!-- Welcome header -->
     <div class="welcome-section">
         <h1>Hello, <?php echo htmlspecialchars($userName); ?>!</h1>
