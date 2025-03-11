@@ -27,6 +27,13 @@ function initMoodTracker() {
         'saveMoodBtn': !!saveMoodBtn
     });
     
+    // Initially disable save button
+    if (saveMoodBtn) {
+        saveMoodBtn.disabled = true;
+        saveMoodBtn.classList.add('disabled');
+        console.log('Save button initially disabled');
+    }
+    
     // Inspirational messages for each mood type
     const moodMessages = {
         sad: [
@@ -146,6 +153,13 @@ function initMoodTracker() {
             console.log(`Added selected class to: ${selectedMoodType}`);
             selectedMood = selectedMoodType;
             
+            // Enable save button when mood is selected
+            if (saveMoodBtn) {
+                saveMoodBtn.disabled = false;
+                saveMoodBtn.classList.remove('disabled');
+                console.log('Save button enabled');
+            }
+            
             // Update inspirational message based on selected mood
             updateInspirationalMessage(selectedMood);
         });
@@ -153,12 +167,17 @@ function initMoodTracker() {
 
     // Handle save button click
     saveMoodBtn.addEventListener('click', async function() {
-        if (!selectedMood) {
-            alert('Please select a mood first');
+        if (!selectedMood || this.disabled) {
+            console.log('Cannot save: No mood selected or button disabled');
             return;
         }
 
         try {
+            // Disable button during saving to prevent double-submission
+            this.disabled = true;
+            this.classList.add('disabled');
+            this.textContent = 'Saving...';
+            
             const response = await fetch('save-mood.php', {
                 method: 'POST',
                 headers: {
@@ -202,6 +221,11 @@ function initMoodTracker() {
                 moodInfluence.value = '';
                 selectedMood = null;
                 
+                // Reset button
+                this.textContent = 'SAVE';
+                this.disabled = true;
+                this.classList.add('disabled');
+                
                 // Reset inspirational message
                 inspirationalMessage.style.opacity = '0';
                 setTimeout(() => {
@@ -216,6 +240,11 @@ function initMoodTracker() {
             }
         } catch (error) {
             alert('Error saving mood: ' + error.message);
+            
+            // Reset button state on error
+            this.disabled = false;
+            this.classList.remove('disabled');
+            this.textContent = 'SAVE';
         }
     });
     

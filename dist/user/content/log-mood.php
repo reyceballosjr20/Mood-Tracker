@@ -307,6 +307,38 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             font-size: 35px;
         }
     }
+    
+    /* Button styles for enabled/disabled states */
+    #saveMoodBtn {
+        background: linear-gradient(135deg, #d1789c, #e896b8);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 30px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 8px rgba(209, 120, 156, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    #saveMoodBtn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(209, 120, 156, 0.4);
+    }
+    
+    #saveMoodBtn:active:not(:disabled) {
+        transform: translateY(-1px);
+    }
+    
+    #saveMoodBtn.disabled,
+    #saveMoodBtn:disabled {
+        background: linear-gradient(135deg, #c8c8c8, #e0e0e0);
+        color: #999;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none !important;
+    }
 </style>
 
 <!-- All JavaScript code has been moved to the external mood-tracker.js file -->
