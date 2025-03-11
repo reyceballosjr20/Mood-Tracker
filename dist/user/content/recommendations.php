@@ -449,20 +449,20 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
 ?>
 
 <div class="header">
-    <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
+    <h1 class="page-title">
         Recommendations
-        <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
+        <span class="title-underline"></span>
     </h1>
 </div>
 
-<div class="card" style="margin-bottom: 30px; background-color: #f8dfeb; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px;">
+<div class="mood-card">
     <div class="card-header">
         <h2 class="card-title">Your Mood Today <?php echo $moodEmoji; ?></h2>
         <div class="card-icon">
             <i class="fas fa-lightbulb"></i>
         </div>
     </div>
-    <div class="card-content" style="font-size: 18px;">
+    <div class="card-content">
         <?php if ($currentMood != 'none'): ?>
             Based on your <?php echo htmlspecialchars(ucfirst($currentMood)); ?> mood, here are some personalized recommendations
         <?php else: ?>
@@ -471,14 +471,13 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     </div>
 </div>
 
-<!-- Update the recommendations grid to remove buttons -->
 <div class="recommendations-grid">
     <?php foreach ($recommendations as $rec): ?>
     <div class="recommendation-card">
-        <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
         <div class="recommendation-icon">
             <i class="fas fa-<?php echo htmlspecialchars($rec['icon']); ?>"></i>
         </div>
+        <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
         <p class="recommendation-text"><?php echo htmlspecialchars($rec['description']); ?></p>
     </div>
     <?php endforeach; ?>
@@ -488,18 +487,18 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     <h2 class="section-title">Resources for You</h2>
 </div>
 
-<div class="recent-activities">
-    <ul class="activity-list">
+<div class="resources-container">
+    <ul class="resource-list">
         <?php foreach ($resources as $resource): ?>
-        <li class="activity-item">
-            <div class="activity-icon">
+        <li class="resource-item">
+            <div class="resource-icon">
                 <i class="fas fa-<?php echo htmlspecialchars($resource['icon']); ?>"></i>
             </div>
-            <div class="activity-info">
-                <div class="activity-title"><?php echo htmlspecialchars($resource['title']); ?></div>
-                <div class="activity-time"><?php echo htmlspecialchars($resource['time']); ?></div>
+            <div class="resource-info">
+                <div class="resource-title"><?php echo htmlspecialchars($resource['title']); ?></div>
+                <div class="resource-time"><?php echo htmlspecialchars($resource['time']); ?></div>
             </div>
-            <a href="<?php echo htmlspecialchars($resource['link']); ?>" target="_blank" class="activity-action">
+            <a href="<?php echo htmlspecialchars($resource['link']); ?>" target="_blank" class="resource-action">
                 <i class="fas fa-external-link-alt"></i>
             </a>
         </li>
@@ -508,161 +507,62 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
 </div>
 
 <style>
-    /* Updated styles to match the screenshot without buttons */
-    .recommendation-card {
-        background-color: white;
-        border-radius: 16px;
-        padding: 25px;
-        position: relative;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        height: 100%;
+    /* Global Styles */
+    .header {
+        margin-bottom: 25px;
+        padding: 0 10px;
     }
     
-    .recommendation-text {
-        font-size: 1.1rem;
-        line-height: 1.5;
-        color: #333;
-        margin-bottom: 0; /* Remove bottom margin since there's no button */
-    }
-    
-    /* Remove the button styles */
-    .recommendation-button {
-        display: none;
-    }
-    
-    /* Updated styles to match the screenshot */
-    .recommendations-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 30px;
-        width: 100%;
-        padding: 0 15px;
-    }
-    
-    .recommendation-title {
-        color: #6e3b5c;
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin-top: 0;
-        margin-bottom: 15px;
-        padding-right: 40px;
-    }
-    
-    .recommendation-icon {
-        position: absolute;
-        top: 25px;
-        right: 25px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background-color: #fff3f8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .page-title {
         color: #d1789c;
+        font-size: 2rem;
+        margin-bottom: 15px;
+        position: relative;
+        display: inline-block;
+        font-weight: 600;
     }
     
-    /* Mobile responsiveness */
-    @media (max-width: 992px) {
-        .recommendations-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    .title-underline {
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 40%;
+        height: 3px;
+        background: linear-gradient(90deg, #d1789c, #f5d7e3);
+        border-radius: 3px;
     }
     
-    @media (max-width: 768px) {
-        .recommendations-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .recommendation-card {
-            padding: 20px;
-        }
-        
-        .recommendation-icon {
-            top: 20px;
-            right: 20px;
-        }
+    /* Mood Card Styles */
+    .mood-card {
+        margin-bottom: 35px;
+        background-color: #f8dfeb;
+        border: none;
+        box-shadow: 0 10px 30px rgba(209, 120, 156, 0.1);
+        border-radius: 16px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
     }
     
-    /* Card styles */
-    .card {
-        transition: none !important;
-    }
-    
-    .card:hover {
-        transform: none !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.07) !important;
+    .mood-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 35px rgba(209, 120, 156, 0.15);
     }
     
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 20px 10px 20px;
+        padding: 22px 25px 12px;
     }
     
     .card-title {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         color: #6e3b5c;
         margin: 0;
         font-weight: 500;
     }
     
     .card-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #fff3f8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #d1789c;
-    }
-    
-    .card-content {
-        padding: 10px 20px 20px;
-    }
-    
-    .card-footer {
-        padding: 0 20px 20px;
-    }
-    
-    /* Section header */
-    .section-header {
-        margin: 30px 0 20px;
-    }
-    
-    .section-title {
-        color: #6e3b5c;
-        font-size: 1.4rem;
-        font-weight: 500;
-    }
-    
-    /* Activity list */
-    .activity-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .activity-item {
-        display: flex;
-        align-items: center;
-        padding: 18px;
-        background-color: white;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-        transition: transform 0.2s ease;
-    }
-    
-    .activity-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
-    
-    .activity-icon {
         width: 45px;
         height: 45px;
         border-radius: 50%;
@@ -671,63 +571,206 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
         align-items: center;
         justify-content: center;
         color: #d1789c;
-        margin-right: 18px;
-        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(209, 120, 156, 0.15);
     }
     
-    .activity-info {
+    .card-content {
+        padding: 12px 25px 25px;
+        font-size: 1.1rem;
+        color: #6e3b5c;
+    }
+    
+    /* Recommendations Grid */
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 40px;
+        padding: 0 10px;
+    }
+    
+    .recommendation-card {
+        background-color: white;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
+    
+    .recommendation-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #d1789c, #f5d7e3);
+        border-radius: 2px 0 0 2px;
+    }
+    
+    .recommendation-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #fff3f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d1789c;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 15px rgba(209, 120, 156, 0.12);
+    }
+    
+    .recommendation-title {
+        color: #6e3b5c;
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .recommendation-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+    
+    /* Section Header */
+    .section-header {
+        margin: 35px 0 25px;
+        padding: 0 10px;
+    }
+    
+    .section-title {
+        color: #6e3b5c;
+        font-size: 1.6rem;
+        font-weight: 500;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #d1789c, #f5d7e3);
+        border-radius: 3px;
+    }
+    
+    /* Resources List */
+    .resources-container {
+        padding: 0 10px;
+    }
+    
+    .resource-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .resource-item {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        background-color: white;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .resource-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .resource-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #fff3f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d1789c;
+        margin-right: 20px;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 15px rgba(209, 120, 156, 0.12);
+    }
+    
+    .resource-info {
         flex: 1;
     }
     
-    .activity-title {
+    .resource-title {
         font-weight: 500;
         color: #4a3347;
         margin-bottom: 6px;
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
     
-    .activity-time {
-        font-size: 0.85rem;
+    .resource-time {
+        font-size: 0.9rem;
         color: #888;
     }
     
-    .activity-action {
-        background: #ff8fb1;
+    .resource-action {
+        background: linear-gradient(135deg, #ff8fb1, #d1789c);
         color: white;
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s ease;
+        transition: all 0.3s ease;
         text-decoration: none;
+        box-shadow: 0 5px 15px rgba(209, 120, 156, 0.2);
     }
     
-    .activity-action:hover {
-        background-color: #e67d9a;
+    .resource-action:hover {
+        transform: scale(1.1);
+        background: linear-gradient(135deg, #ff97b7, #c36c8d);
     }
     
-    /* Mobile responsiveness */
+    /* Mobile Responsiveness */
+    @media (max-width: 992px) {
+        .recommendations-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+    }
+    
     @media (max-width: 768px) {
-        /* Ensure content fills available width */
-        .header, 
-        .recommendations-grid,
-        .section-header,
-        .recent-activities {
-            width: 100%;
-            margin-left: 0;
-            margin-right: 0;
-            padding-left: 0;
-            padding-right: 0;
-            box-sizing: border-box;
+        .page-title {
+            font-size: 1.7rem;
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         
-        .card {
-            width: 100%;
-            margin-left: 0;
-            margin-right: 0;
-            border-radius: 12px;
+        .title-underline {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
         }
         
         .recommendations-grid {
@@ -736,69 +779,103 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
             padding: 0 15px;
         }
         
-        .section-header {
-            padding: 0 15px;
+        .card-header {
+            padding: 18px 20px 10px;
         }
         
-        .recent-activities {
-            padding: 0 15px;
+        .card-content {
+            padding: 10px 20px 20px;
+            font-size: 1rem;
         }
         
-        .activity-list {
-            width: 100%;
-        }
-        
-        .activity-item {
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        h1.page-title {
-            font-size: 1.6rem !important;
-            text-align: center;
-            display: block !important;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        h1.page-title span {
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-        }
-        
-        .card {
-            margin-bottom: 15px !important;
+        .card-title {
+            font-size: 1.2rem;
         }
         
         .section-title {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
+            display: block;
+            text-align: center;
+        }
+        
+        .section-title:after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .recommendation-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .recommendation-title {
+            font-size: 1.1rem;
         }
     }
     
     @media (max-width: 576px) {
-        .activity-item {
+        .header {
+            margin-bottom: 15px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .mood-card {
+            margin-bottom: 25px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .resource-item {
+            padding: 15px;
             flex-wrap: wrap;
         }
         
-        .activity-info {
-            width: calc(100% - 55px);
+        .resource-info {
+            width: calc(100% - 70px);
             margin-bottom: 10px;
         }
         
-        .activity-action {
-            margin-left: 55px;
+        .resource-action {
+            margin-left: 70px;
         }
         
-        h1.page-title {
-            font-size: 1.5rem !important;
+        .recommendation-card {
+            padding: 18px;
         }
         
-        .card-title {
-            font-size: 1.1rem;
+        .section-header {
+            margin: 25px 0 15px;
+        }
+    }
+    
+    /* Ensure breathing room around content on mobile */
+    @media (max-width: 480px) {
+        .recommendations-grid,
+        .resources-container,
+        .header,
+        .section-header {
+            padding-left: 12px;
+            padding-right: 12px;
         }
         
-        .card-content {
-            font-size: 0.95rem !important;
+        .mood-card {
+            margin-left: 12px;
+            margin-right: 12px;
+            border-radius: 12px;
+        }
+        
+        .recommendation-card {
+            padding: 15px;
+        }
+        
+        .recommendation-text {
+            font-size: 0.95rem;
         }
     }
 </style> 
