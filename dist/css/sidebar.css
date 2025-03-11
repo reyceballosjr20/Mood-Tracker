@@ -115,4 +115,35 @@
     color: #ff8fb1;
     transform: scale(1.1);
     background: rgba(255, 255, 255, 1);
+}
+
+/* Remove these style blocks */
+.header-actions,
+.search-box,
+.action-btn {
+    display: none;
+}
+
+/* Update the header styles to be cleaner */
+.header {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #4a3347;
+    margin: 0;
+}
+
+/* Remove unnecessary navbar styles */
+.navbar {
+    background: transparent !important;
+    padding: 0;
+}
+
+.container-fluid {
+    padding: 0;
 } 

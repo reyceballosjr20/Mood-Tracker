@@ -850,21 +850,9 @@ if (isset($_GET['page'])) {
         <div id="content">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
-                    <button type="button" id="sidebarToggle" class="btn btn-link">
-                        <i class="fas fa-bars"></i>
-                    </button>
                     <div class="header">
                         <div class="header-left">
-                            <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                        </div>
-                        <div class="header-actions">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="Search...">
-                            </div>
-                            <button class="action-btn" id="refreshBtn">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
+                            <h1 class="page-title" id="pageTitle"></h1>
                         </div>
                     </div>
                 </div>
