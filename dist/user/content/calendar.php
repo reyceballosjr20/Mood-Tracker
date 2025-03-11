@@ -81,7 +81,20 @@ if ($prevMonth < 1) {
     $prevYear--;
 }
 
-// Define mood-to-emoji mapping (used across all months)
+// Define mood-to-icon mapping (replacing emojis with Font Awesome icons)
+$moodIcons = [
+    'sad' => 'fa-sad-tear',
+    'unhappy' => 'fa-frown',
+    'neutral' => 'fa-meh',
+    'good' => 'fa-smile',
+    'energetic' => 'fa-dumbbell',
+    'excellent' => 'fa-laugh-beam',
+    'anxious' => 'fa-bolt',
+    'tired' => 'fa-bed',
+    'focused' => 'fa-bullseye'
+];
+
+// Keep existing emoji mapping for fallback and other parts of the UI
 $moodEmojis = [
     'sad' => '😢',
     'unhappy' => '😞',
@@ -227,39 +240,39 @@ $displayYear = $selectedYear;
         ?>
         
         <!-- Each month as a separate card -->
-        <div class="card month-calendar" style="padding: 20px; background-color: white; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; overflow: hidden;">
-            <!-- Month header with distinct styling -->
-            <div style="text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f5d7e3;">
+        <div class="card month-calendar" style="padding: 25px; background-color: white; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; overflow: hidden;">
+            <!-- Month header with more padding -->
+            <div style="text-align: center; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid #f5d7e3;">
                 <h3 style="color: #d1789c; font-size: 1.2rem; margin: 0; font-weight: 500;">
                     <?php echo $monthName . ' ' . $year; ?>
                 </h3>
             </div>
             
-            <!-- Day headers -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 10px; font-weight: 500; color: #6e3b5c;">
-                <div>M</div>
-                <div>T</div>
-                <div>W</div>
-                <div>T</div>
-                <div>F</div>
-                <div>S</div>
-                <div>S</div>
+            <!-- Day headers - with more height -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 15px; font-weight: 500; color: #6e3b5c;">
+                <div style="padding: 8px 0;">M</div>
+                <div style="padding: 8px 0;">T</div>
+                <div style="padding: 8px 0;">W</div>
+                <div style="padding: 8px 0;">T</div>
+                <div style="padding: 8px 0;">F</div>
+                <div style="padding: 8px 0;">S</div>
+                <div style="padding: 8px 0;">S</div>
             </div>
             
-            <!-- Calendar days -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+            <!-- Calendar days - increased height -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
                 <?php 
                 // Add empty cells for days before the 1st of the month
                 for ($i = 1; $i < $firstDayOfMonth; $i++) {
-                    echo '<div style="height: 40px;"></div>';
+                    echo '<div style="height: 55px;"></div>';
                 }
                 
-                // Add days of the month
+                // Add days of the month with increased height
                 for ($day = 1; $day <= $daysInMonth; $day++) {
                     $isToday = ($day == date('j') && $month == date('n') && $year == date('Y'));
                     $hasMood = isset($moodsByDay[$day]);
                     
-                    $dayStyle = 'height: 40px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;';
+                    $dayStyle = 'height: 55px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; position: relative; padding: 5px 0;';
                     
                     if ($isToday) {
                         $dayStyle .= 'border: 2px solid #d1789c; background-color: #fff3f8;';
@@ -268,15 +281,15 @@ $displayYear = $selectedYear;
                     }
                     
                     echo '<div style="' . $dayStyle . '">';
-                    echo '<div style="font-size: 0.8rem;">' . $day . '</div>';
+                    echo '<div style="font-size: 0.85rem; font-weight: 500;">' . $day . '</div>';
                     
                     if ($hasMood) {
                         $moodType = $moodsByDay[$day]['mood_type'];
-                        $moodEmoji = isset($moodEmojis[$moodType]) ? $moodEmojis[$moodType] : '😐';
+                        $moodIcon = isset($moodIcons[$moodType]) ? $moodIcons[$moodType] : 'fa-meh';
                         $moodText = $moodsByDay[$day]['mood_text'];
                         
-                        echo '<div class="mood-entry" style="font-size: 1rem; cursor: pointer; margin-top: -2px;">';
-                        echo $moodEmoji;
+                        echo '<div class="mood-entry" style="font-size: 1rem; cursor: pointer;">';
+                        echo '<div class="calendar-mood-icon"><i class="fas ' . $moodIcon . '"></i></div>';
                         
                         // Add tooltip with mood details
                         if (!empty($moodText)) {
@@ -287,6 +300,9 @@ $displayYear = $selectedYear;
                         }
                         
                         echo '</div>';
+                    } else {
+                        // Add an empty space holder to maintain consistent height
+                        echo '<div style="height: 24px;"></div>';
                     }
                     
                     echo '</div>';
@@ -315,9 +331,10 @@ $displayYear = $selectedYear;
                     <i class="fas fa-chart-pie"></i>
                 </div>
             </div>
-            <div style="font-size: 2rem; margin: 15px 0;">
+            <div style="font-size: 2rem; margin: 15px 0; display: flex; align-items: center; justify-content: flex-start;">
                 <?php 
-                echo isset($moodEmojis[$topMood]) ? $moodEmojis[$topMood] : '😐';
+                $moodIcon = isset($moodIcons[$topMood]) ? $moodIcons[$topMood] : 'fa-meh';
+                echo '<div class="summary-mood-icon"><i class="fas ' . $moodIcon . '"></i></div>';
                 ?>
             </div>
             <div style="font-size: 1.2rem; color: #4a3347; text-transform: capitalize;">
@@ -392,8 +409,9 @@ $displayYear = $selectedYear;
             <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347; display: flex; align-items: center;">
                 <?php 
                 $happyDay = date('j', strtotime($bestDay['created_at']));
-                $happyEmoji = isset($moodEmojis[$bestDay['mood_type']]) ? $moodEmojis[$bestDay['mood_type']] : '🤩';
-                echo $happyEmoji . ' ' . $monthName . ' ' . $happyDay;
+                $moodIcon = isset($moodIcons[$bestDay['mood_type']]) ? $moodIcons[$bestDay['mood_type']] : 'fa-meh';
+                echo '<div class="summary-mood-icon"><i class="fas ' . $moodIcon . '"></i></div>';
+                echo ' ' . $monthName . ' ' . $happyDay;
                 ?>
             </div>
             <div style="font-size: 0.9rem; color: #888; text-transform: capitalize;">
@@ -458,6 +476,7 @@ $displayYear = $selectedYear;
     /* Calendar grid responsive styles */
     .month-calendar {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        min-height: 400px; /* Set a minimum height for month cards */
     }
     
     .month-calendar:hover {
@@ -501,11 +520,11 @@ $displayYear = $selectedYear;
         }
         
         div[style*="display: grid; grid-template-columns: repeat(7, 1fr)"] {
-            gap: 3px !important;
+            gap: 4px !important;
         }
         
-        div[style*="height: 40px"] {
-            height: 35px !important;
+        div[style*="height: 55px"] {
+            height: 45px !important;
         }
         
         div[style*="font-size: 1rem"] {
@@ -547,6 +566,63 @@ $displayYear = $selectedYear;
     .mood-entry:hover .mood-tooltip {
         opacity: 1;
         visibility: visible;
+    }
+    
+    /* New styles for mood icons */
+    .calendar-mood-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #feeef5, #ffffff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(209, 120, 156, 0.2);
+        margin: 0 auto;
+    }
+    
+    .calendar-mood-icon i {
+        font-size: 14px;
+        color: #d1789c;
+    }
+    
+    .summary-mood-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #feeef5, #ffffff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 10px rgba(209, 120, 156, 0.15);
+        margin-right: 10px;
+    }
+    
+    .summary-mood-icon i {
+        font-size: 22px;
+        color: #d1789c;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+    
+    /* Responsive styles for mood icons */
+    @media (max-width: 576px) {
+        .calendar-mood-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .calendar-mood-icon i {
+            font-size: 12px;
+        }
+        
+        .summary-mood-icon {
+            width: 35px;
+            height: 35px;
+        }
+        
+        .summary-mood-icon i {
+            font-size: 18px;
+        }
     }
 </style>
 
