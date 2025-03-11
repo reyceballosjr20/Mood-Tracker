@@ -31,6 +31,7 @@ if (isset($_GET['page'])) {
     <title>Dashboard - Mood Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
     <!-- Load the mood tracker script -->
     <script src="../js/mood-tracker.js"></script>
     <script src="../js/calendar.js"></script>
@@ -299,17 +300,50 @@ if (isset($_GET['page'])) {
             transition: all 0.3s ease;
         }
 
+        /* Main content header */
+        .content-header {
+            margin-bottom: 25px;
+        }
+
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .page-title {
             font-size: 24px;
             font-weight: 600;
             color: #4a3347;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background-color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e3b5c;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #f8dfeb;
+            transform: translateY(-2px);
         }
 
         .search-box {
@@ -552,6 +586,14 @@ if (isset($_GET['page'])) {
         }
 
         @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            
+            .mobile-header {
+                display: flex;
+            }
+            
             .sidebar {
                 left: -250px;
                 box-shadow: none;
@@ -569,10 +611,6 @@ if (isset($_GET['page'])) {
             .main-content {
                 margin-left: 0;
                 width: 100%;
-            }
-
-            .mobile-header {
-                display: flex;
             }
         }
 
@@ -599,116 +637,97 @@ if (isset($_GET['page'])) {
             }
         }
 
-        /* Add these CSS updates for better mobile hamburger menu */
-
-        /* Mobile header styles */
+        /* Enhanced Mobile Header Design */
         .mobile-header {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: #fff;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 9;
+            background: linear-gradient(to right, #f8dfeb, #f9f1ef);
+            padding: 12px 16px;
+            box-shadow: 0 3px 15px rgba(110, 59, 92, 0.12);
+            z-index: 99;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .mobile-toggle {
-            background: none;
-            border: none;
-            color: #6e3b5c;
-            font-size: 22px;
-            cursor: pointer;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-            background-color: rgba(245, 215, 227, 0.3);
-        }
-
-        .mobile-toggle:hover,
-        .mobile-toggle:focus {
-            background-color: rgba(245, 215, 227, 0.5);
+            border-bottom: 1px solid rgba(255, 143, 177, 0.15);
         }
 
         .mobile-logo {
             font-weight: 600;
             color: #6e3b5c;
-            font-size: 18px;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .mobile-actions {
+        .mobile-logo i {
+            color: #ff8fb1;
+            font-size: 22px;
+        }
+
+        .mobile-toggle {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 143, 177, 0.2);
+            color: #6e3b5c;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 10px;
             display: flex;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(110, 59, 92, 0.1);
+        }
+
+        .mobile-toggle:hover, 
+        .mobile-toggle:focus {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 59, 92, 0.15);
         }
 
         .mobile-action {
             color: #6e3b5c;
-            font-size: 18px;
+            font-size: 16px;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background-color: rgba(245, 215, 227, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 143, 177, 0.2);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(110, 59, 92, 0.1);
+        }
+
+        .mobile-action:hover,
+        .mobile-action:active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 59, 92, 0.15);
+        }
+
+        /* Also update the toggle button in the main content */
+        .sidebar-toggle-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 143, 177, 0.2);
+            color: #6e3b5c;
+            box-shadow: 0 2px 8px rgba(110, 59, 92, 0.08);
             transition: all 0.2s ease;
         }
 
-        .mobile-action:hover {
-            background-color: rgba(245, 215, 227, 0.5);
-        }
-
-        /* Responsive styles for sidebar */
-        @media (max-width: 768px) {
-            body {
-                padding-top: 70px;
-            }
-
-            .mobile-header {
-                display: flex;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 11;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 10;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-            }
-
-            .sidebar-overlay.active {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
+        .sidebar-toggle-btn:hover {
+            background-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 59, 92, 0.12);
         }
     </style>
 </head>
@@ -720,134 +739,146 @@ if (isset($_GET['page'])) {
     </div>
 
     <!-- Enhanced Sidebar structure -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-cloud-sun"></i>
-                <span>Mood Tracker</span>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Dashboard</h3>
+                <button type="button" id="sidebarCollapse" class="btn btn-link d-md-none">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <button class="toggle-sidebar" id="toggleSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="user-profile">
-            <div class="user-avatar">
-                <?php
-                // Get profile image from session
-                $profile_image = $_SESSION['profile_image'] ?? '';
-
-                // Debug output
-                echo "<!-- Debug: Profile image = $profile_image -->";
-
-                if (!empty($profile_image)):
-                    // Check if it's just a filename or a full path
-                    if (strpos($profile_image, '/') !== false) {
-                        // It's already a path
-                        $image_path = $profile_image;
-                    } else {
-                        // It's just a filename, construct the path
-                        $image_path = 'uploads/profile_images/' . $profile_image;
-                    }
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <?php
+                    // Get profile image from session
+                    $profile_image = $_SESSION['profile_image'] ?? '';
 
                     // Debug output
-                    echo "<!-- Debug: Image path = $image_path -->";
-                    echo "<!-- Debug: Full path = " . realpath('../' . $image_path) . " -->";
+                    echo "<!-- Debug: Profile image = $profile_image -->";
 
-                    // Check if file exists
-                    if (file_exists('../' . $image_path)):
-                        ?>
-                        <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile"
-                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    if (!empty($profile_image)):
+                        // Check if it's just a filename or a full path
+                        if (strpos($profile_image, '/') !== false) {
+                            // It's already a path
+                            $image_path = $profile_image;
+                        } else {
+                            // It's just a filename, construct the path
+                            $image_path = 'uploads/profile_images/' . $profile_image;
+                        }
+
+                        // Debug output
+                        echo "<!-- Debug: Image path = $image_path -->";
+                        echo "<!-- Debug: Full path = " . realpath('../' . $image_path) . " -->";
+
+                        // Check if file exists
+                        if (file_exists('../' . $image_path)):
+                            ?>
+                            <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile"
+                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        <?php else: ?>
+                            <!-- Image file not found -->
+                            <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <!-- Image file not found -->
+                        <!-- No profile image set -->
                         <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                     <?php endif; ?>
-                <?php else: ?>
-                    <!-- No profile image set -->
-                    <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
-                <?php endif; ?>
+                </div>
+                <div class="user-info">
+                    <div class="user-name"><?php echo htmlspecialchars($user['first_name']); ?></div>
+                    <div class="user-role">Member</div>
+                </div>
             </div>
-            <div class="user-info">
-                <div class="user-name"><?php echo htmlspecialchars($user['first_name']); ?></div>
-                <div class="user-role">Member</div>
+
+            <div class="menu-wrapper">
+                <h3 class="menu-title">Main Menu</h3>
+                <ul class="menu-list">
+                    <li class="menu-item <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>">
+                        <a href="#" class="menu-link" data-page="dashboard">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="menu-item <?php echo $current_page === 'log-mood' ? 'active' : ''; ?>">
+                        <a href="#" class="menu-link" data-page="log-mood">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Log Mood</span>
+                        </a>
+                    </li>
+
+
+                    <li class="menu-item <?php echo $current_page === 'calendar' ? 'active' : ''; ?>">
+                        <a href="#" class="menu-link" data-page="calendar">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Calendar</span>
+                        </a>
+                    </li>
+                    <li class="menu-item <?php echo $current_page === 'recommendations' ? 'active' : ''; ?>">
+                        <a href="#" class="menu-link" data-page="recommendations">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Recommendations</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="menu-divider"></div>
+
+                <h3 class="menu-title">My Account</h3>
+                <ul class="menu-list">
+                    <li class="menu-item <?php echo $current_page === 'profile' ? 'active' : ''; ?>">
+                        <a href="#" class="menu-link" data-page="profile">
+                            <i class="fas fa-user"></i>
+                            
+                            <span>Profile</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a href="../logout.php" class="menu-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarToggle" class="btn btn-link">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header">
+                        <div class="header-left">
+                            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                        </div>
+                        <div class="header-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search...">
+                            </div>
+                            <button class="action-btn" id="refreshBtn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content container -->
+            <div class="content-container" id="contentContainer">
+                <!-- Content will be loaded here dynamically -->
             </div>
         </div>
-
-        <div class="menu-wrapper">
-            <h3 class="menu-title">Main Menu</h3>
-            <ul class="menu-list">
-                <li class="menu-item <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="dashboard">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="menu-item <?php echo $current_page === 'log-mood' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="log-mood">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Log Mood</span>
-                    </a>
-                </li>
-
-
-                <li class="menu-item <?php echo $current_page === 'calendar' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="calendar">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Calendar</span>
-                    </a>
-                </li>
-                <li class="menu-item <?php echo $current_page === 'recommendations' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="recommendations">
-                        <i class="fas fa-lightbulb"></i>
-                        <span>Recommendations</span>
-                    </a>
-                </li>
-            </ul>
-
-            <div class="menu-divider"></div>
-
-            <h3 class="menu-title">My Account</h3>
-            <ul class="menu-list">
-                <li class="menu-item <?php echo $current_page === 'profile' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="profile">
-                        <i class="fas fa-user"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-
-                <li class="menu-item">
-                    <a href="../logout.php" class="menu-link">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
     </div>
 
-    <!-- Mobile header -->
-    <div class="mobile-header">
-        <button class="mobile-toggle" id="mobileToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="mobile-logo">Mood Tracker</div>
-        <div class="mobile-actions">
-            <a href="#" class="mobile-action tooltip" data-tooltip="Your profile">
-                <i class="fas fa-user"></i>
-            </a>
-        </div>
-    </div>
-
-    <!-- Main content -->
-    <div class="main-content" id="mainContent">
-        <!-- Content will be loaded here dynamically -->
-    </div>
-
+    <script src="../js/sidebar.js"></script>
     <script>
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleSidebar');
         const mobileToggle = document.getElementById('mobileToggle');
         const mainContent = document.getElementById('mainContent');
         const menuLinks = document.querySelectorAll('.menu-link[data-page]');
@@ -859,15 +890,19 @@ if (isset($_GET['page'])) {
         // Function to load page content
         const loadPage = (page) => {
             console.log(`Loading page: ${page}`);
-            const mainContent = document.getElementById('mainContent');
+            const contentContainer = document.getElementById('contentContainer');
+            const pageTitle = document.getElementById('pageTitle');
 
-            if (!mainContent) {
-                console.error('Main content container not found in DOM');
+            if (!contentContainer) {
+                console.error('Content container not found in DOM');
                 return;
             }
 
+            // Update page title
+            pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1).replace(/-/g, ' ');
+
             // Loading animation
-            mainContent.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
+            contentContainer.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
 
             fetch(`content/${page}.php`)
                 .then(response => {
@@ -877,7 +912,7 @@ if (isset($_GET['page'])) {
                     return response.text();
                 })
                 .then(html => {
-                    mainContent.innerHTML = html;
+                    contentContainer.innerHTML = html;
 
                     // After loading content, initialize/reinitialize any scripts
                     if (typeof reinitMoodTracker === 'function') {
@@ -894,7 +929,7 @@ if (isset($_GET['page'])) {
                     updateActiveMenu(page);
                 })
                 .catch(error => {
-                    mainContent.innerHTML = `
+                    contentContainer.innerHTML = `
                         <div class="error-container">
                             <h2>Oops! Something went wrong</h2>
                             <p>${error.message}</p>
@@ -956,14 +991,14 @@ if (isset($_GET['page'])) {
         });
 
         // Toggle sidebar on mobile
-        toggleBtn.addEventListener('click', function () {
+        mobileToggle.addEventListener('click', function () {
             sidebar.classList.toggle('active');
         });
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function (event) {
             if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target) && sidebar.classList.contains('active')) {
+                if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target) && sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
                 }
             }
@@ -1052,6 +1087,71 @@ if (isset($_GET['page'])) {
                     }, 500);
                 }, 5000);
             };
+
+            // Add profile action functionality
+            const profileAction = document.querySelector('.mobile-action[data-page="profile"]');
+            if (profileAction) {
+                profileAction.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    loadPage('profile');
+                    // Close sidebar if open
+                    if (sidebar.classList.contains('active')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            // Add refresh button functionality
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    loadPage(currentPage);
+                });
+            }
+        });
+
+        // Add to your JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get both toggle buttons
+            const mobileToggle = document.getElementById('mobileToggle');
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            // Toggle function for sidebar
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                
+                // On larger screens, adjust main content margin
+                if (window.innerWidth > 768) {
+                    const mainContent = document.getElementById('mainContent');
+                    if (sidebar.classList.contains('active')) {
+                        mainContent.style.marginLeft = '250px';
+                    } else {
+                        mainContent.style.marginLeft = '0';
+                    }
+                } else {
+                    // On mobile, handle overlay
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if (overlay) {
+                        if (sidebar.classList.contains('active')) {
+                            overlay.classList.add('active');
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            overlay.classList.remove('active');
+                            document.body.style.overflow = '';
+                        }
+                    }
+                }
+            }
+            
+            // Add event listeners to both toggle buttons
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            }
         });
     </script>
 </body>
