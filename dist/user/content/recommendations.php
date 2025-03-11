@@ -228,9 +228,9 @@ $recommendations = $moodRecommendations[$currentMood] ?? $moodRecommendations['n
 $moodResources = [
     'sad' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Understanding and Coping with Sadness"',
-            'time' => '7 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Understanding and Coping with Sadness"',
+            'time' => '7 min watch',
             'link' => 'https://www.youtube.com/watch?v=8Su5VtKeXU8'
         ],
         [
@@ -240,17 +240,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=TFbv757kup4'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Finding Hope During Difficult Times"',
-            'time' => '25 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Finding Hope During Difficult Times"',
+            'time' => '25 min watch',
             'link' => 'https://www.youtube.com/watch?v=xRxT9cOKiM8'
         ]
     ],
     'unhappy' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Turning a Bad Day Around"',
-            'time' => '5 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Turning a Bad Day Around"',
+            'time' => '5 min watch',
             'link' => 'https://www.youtube.com/watch?v=7s0S6FeS5Z0'
         ],
         [
@@ -260,17 +260,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=F28MGLlpP90'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Reframing Negative Thoughts"',
-            'time' => '22 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Reframing Negative Thoughts"',
+            'time' => '22 min watch',
             'link' => 'https://www.youtube.com/watch?v=1vx8iUvfyCY'
         ]
     ],
     'neutral' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Finding Meaning in Everyday Life"',
-            'time' => '6 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Finding Meaning in Everyday Life"',
+            'time' => '6 min watch',
             'link' => 'https://www.youtube.com/watch?v=HdqVF7-8wng'
         ],
         [
@@ -280,17 +280,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=w6T02g5hnT4'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Creating More Engaging Days"',
-            'time' => '28 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Creating More Engaging Days"',
+            'time' => '28 min watch',
             'link' => 'https://www.youtube.com/watch?v=fLJsdqxnZb0'
         ]
     ],
     'good' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Building on Positive Momentum"',
-            'time' => '5 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Building on Positive Momentum"',
+            'time' => '5 min watch',
             'link' => 'https://www.youtube.com/watch?v=ZizdB0TgAVM'
         ],
         [
@@ -300,17 +300,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=75d_29QWELk'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "The Science of Positive Emotions"',
-            'time' => '30 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "The Science of Positive Emotions"',
+            'time' => '30 min watch',
             'link' => 'https://www.youtube.com/watch?v=GXy__kBVq1M'
         ]
     ],
     'energetic' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Channeling Energy Productively"',
-            'time' => '4 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Channeling Energy Productively"',
+            'time' => '4 min watch',
             'link' => 'https://www.youtube.com/watch?v=Tz9iJ7TlQiw'
         ],
         [
@@ -320,17 +320,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=ml6cT4AZdqI'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Maintaining Sustainable Energy"',
-            'time' => '35 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Maintaining Sustainable Energy"',
+            'time' => '35 min watch',
             'link' => 'https://www.youtube.com/watch?v=uju-8P7zcFU'
         ]
     ],
     'excellent' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Making the Most of Peak Experiences"',
-            'time' => '6 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Making the Most of Peak Experiences"',
+            'time' => '6 min watch',
             'link' => 'https://www.youtube.com/watch?v=qzR62JJCMBQ'
         ],
         [
@@ -340,17 +340,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=nT1TpVzGRVQ'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "The Psychology of Flow States"',
-            'time' => '40 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "The Psychology of Flow States"',
+            'time' => '40 min watch',
             'link' => 'https://www.youtube.com/watch?v=znwUCNrjpD4'
         ]
     ],
     'anxious' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Quick Techniques to Reduce Anxiety"',
-            'time' => '5 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Quick Techniques to Reduce Anxiety"',
+            'time' => '5 min watch',
             'link' => 'https://www.youtube.com/watch?v=WWloIAQpMcQ'
         ],
         [
@@ -360,17 +360,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=O-6f5wQXSu8'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Understanding Your Anxiety Triggers"',
-            'time' => '32 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Understanding Your Anxiety Triggers"',
+            'time' => '32 min watch',
             'link' => 'https://www.youtube.com/watch?v=BVJkf8IuRjE'
         ]
     ],
     'tired' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Energy Management vs. Time Management"',
-            'time' => '7 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Energy Management vs. Time Management"',
+            'time' => '7 min watch',
             'link' => 'https://www.youtube.com/watch?v=PCRSVRD2EAk'
         ],
         [
@@ -380,17 +380,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=UEEsdXn8oG8'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Sleep Science and Recovery"',
-            'time' => '45 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Sleep Science and Recovery"',
+            'time' => '45 min watch',
             'link' => 'https://www.youtube.com/watch?v=5MuIMqhT8DM'
         ]
     ],
     'focused' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Maintaining Deep Focus States"',
-            'time' => '8 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Maintaining Deep Focus States"',
+            'time' => '8 min watch',
             'link' => 'https://www.youtube.com/watch?v=Hu4Yvq-g7_Y'
         ],
         [
@@ -400,17 +400,17 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=y2X7c9TUQJ8'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "Deep Work and Focus in a Distracted World"',
-            'time' => '38 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "Deep Work and Focus in a Distracted World"',
+            'time' => '38 min watch',
             'link' => 'https://www.youtube.com/watch?v=3E7hkPZ-HTk'
         ]
     ],
     'none' => [
         [
-            'icon' => 'book',
-            'title' => 'Article: "Understanding Your Emotions"',
-            'time' => '6 min read',
+            'icon' => 'video',
+            'title' => 'Video: "Understanding Your Emotions"',
+            'time' => '6 min watch',
             'link' => 'https://www.youtube.com/watch?v=vXAr5dh23zU'
         ],
         [
@@ -420,9 +420,9 @@ $moodResources = [
             'link' => 'https://www.youtube.com/watch?v=W1-qN3YDsVQ'
         ],
         [
-            'icon' => 'headphones',
-            'title' => 'Podcast: "The Science of Happiness"',
-            'time' => '30 min listen',
+            'icon' => 'video',
+            'title' => 'Video: "The Science of Happiness"',
+            'time' => '30 min watch',
             'link' => 'https://www.youtube.com/watch?v=GXy__kBVq1M'
         ]
     ]
@@ -684,24 +684,30 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     .activity-item {
         display: flex;
         align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #f5f5f5;
+        padding: 18px;
         background-color: white;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+    
+    .activity-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
     }
     
     .activity-icon {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
         background-color: #fff3f8;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #d1789c;
-        margin-right: 15px;
+        margin-right: 18px;
+        font-size: 1.1rem;
     }
     
     .activity-info {
@@ -711,7 +717,8 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     .activity-title {
         font-weight: 500;
         color: #4a3347;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
+        font-size: 1rem;
     }
     
     .activity-time {
@@ -720,21 +727,20 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     }
     
     .activity-action {
-        background: none;
-        border: none;
-        color: #d1789c;
-        cursor: pointer;
-        width: 36px;
-        height: 36px;
+        background: #ff8fb1;
+        color: white;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background-color 0.2s ease;
+        text-decoration: none;
     }
     
     .activity-action:hover {
-        background-color: #fff3f8;
+        background-color: #e67d9a;
     }
     
     /* Mobile responsiveness */
