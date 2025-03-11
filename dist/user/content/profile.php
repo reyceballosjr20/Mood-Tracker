@@ -45,13 +45,6 @@ if ($user_id > 0) {
         Your Profile
         <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
     </h1>
-    <div class="search-box">
-        <button id="saveChangesBtn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25); display: flex; align-items: center; transition: all 0.3s ease;">
-            <i class="fas fa-save" style="margin-right: 8px;"></i> 
-            <span>Save Changes</span>
-            <div id="saveSpinner" style="display: none; margin-left: 8px; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite;"></div>
-        </button>
-    </div>
 </div>
 
 <div id="profileAlert" class="alert" style="display: none; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;"></div>
@@ -138,6 +131,15 @@ if ($user_id > 0) {
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Bio</label>
                     <textarea id="bio" name="bio" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; height: 100px; resize: vertical; background-color: #fffcfd; font-family: inherit;"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+                </div>
+                
+                <!-- Add the save button here, after the bio textarea -->
+                <div style="margin-top: 20px;">
+                    <button id="saveChangesBtn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25); display: flex; align-items: center; transition: all 0.3s ease; width: 100%; justify-content: center;">
+                        <i class="fas fa-save" style="margin-right: 8px;"></i> 
+                        <span>Save Changes</span>
+                        <div id="saveSpinner" style="display: none; margin-left: 8px; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite;"></div>
+                    </button>
                 </div>
             </form>
         </div>
