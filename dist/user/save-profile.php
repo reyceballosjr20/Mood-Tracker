@@ -158,20 +158,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
     
     // Upload file
     if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_path)) {
-        // Update database with new image path
+        // Update database with just the filename
         try {
-            $relative_path = 'uploads/profile_images/' . $new_filename;
+            // Store only the filename, not the full path
             $stmt = $pdo->prepare("UPDATE users SET profile_image = ? WHERE id = ?");
-            $result = $stmt->execute([$relative_path, $user_id]);
+            $result = $stmt->execute([$new_filename, $user_id]);
             
             if ($result) {
-                // Update session data
-                $_SESSION['profile_image'] = $relative_path;
+                // Update session data - store the full path for display
+                $_SESSION['profile_image'] = $new_filename;
+                
+                // Return the full path for the frontend
+                $image_path = 'uploads/profile_images/' . $new_filename;
                 
                 echo json_encode([
                     'success' => true, 
                     'message' => 'Profile image updated successfully',
-                    'image_path' => $relative_path
+                    'image_path' => $image_path,
+                    'filename' => $new_filename
                 ]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update profile image in database']);
@@ -188,14 +192,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
 // Process profile image removal
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'remove_image') {
     try {
-        // Get current image path
+        // Get current image filename
         $stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && !empty($user['profile_image'])) {
             // Delete file if it exists
-            $file_path = '../' . $user['profile_image'];
+            $file_path = '../uploads/profile_images/' . $user['profile_image'];
             if (file_exists($file_path)) {
                 unlink($file_path);
             }

@@ -262,8 +262,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (data.success) {
                                 // Update profile image display (remove preview badge)
                                 if (profileImageContainer) {
+                                    // Use the full path returned from the server
                                     profileImageContainer.innerHTML = `<img src="../../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
                                 }
+                                
+                                // Also update the user avatar in the sidebar if it exists
+                                updateUserAvatar(data.image_path);
+                                
                                 showAlert('success', data.message);
                             } else {
                                 showAlert('danger', data.message);
@@ -291,6 +296,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 
                 reader.readAsDataURL(file);
+            }
+        }
+        
+        // Function to update user avatar in sidebar
+        function updateUserAvatar(imagePath) {
+            const userAvatar = document.querySelector('.user-avatar');
+            if (userAvatar) {
+                const firstName = document.getElementById('firstName')?.value || '';
+                const lastName = document.getElementById('lastName')?.value || '';
+                const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+                
+                if (imagePath) {
+                    userAvatar.innerHTML = `<img src="../../${imagePath}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    userAvatar.textContent = initials;
+                }
             }
         }
         

@@ -724,10 +724,19 @@ if(isset($_GET['page'])) {
         
         <div class="user-profile">
             <div class="user-avatar">
-                <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
+                <?php if (!empty($_SESSION['profile_image'])): 
+                    // Check if it's just a filename or a full path
+                    $image_path = strpos($_SESSION['profile_image'], '/') !== false 
+                        ? $_SESSION['profile_image'] 
+                        : 'uploads/profile_images/' . $_SESSION['profile_image'];
+                ?>
+                    <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                <?php else: ?>
+                    <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
+                <?php endif; ?>
             </div>
             <div class="user-info">
-                <div class="user-name"><?php echo $user['first_name'] . ' ' . $user['last_name']; ?></div>
+                <div class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></div>
                 <div class="user-role">Member</div>
             </div>
         </div>

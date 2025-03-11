@@ -61,8 +61,17 @@ if ($user_id > 0) {
     <div class="card" style="margin-bottom: 0; text-align: center; background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
         <div style="padding: 20px;">
             <div id="profileImageContainer" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #d1789c, #e896b8); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 60px; font-weight: 300; overflow: hidden; position: relative;">
-                <?php if (!empty($user['profile_image']) && file_exists('../../' . $user['profile_image'])): ?>
-                    <img src="../../<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                <?php 
+                // Get profile image from session or database
+                $profile_image = $user['profile_image'] ?? '';
+                
+                if (!empty($profile_image)): 
+                    // Check if it's just a filename or a full path
+                    $image_path = strpos($profile_image, '/') !== false 
+                        ? $profile_image 
+                        : 'uploads/profile_images/' . $profile_image;
+                ?>
+                    <img src="../../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                 <?php else: ?>
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>
