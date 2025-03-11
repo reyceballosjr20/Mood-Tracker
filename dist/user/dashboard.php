@@ -759,7 +759,7 @@ if(isset($_GET['page'])) {
                 <?php endif; ?>
             </div>
             <div class="user-info">
-                <div class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></div>
+                <div class="user-name"><?php echo htmlspecialchars($user['first_name']); ?></div>
                 <div class="user-role">Member</div>
             </div>
         </div>

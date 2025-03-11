@@ -171,6 +171,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
                 // Return the full path for the frontend
                 $image_path = 'uploads/profile_images/' . $new_filename;
                 
+                // Check if this is a form submission with redirect
+                if (isset($_POST['redirect'])) {
+                    // Redirect to the specified page
+                    header('Location: ' . $_POST['redirect']);
+                    exit;
+                }
+                
                 echo json_encode([
                     'success' => true, 
                     'message' => 'Profile image updated successfully',

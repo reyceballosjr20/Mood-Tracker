@@ -390,6 +390,7 @@ if ($user_id > 0) {
 
 <form id="fallbackUploadForm" action="../save-profile.php" method="post" enctype="multipart/form-data" style="display: none;">
     <input type="file" name="profile_image" id="fallbackFileInput" accept="image/*">
+    <input type="hidden" name="redirect" value="dashboard.php?page=profile">
     <input type="submit" value="Upload">
 </form>
 

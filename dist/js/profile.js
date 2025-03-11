@@ -253,25 +253,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         .then(data => {
                             console.log('Upload result:', data);
                             
-                            // Reset button state
-                            if (changePhotoBtn) {
-                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                                changePhotoBtn.disabled = false;
-                            }
-                            
                             if (data.success) {
-                                // Update profile image display (remove preview badge)
-                                if (profileImageContainer) {
-                                    // Use the full path returned from the server
-                                    profileImageContainer.innerHTML = `<img src="../../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
-                                    console.log('Updated image path:', data.image_path);
+                                showAlert('success', 'Profile image updated successfully. Reloading page...');
+                                
+                                // Reload the page after a short delay to show the success message
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                // Reset button state
+                                if (changePhotoBtn) {
+                                    changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                    changePhotoBtn.disabled = false;
                                 }
                                 
-                                // Also update the user avatar in the sidebar if it exists
-                                updateUserAvatar(data.image_path);
-                                
-                                showAlert('success', data.message);
-                            } else {
                                 showAlert('danger', data.message);
                                 // Restore initials if upload failed
                                 restoreInitialsImage();
@@ -364,27 +359,20 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                // Reset button state
-                if (removePhotoBtn) {
-                    removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
-                    removePhotoBtn.disabled = false;
-                }
-                
                 if (data.success) {
-                    // Reset profile image to initials
-                    const firstName = document.getElementById('firstName')?.value || '';
-                    const lastName = document.getElementById('lastName')?.value || '';
-                    const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+                    showAlert('success', 'Profile image removed successfully. Reloading page...');
                     
-                    if (profileImageContainer) {
-                        profileImageContainer.innerHTML = initials;
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Reset button state
+                    if (removePhotoBtn) {
+                        removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+                        removePhotoBtn.disabled = false;
                     }
                     
-                    // Also update the user avatar in the sidebar
-                    updateUserAvatar(null);
-                    
-                    showAlert('success', data.message);
-                } else {
                     showAlert('danger', data.message);
                 }
             })
