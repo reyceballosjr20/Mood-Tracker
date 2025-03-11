@@ -26,41 +26,24 @@ date_default_timezone_set('Asia/Singapore');
             <h2 style="font-size: 1.25rem; margin-bottom: 25px; color: #d1789c; font-weight: 500; border-bottom: 1px solid #f9e8f0; padding-bottom: 12px;">How are you feeling today?</h2>
             
             <div class="mood-options" style="margin-bottom: 10px;">
+                <!-- Primary Emotions -->
+                <button class="mood-circle" data-mood="happy">
+                    <div class="mood-icon">
+                        <i class="fas fa-smile-beam"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">happy</span>
+                </button>
                 <button class="mood-circle" data-mood="sad">
                     <div class="mood-icon">
                         <i class="fas fa-sad-tear"></i>
                     </div>
                     <span style="margin-top: 10px; font-weight: 500;">sad</span>
                 </button>
-                <button class="mood-circle" data-mood="unhappy">
+                <button class="mood-circle" data-mood="angry">
                     <div class="mood-icon">
-                        <i class="fas fa-frown"></i>
+                        <i class="fas fa-angry"></i>
                     </div>
-                    <span style="margin-top: 10px; font-weight: 500;">unhappy</span>
-                </button>
-                <button class="mood-circle" data-mood="neutral">
-                    <div class="mood-icon">
-                        <i class="fas fa-meh"></i>
-                    </div>
-                    <span style="margin-top: 10px; font-weight: 500;">neutral</span>
-                </button>
-                <button class="mood-circle" data-mood="good">
-                    <div class="mood-icon">
-                        <i class="fas fa-smile"></i>
-                    </div>
-                    <span style="margin-top: 10px; font-weight: 500;">good</span>
-                </button>
-                <button class="mood-circle" data-mood="energetic">
-                    <div class="mood-icon">
-                        <i class="fas fa-dumbbell"></i>
-                    </div>
-                    <span style="margin-top: 10px; font-weight: 500;">energetic</span>
-                </button>
-                <button class="mood-circle" data-mood="excellent">
-                    <div class="mood-icon">
-                        <i class="fas fa-laugh-beam"></i>
-                    </div>
-                    <span style="margin-top: 10px; font-weight: 500;">excellent</span>
+                    <span style="margin-top: 10px; font-weight: 500;">angry</span>
                 </button>
                 <button class="mood-circle" data-mood="anxious">
                     <div class="mood-icon">
@@ -68,17 +51,53 @@ date_default_timezone_set('Asia/Singapore');
                     </div>
                     <span style="margin-top: 10px; font-weight: 500;">anxious</span>
                 </button>
+                <button class="mood-circle" data-mood="stressed">
+                    <div class="mood-icon">
+                        <i class="fas fa-head-side-virus"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">stressed</span>
+                </button>
+                <button class="mood-circle" data-mood="calm">
+                    <div class="mood-icon">
+                        <i class="fas fa-peace"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">calm</span>
+                </button>
                 <button class="mood-circle" data-mood="tired">
                     <div class="mood-icon">
                         <i class="fas fa-bed"></i>
                     </div>
                     <span style="margin-top: 10px; font-weight: 500;">tired</span>
                 </button>
-                <button class="mood-circle" data-mood="focused">
+                <button class="mood-circle" data-mood="energetic">
                     <div class="mood-icon">
-                        <i class="fas fa-bullseye"></i>
+                        <i class="fas fa-bolt"></i>
                     </div>
-                    <span style="margin-top: 10px; font-weight: 500;">focused</span>
+                    <span style="margin-top: 10px; font-weight: 500;">energetic</span>
+                </button>
+                <button class="mood-circle" data-mood="neutral">
+                    <div class="mood-icon">
+                        <i class="fas fa-meh"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">neutral</span>
+                </button>
+                <button class="mood-circle" data-mood="excited">
+                    <div class="mood-icon">
+                        <i class="fas fa-grin-stars"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">excited</span>
+                </button>
+                <button class="mood-circle" data-mood="frustrated">
+                    <div class="mood-icon">
+                        <i class="fas fa-angry"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">frustrated</span>
+                </button>
+                <button class="mood-circle" data-mood="grateful">
+                    <div class="mood-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <span style="margin-top: 10px; font-weight: 500;">grateful</span>
                 </button>
             </div>
             

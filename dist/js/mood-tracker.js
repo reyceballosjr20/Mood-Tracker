@@ -81,59 +81,77 @@ function initMoodTracker() {
     
     // Inspirational messages for each mood type
     const moodMessages = {
+        happy: [
+            "Your happiness can brighten someone else's day too!",
+            "What a wonderful feeling - enjoy every moment of it!",
+            "Happiness looks beautiful on you!",
+            "Let this joy fuel your day with positive energy."
+        ],
         sad: [
-            "It's okay to feel sad. Every emotion is a valid part of your journey.",
-            "Sometimes the darkest times can teach us the most about our own strength.",
-            "Your feelings are valid. Take the time you need to process them.",
-            "This sadness, too, shall pass. Be gentle with yourself today."
+            "It's okay to feel sad. Every emotion is valid and temporary.",
+            "Take the time you need to process your feelings.",
+            "Remember that you're not alone in feeling this way.",
+            "This sadness, too, shall pass. Be gentle with yourself."
         ],
-        unhappy: [
-            "Even on cloudy days, the sun is still there behind the clouds.",
-            "Every moment is temporary, including this feeling of unhappiness.",
-            "Small steps forward are still progress. What's one tiny positive thing you can focus on?",
-            "Your worth isn't determined by how you feel right now."
-        ],
-        neutral: [
-            "Neutral moments are perfect for reflection and mindfulness.",
-            "In this balanced state, you can choose your next direction with clarity.",
-            "Sometimes 'okay' is perfectly fine. Not every day needs to be extraordinary.",
-            "A neutral mood is like a clean canvas - what would you like to create today?"
-        ],
-        good: [
-            "A good mood is something to savor. Take a moment to appreciate it.",
-            "This positive feeling is a resource - how can you share it with others?",
-            "Noticing what brings you to this good place helps you return here again.",
-            "Good moments accumulate into a good life. You're on the right track."
-        ],
-        energetic: [
-            "Channel this energy into something meaningful today!",
-            "Your enthusiasm can move mountains. What will you accomplish?",
-            "This vibrant energy is perfect for tackling challenges head-on.",
-            "Ride this wave of motivation and see where it takes you!"
-        ],
-        excellent: [
-            "Wonderful! Take a moment to appreciate feeling at your best.",
-            "This excellent feeling is a reminder of what's possible in your life.",
-            "Your positive energy right now can inspire others around you.",
-            "Celebrate this peak feeling and remember it during challenging times."
+        angry: [
+            "It's natural to feel angry. Take deep breaths and process this emotion.",
+            "Your anger is valid. Find healthy ways to express it.",
+            "Use this energy to motivate positive change.",
+            "Take a moment to identify what triggered this feeling."
         ],
         anxious: [
-            "Take a deep breath. You've handled difficult feelings before, and you'll handle this too.",
-            "Anxiety is your body's way of trying to protect you. Thank it, then let it know you're safe.",
-            "Focus on what you can control right now, even if it's just your breath.",
-            "This anxious feeling is temporary, not permanent. It will pass."
+            "Take a deep breath. You've handled difficult feelings before.",
+            "Anxiety is temporary. Focus on what you can control.",
+            "Ground yourself in the present moment.",
+            "You're stronger than your anxiety."
+        ],
+        stressed: [
+            "One step at a time. Break big challenges into smaller tasks.",
+            "Remember to take breaks and care for yourself.",
+            "Stress is a response, not your identity.",
+            "What's one small thing you can do to feel better right now?"
+        ],
+        calm: [
+            "Savor this peaceful moment.",
+            "Your tranquility is a gift to yourself and others.",
+            "Notice how good it feels to be at peace.",
+            "This calm energy is your natural state."
         ],
         tired: [
-            "Rest is not lazy - it's essential. Give yourself permission to recharge.",
-            "Your body is telling you something important. Listen with compassion.",
-            "Even small moments of rest can help restore your energy.",
-            "Honor your limits today. It's okay to slow down when needed."
+            "Listen to your body. Rest if you need to.",
+            "It's okay to take breaks and recharge.",
+            "Your worth isn't measured by your productivity.",
+            "Honor your need for rest."
         ],
-        focused: [
-            "Your concentration right now is a powerful tool. Use it wisely!",
-            "This focused state is when great things happen. What will you accomplish?",
-            "Being in the zone like this is one of life's most fulfilling experiences.",
-            "Your clarity and concentration can move mountains today."
+        energetic: [
+            "Channel this energy into something meaningful!",
+            "Your enthusiasm can move mountains today.",
+            "What exciting things will you accomplish?",
+            "Share your vibrant energy with others!"
+        ],
+        neutral: [
+            "A balanced state is a great place to be.",
+            "Use this clarity to make mindful decisions.",
+            "Sometimes being neutral is exactly what we need.",
+            "Take time to observe and reflect."
+        ],
+        excited: [
+            "Your enthusiasm is contagious!",
+            "What wonderful things are you looking forward to?",
+            "Let this excitement fuel your creativity!",
+            "Share your joy with those around you!"
+        ],
+        frustrated: [
+            "Frustration often points to what matters most to us.",
+            "Take a step back and reassess the situation.",
+            "This feeling will pass. What can you learn from it?",
+            "Sometimes a short break can provide a new perspective."
+        ],
+        grateful: [
+            "Gratitude makes every moment richer.",
+            "What other blessings can you count today?",
+            "This feeling of appreciation opens doors to more joy.",
+            "Your grateful heart attracts more goodness."
         ]
     };
     
