@@ -35,7 +35,7 @@
 
 /* Update toggle button styles */
 .sidebar-toggle {
-    background: rgba(255, 255, 255, 0.9);
+    background: transparent;
     border: none;
     color: #6e3b5c;
     font-size: 24px;
@@ -49,8 +49,6 @@
     top: 20px;
     left: 270px;
     z-index: 1001;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Add styles for when sidebar is closed */
@@ -81,7 +79,7 @@
     .sidebar-toggle {
         top: 15px;
         left: 15px;
-        padding: 8px 12px;
+        padding: 8px;
     }
     
     .sidebar.active ~ .sidebar-toggle {
@@ -110,11 +108,10 @@
     }
 }
 
-/* Update the toggle button styles */
+/* Update hover effect */
 .sidebar-toggle:hover {
     color: #ff8fb1;
     transform: scale(1.1);
-    background: rgba(255, 255, 255, 1);
 }
 
 /* Remove these style blocks */
@@ -131,11 +128,38 @@
     padding: 10px 0;
 }
 
-.page-title {
-    font-size: 24px;
+/* Update the header title styles */
+#pageTitle {
+    font-size: 28px;
     font-weight: 600;
-    color: #4a3347;
+    color: #6e3b5c;
     margin: 0;
+    margin-bottom: 10px;
+}
+
+/* Add styles for the pink subtitle */
+.content-subtitle {
+    font-size: 24px;
+    color: #ff8fb1;
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+}
+
+.content-subtitle::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: #ff8fb1;
+    opacity: 0.5;
+}
+
+/* Remove the old page title styles */
+.page-title {
+    display: none;
 }
 
 /* Remove unnecessary navbar styles */

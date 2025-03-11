@@ -866,6 +866,7 @@ if (isset($_GET['page'])) {
     </div>
 
     <script src="../js/sidebar.js"></script>
+    <script src="../js/mood-tracker.js"></script>
     <script>
         // DOM Elements
         const sidebar = document.getElementById('sidebar');

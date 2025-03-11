@@ -407,4 +407,11 @@ date_default_timezone_set('Asia/Singapore');
 
 <!-- All JavaScript code has been moved to the external mood-tracker.js file -->
 
+<script>
+    // Trigger reinitialization when content is loaded
+    if (typeof reinitMoodTracker === 'function') {
+        reinitMoodTracker();
+    }
+</script>
+
 
