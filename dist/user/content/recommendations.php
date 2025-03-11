@@ -471,22 +471,15 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     </div>
 </div>
 
-<!-- Recommendations grid -->
+<!-- Update the recommendations grid to remove buttons -->
 <div class="recommendations-grid">
     <?php foreach ($recommendations as $rec): ?>
-    <div class="card">
-        <div class="card-icon">
+    <div class="recommendation-card">
+        <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
+        <div class="recommendation-icon">
             <i class="fas fa-<?php echo htmlspecialchars($rec['icon']); ?>"></i>
         </div>
-        <h2 class="card-title"><?php echo htmlspecialchars($rec['title']); ?></h2>
-        <div class="card-content">
-            <p><?php echo htmlspecialchars($rec['description']); ?></p>
-        </div>
-        <div class="card-footer">
-            <button class="action-button">
-                <?php echo htmlspecialchars($rec['action']); ?>
-            </button>
-        </div>
+        <p class="recommendation-text"><?php echo htmlspecialchars($rec['description']); ?></p>
     </div>
     <?php endforeach; ?>
 </div>
@@ -515,30 +508,48 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
 </div>
 
 <style>
-    /* New card styles for recommendations */
+    /* Updated styles to match the screenshot without buttons */
+    .recommendation-card {
+        background-color: white;
+        border-radius: 16px;
+        padding: 25px;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .recommendation-text {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        color: #333;
+        margin-bottom: 0; /* Remove bottom margin since there's no button */
+    }
+    
+    /* Remove the button styles */
+    .recommendation-button {
+        display: none;
+    }
+    
+    /* Updated styles to match the screenshot */
     .recommendations-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         margin-bottom: 30px;
         width: 100%;
+        padding: 0 15px;
     }
     
-    .recommendations-grid .card {
-        background-color: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-        border: none;
-        margin-bottom: 0;
+    .recommendation-title {
+        color: #6e3b5c;
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-right: 40px;
     }
     
-    .recommendations-grid .card-icon {
+    .recommendation-icon {
         position: absolute;
         top: 25px;
         right: 25px;
@@ -552,47 +563,6 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
         color: #d1789c;
     }
     
-    .recommendations-grid .card-title {
-        font-size: 1.1rem;
-        color: #6e3b5c;
-        margin-bottom: 20px;
-        font-weight: 500;
-        padding-right: 40px;
-    }
-    
-    .recommendations-grid .card-content {
-        padding: 0;
-        margin-bottom: 25px;
-        flex-grow: 1;
-    }
-    
-    .recommendations-grid .card-content p {
-        font-size: 1.2rem;
-        line-height: 1.5;
-        color: #333;
-        margin: 0;
-    }
-    
-    .recommendations-grid .card-footer {
-        padding: 0;
-        margin-top: auto;
-    }
-    
-    .recommendations-grid .action-button {
-        background: #ff8fb1;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        font-weight: 500;
-    }
-    
-    .recommendations-grid .action-button:hover {
-        background: #e67d9a;
-    }
-    
     /* Mobile responsiveness */
     @media (max-width: 992px) {
         .recommendations-grid {
@@ -603,20 +573,15 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
     @media (max-width: 768px) {
         .recommendations-grid {
             grid-template-columns: 1fr;
-            padding: 0 15px;
         }
         
-        .recommendations-grid .card {
+        .recommendation-card {
             padding: 20px;
         }
         
-        .recommendations-grid .card-icon {
+        .recommendation-icon {
             top: 20px;
             right: 20px;
-        }
-        
-        .recommendations-grid .card-content p {
-            font-size: 1.1rem;
         }
     }
     
