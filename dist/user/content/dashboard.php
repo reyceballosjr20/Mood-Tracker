@@ -660,7 +660,7 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
     box-shadow: 0 5px 15px rgba(209, 120, 156, 0.3);
 }
 
-/* Responsive Design */
+/* Responsive Design - Improved */
 @media (max-width: 768px) {
     /* Fix the gap between sidebar and content */
     body {
@@ -670,11 +670,12 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
     }
     
     .dashboard-container {
-        padding: 0;
+        padding: 10px;
         margin: 0;
+        width: 100%;
     }
     
-    /* Target the parent container that holds both sidebar and content */
+    /* Target the parent container */
     .container-fluid,
     .row,
     main,
@@ -683,15 +684,16 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
         padding-right: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+        width: 100% !important;
     }
     
-    /* Ensure the sidebar connects directly with content */
+    /* Adjust sidebar and content */
     .sidebar {
         margin-right: 0;
         padding-right: 0;
     }
     
-    /* Ensure content fills available width */
+    /* Content sections responsiveness */
     .welcome-section, 
     .dashboard-summary,
     .mood-summary-section,
@@ -706,66 +708,14 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
     
     .dashboard-summary {
         grid-template-columns: 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-    
-    .mood-summary-section,
-    .recent-activity-section {
-        margin-bottom: 15px;
-        padding: 15px;
-    }
-    
-    .welcome-section {
-        margin-bottom: 15px;
-    }
-    
-    .activity-timeline {
-        gap: 10px;
-    }
-    
-    .timeline-item {
-        padding-bottom: 10px;
-    }
-    
-    .mood-distribution {
-        flex-wrap: wrap;
-        height: auto;
-        gap: 20px;
-        padding-top: 20px;
-    }
-    
-    .mood-item {
-        width: calc(33% - 10px);
-        min-width: 70px;
-        max-width: 70px;
-    }
-    
-    .mood-bar-container {
-        height: 70px;
-    }
-    
-    .timeline-date {
-        min-width: auto;
-        margin-right: 10px;
-    }
-    
-    .timeline-emoji {
-        font-size: 1.5rem;
-    }
-    
-    .timeline-content {
-        width: 100%;
-        margin-top: 5px;
+        gap: 15px;
+        margin-bottom: 20px;
     }
     
     .summary-card {
-        padding: 20px 15px;
-    }
-    
-    .mood-summary-section h2,
-    .recent-activity-section h2 {
-        margin-bottom: 15px;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
     }
 }
 

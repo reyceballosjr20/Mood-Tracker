@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
-    // Toggle sidebar function
+    // Toggle sidebar function - improved for mobile
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.querySelector('.sidebar-overlay');
