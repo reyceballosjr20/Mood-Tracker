@@ -308,5 +308,251 @@ class Mood {
             return 0;
         }
     }
+
+    /**
+     * Get the average mood score for a month
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return float|bool Average mood score or false on failure
+     */
+    public function getAverageMoodScore($userId, $month, $year) {
+        try {
+            // Define mood type scoring
+            $moodScores = [
+                'sad' => 1,
+                'unhappy' => 2,
+                'anxious' => 2.5,
+                'tired' => 3,
+                'neutral' => 3.5,
+                'focused' => 4,
+                'good' => 4.5,
+                'energetic' => 5,
+                'excellent' => 5.5
+            ];
+            
+            // Get all moods for the month
+            $sql = "SELECT mood_type
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if (!$stmt->execute() || $stmt->rowCount() == 0) {
+                return 0; // No entries
+            }
+            
+            $moods = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $totalScore = 0;
+            $count = 0;
+            
+            foreach ($moods as $mood) {
+                if (isset($moodScores[$mood['mood_type']])) {
+                    $totalScore += $moodScores[$mood['mood_type']];
+                    $count++;
+                }
+            }
+            
+            if ($count == 0) {
+                return 0;
+            }
+            
+            return round($totalScore / $count, 1);
+            
+        } catch (PDOException $e) {
+            error_log('Error calculating average mood: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get the best day of the month
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return array|bool Day data or false on failure
+     */
+    public function getBestDay($userId, $month, $year) {
+        try {
+            // Order moods by "happiness" level
+            $moodOrder = "CASE mood_type 
+                          WHEN 'excellent' THEN 1 
+                          WHEN 'energetic' THEN 2 
+                          WHEN 'good' THEN 3 
+                          WHEN 'focused' THEN 4 
+                          WHEN 'neutral' THEN 5 
+                          WHEN 'tired' THEN 6
+                          WHEN 'anxious' THEN 7
+                          WHEN 'unhappy' THEN 8
+                          WHEN 'sad' THEN 9
+                          ELSE 10 END";
+            
+            $sql = "SELECT id, mood_type, mood_text, created_at
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year
+                    ORDER BY $moodOrder ASC, created_at DESC
+                    LIMIT 1";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if (!$stmt->execute() || $stmt->rowCount() == 0) {
+                return false;
+            }
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log('Error finding best day: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get the worst day of the month
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return array|bool Day data or false on failure
+     */
+    public function getWorstDay($userId, $month, $year) {
+        try {
+            // Order moods by "sadness" level
+            $moodOrder = "CASE mood_type 
+                          WHEN 'sad' THEN 1 
+                          WHEN 'unhappy' THEN 2 
+                          WHEN 'anxious' THEN 3 
+                          WHEN 'tired' THEN 4 
+                          WHEN 'neutral' THEN 5 
+                          WHEN 'focused' THEN 6
+                          WHEN 'good' THEN 7
+                          WHEN 'energetic' THEN 8
+                          WHEN 'excellent' THEN 9
+                          ELSE 10 END";
+            
+            $sql = "SELECT id, mood_type, mood_text, created_at
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year
+                    ORDER BY $moodOrder ASC, created_at DESC
+                    LIMIT 1";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if (!$stmt->execute() || $stmt->rowCount() == 0) {
+                return false;
+            }
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log('Error finding worst day: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get mood patterns by day of week
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return array|bool Day of week patterns or false on failure
+     */
+    public function getMoodPatternsByDayOfWeek($userId, $month, $year) {
+        try {
+            // Define mood type scoring
+            $moodScores = [
+                'sad' => 1,
+                'unhappy' => 2,
+                'anxious' => 2.5,
+                'tired' => 3,
+                'neutral' => 3.5,
+                'focused' => 4,
+                'good' => 4.5,
+                'energetic' => 5,
+                'excellent' => 5.5
+            ];
+            
+            // MySQL DAYOFWEEK returns 1 for Sunday, 2 for Monday, etc.
+            // We'll convert to 1 for Monday, 2 for Tuesday, etc.
+            $sql = "SELECT 
+                        CASE DAYOFWEEK(created_at)
+                            WHEN 1 THEN 7 -- Sunday becomes 7
+                            ELSE DAYOFWEEK(created_at) - 1 -- Others shift down by 1
+                        END as day_of_week,
+                        mood_type,
+                        COUNT(*) as count
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year
+                    GROUP BY day_of_week, mood_type
+                    ORDER BY day_of_week, count DESC";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if (!$stmt->execute()) {
+                return false;
+            }
+            
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($result)) {
+                return false;
+            }
+            
+            // Process the results to get average mood score per day of week
+            $daysOfWeek = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0]; // Initialize with zeroes
+            $dayCounts = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0];
+            
+            foreach ($result as $row) {
+                $dayOfWeek = $row['day_of_week'];
+                $moodType = $row['mood_type'];
+                $count = $row['count'];
+                
+                if (isset($moodScores[$moodType])) {
+                    $daysOfWeek[$dayOfWeek] += $moodScores[$moodType] * $count;
+                    $dayCounts[$dayOfWeek] += $count;
+                }
+            }
+            
+            // Calculate averages
+            $averages = [];
+            foreach ($daysOfWeek as $day => $score) {
+                if ($dayCounts[$day] > 0) {
+                    $averages[] = [
+                        'day_of_week' => $day,
+                        'avg_score' => round($score / $dayCounts[$day], 1),
+                        'count' => $dayCounts[$day]
+                    ];
+                }
+            }
+            
+            return $averages;
+            
+        } catch (PDOException $e) {
+            error_log('Error calculating day of week patterns: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 
