@@ -11,7 +11,7 @@
     min-height: 100vh;
     background: linear-gradient(180deg, #f5d7e3 0%, #f8dfeb 100%);
     color: #6e3b5c;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     position: fixed;
     left: 0;
     top: 0;
@@ -27,34 +27,65 @@
 #content {
     width: 100%;
     min-height: 100vh;
-    transition: all 0.3s;
-    margin-left: 250px; /* Match sidebar width */
+    transition: all 0.3s ease;
+    margin-left: 250px;
     padding: 20px;
+    padding-top: 70px;
+}
+
+/* Update toggle button styles */
+.sidebar-toggle {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #6e3b5c;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: fixed;
+    top: 20px;
+    left: 270px;
+    z-index: 1001;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Add styles for when sidebar is closed */
+.sidebar.active ~ #content {
+    margin-left: 0;
+}
+
+.sidebar.active ~ .sidebar-toggle {
+    left: 20px;
 }
 
 /* Mobile styles */
 @media (max-width: 767.98px) {
     .sidebar {
         left: -250px;
-        box-shadow: none;
     }
     
     .sidebar.active {
         left: 0;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     }
     
     #content {
         margin-left: 0;
-        width: 100%;
         padding: 15px;
+        padding-top: 70px;
     }
     
-    .sidebar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
+    .sidebar-toggle {
+        top: 15px;
+        left: 15px;
+        padding: 8px 12px;
+    }
+    
+    .sidebar.active ~ .sidebar-toggle {
+        left: 265px;
     }
 }
 
@@ -77,4 +108,11 @@
         display: block;
         opacity: 1;
     }
+}
+
+/* Update the toggle button styles */
+.sidebar-toggle:hover {
+    color: #ff8fb1;
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 1);
 } 

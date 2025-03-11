@@ -738,15 +738,17 @@ if (isset($_GET['page'])) {
         <div class="spinner"></div>
     </div>
 
+    <!-- Toggle button outside sidebar -->
+    <button type="button" id="sidebarToggle" class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Enhanced Sidebar structure -->
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h3>Dashboard</h3>
-                <button type="button" id="sidebarCollapse" class="btn btn-link d-md-none">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="user-profile">
                 <div class="user-avatar">
