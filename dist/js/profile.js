@@ -210,95 +210,102 @@ document.addEventListener('DOMContentLoaded', function() {
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    // Show preview
-                    if (profileImageContainer) {
-                        profileImageContainer.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
-                        
-                        // Add preview indicator
-                        const previewBadge = document.createElement('div');
-                        previewBadge.style.position = 'absolute';
-                        previewBadge.style.bottom = '0';
-                        previewBadge.style.right = '0';
-                        previewBadge.style.background = 'rgba(0,0,0,0.6)';
-                        previewBadge.style.color = 'white';
-                        previewBadge.style.padding = '3px 8px';
-                        previewBadge.style.fontSize = '10px';
-                        previewBadge.style.borderRadius = '8px 0 0 0';
-                        previewBadge.textContent = 'Preview';
-                        profileImageContainer.appendChild(previewBadge);
-                    }
-                    
-                    // Show confirmation dialog
-                    const confirmUpload = confirm('Upload this image as your profile picture?');
-                    
-                    if (confirmUpload) {
-                        // Show loading state
-                        if (changePhotoBtn) {
-                            changePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                            changePhotoBtn.disabled = true;
-                        }
-                        
-                        const formData = new FormData();
-                        formData.append('profile_image', file);
-                        
-                        // Fix the URL path - use the correct path to save-profile.php
-                        fetch('../user/save-profile.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => {
-                            console.log('Response received');
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Upload result:', data);
+                    // Show preview in modal
+                    showModal({
+                        title: 'Upload Profile Picture',
+                        message: 'Do you want to use this image as your profile picture?',
+                        showPreview: true,
+                        previewSrc: e.target.result,
+                        onConfirm: () => {
+                            // Show loading state in modal
+                            updateModalStatus('loading', 'Uploading image...');
                             
-                            // Reset button state
+                            // Disable buttons during upload
+                            document.getElementById('modalConfirm').disabled = true;
+                            document.getElementById('modalCancel').disabled = true;
+                            
+                            // Also update button state
                             if (changePhotoBtn) {
-                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                                changePhotoBtn.disabled = false;
+                                changePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                                changePhotoBtn.disabled = true;
                             }
                             
-                            if (data.success) {
-                                // Update profile image display (remove preview badge)
-                                if (profileImageContainer) {
-                                    // Use the full path returned from the server
-                                    profileImageContainer.innerHTML = `<img src="../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
-                                    console.log('Updated image path:', data.image_path);
+                            const formData = new FormData();
+                            formData.append('profile_image', file);
+                            
+                            // Fix the URL path - use the correct path to save-profile.php
+                            fetch('../user/save-profile.php', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                console.log('Response received');
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Upload result:', data);
+                                
+                                // Reset button state
+                                if (changePhotoBtn) {
+                                    changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                    changePhotoBtn.disabled = false;
                                 }
                                 
-                                // Also update the user avatar in the sidebar if it exists
-                                updateUserAvatar(data.image_path);
+                                if (data.success) {
+                                    // Update profile image display
+                                    if (profileImageContainer) {
+                                        // Use the full path returned from the server
+                                        profileImageContainer.innerHTML = `<img src="../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                                        console.log('Updated image path:', data.image_path);
+                                    }
+                                    
+                                    // Also update the user avatar in the sidebar if it exists
+                                    updateUserAvatar(data.image_path);
+                                    
+                                    // Show success in modal
+                                    updateModalStatus('success', 'Profile image updated successfully!');
+                                    
+                                    // Reload the page after a short delay
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                } else {
+                                    // Show error in modal
+                                    updateModalStatus('error', data.message || 'Failed to upload image');
+                                    
+                                    // Restore initials if upload failed
+                                    restoreInitialsImage();
+                                    
+                                    // Re-enable buttons
+                                    document.getElementById('modalConfirm').disabled = false;
+                                    document.getElementById('modalCancel').disabled = false;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Upload error:', error);
                                 
-                                showAlert('success', data.message);
+                                // Reset button state
+                                if (changePhotoBtn) {
+                                    changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                    changePhotoBtn.disabled = false;
+                                }
                                 
-                                // Reload the page after a short delay to ensure everything is updated
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                showAlert('danger', data.message);
+                                // Show error in modal
+                                updateModalStatus('error', 'An error occurred while uploading the image.');
+                                
                                 // Restore initials if upload failed
                                 restoreInitialsImage();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Upload error:', error);
-                            
-                            // Reset button state
-                            if (changePhotoBtn) {
-                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                                changePhotoBtn.disabled = false;
-                            }
-                            
-                            showAlert('danger', 'An error occurred while uploading the image.');
-                            // Restore initials if upload failed
+                                
+                                // Re-enable buttons
+                                document.getElementById('modalConfirm').disabled = false;
+                                document.getElementById('modalCancel').disabled = false;
+                            });
+                        },
+                        onCancel: () => {
+                            // User canceled, restore original image or initials
                             restoreInitialsImage();
-                        });
-                    } else {
-                        // User canceled, restore original image or initials
-                        restoreInitialsImage();
-                    }
+                        }
+                    });
                 };
                 
                 reader.readAsDataURL(file);
@@ -353,48 +360,73 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Image removal handler
         function handleImageRemoval() {
-            // Show loading state
-            if (removePhotoBtn) {
-                removePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
-                removePhotoBtn.disabled = true;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'remove_image');
-            
-            // Fix the URL path
-            fetch('../user/save-profile.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', 'Profile image removed successfully. Reloading page...');
+            showModal({
+                title: 'Remove Profile Picture',
+                message: 'Are you sure you want to remove your profile picture?',
+                onConfirm: () => {
+                    // Show loading state in modal
+                    updateModalStatus('loading', 'Removing image...');
                     
-                    // Reload the page after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Reset button state
+                    // Disable buttons during removal
+                    document.getElementById('modalConfirm').disabled = true;
+                    document.getElementById('modalCancel').disabled = true;
+                    
+                    // Also update button state
                     if (removePhotoBtn) {
-                        removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
-                        removePhotoBtn.disabled = false;
+                        removePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+                        removePhotoBtn.disabled = true;
                     }
                     
-                    showAlert('danger', data.message);
+                    const formData = new FormData();
+                    formData.append('action', 'remove_image');
+                    
+                    // Fix the URL path
+                    fetch('../user/save-profile.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset button state
+                        if (removePhotoBtn) {
+                            removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+                            removePhotoBtn.disabled = false;
+                        }
+                        
+                        if (data.success) {
+                            // Show success in modal
+                            updateModalStatus('success', 'Profile image removed successfully!');
+                            
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Show error in modal
+                            updateModalStatus('error', data.message || 'Failed to remove image');
+                            
+                            // Re-enable buttons
+                            document.getElementById('modalConfirm').disabled = false;
+                            document.getElementById('modalCancel').disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        // Reset button state
+                        if (removePhotoBtn) {
+                            removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+                            removePhotoBtn.disabled = false;
+                        }
+                        
+                        // Show error in modal
+                        updateModalStatus('error', 'An error occurred while removing the image.');
+                        
+                        // Re-enable buttons
+                        document.getElementById('modalConfirm').disabled = false;
+                        document.getElementById('modalCancel').disabled = false;
+                        
+                        console.error('Error:', error);
+                    });
                 }
-            })
-            .catch(error => {
-                // Reset button state
-                if (removePhotoBtn) {
-                    removePhotoBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
-                    removePhotoBtn.disabled = false;
-                }
-                
-                showAlert('danger', 'An error occurred while removing the image.');
-                console.error('Error:', error);
             });
         }
     }
@@ -428,5 +460,99 @@ document.addEventListener('DOMContentLoaded', function() {
                 profileAlert.style.display = 'none';
             }, 300);
         }, 5000);
+    }
+    
+    // Modal functions
+    function showModal(options) {
+        const modal = document.getElementById('profileModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalImagePreview = document.getElementById('modalImagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalClose = document.getElementById('modalClose');
+        const modalStatus = document.getElementById('modalStatus');
+        
+        // Reset modal state
+        modalStatus.style.display = 'none';
+        modalImagePreview.style.display = 'none';
+        modalConfirm.disabled = false;
+        modalCancel.disabled = false;
+        
+        // Set modal content
+        modalTitle.textContent = options.title || 'Confirmation';
+        modalMessage.textContent = options.message || 'Are you sure you want to proceed?';
+        
+        // Show image preview if needed
+        if (options.showPreview && options.previewSrc) {
+            previewImage.src = options.previewSrc;
+            modalImagePreview.style.display = 'block';
+        }
+        
+        // Set up event handlers
+        modalConfirm.onclick = () => {
+            if (typeof options.onConfirm === 'function') {
+                options.onConfirm();
+            } else {
+                hideModal();
+            }
+        };
+        
+        modalCancel.onclick = () => {
+            if (typeof options.onCancel === 'function') {
+                options.onCancel();
+            }
+            hideModal();
+        };
+        
+        modalClose.onclick = () => {
+            if (typeof options.onCancel === 'function') {
+                options.onCancel();
+            }
+            hideModal();
+        };
+        
+        // Show the modal
+        modal.style.display = 'flex';
+        
+        // Add event listener to close modal when clicking outside
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                if (typeof options.onCancel === 'function') {
+                    options.onCancel();
+                }
+                hideModal();
+            }
+        };
+    }
+    
+    function hideModal() {
+        const modal = document.getElementById('profileModal');
+        modal.style.display = 'none';
+    }
+    
+    function updateModalStatus(type, message) {
+        const modalStatus = document.getElementById('modalStatus');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // Set icon and color based on type
+        if (type === 'success') {
+            statusIcon.className = 'fas fa-check-circle';
+            statusIcon.style.color = '#4CAF50';
+        } else if (type === 'error') {
+            statusIcon.className = 'fas fa-times-circle';
+            statusIcon.style.color = '#F44336';
+        } else if (type === 'loading') {
+            statusIcon.className = 'fas fa-spinner fa-spin';
+            statusIcon.style.color = '#d1789c';
+        }
+        
+        // Set message
+        statusMessage.textContent = message;
+        
+        // Show status section
+        modalStatus.style.display = 'block';
     }
 });

@@ -417,4 +417,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-</script> 
+</script>
+
+<!-- Modal Component -->
+<div id="profileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background-color: white; border-radius: 16px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #d1789c, #e896b8); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 500;">Confirmation</h3>
+            <button id="modalClose" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <p id="modalMessage" style="margin-top: 0; margin-bottom: 20px; color: #6e3b5c;">Are you sure you want to proceed?</p>
+            <div id="modalImagePreview" style="display: none; width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; overflow: hidden;">
+                <img id="previewImage" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="modalCancel" class="btn-secondary" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 500;">Cancel</button>
+                <button id="modalConfirm" class="btn-primary" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">Confirm</button>
+            </div>
+        </div>
+        <div id="modalStatus" class="modal-status" style="display: none; padding: 15px 20px; text-align: center; border-top: 1px solid #f9e8f0;">
+            <div class="status-icon" style="margin-bottom: 10px; font-size: 40px;">
+                <i id="statusIcon" class="fas fa-check-circle" style="color: #4CAF50;"></i>
+            </div>
+            <p id="statusMessage" style="margin: 0; color: #6e3b5c; font-weight: 500;">Operation completed successfully!</p>
+        </div>
+    </div>
+</div> 
