@@ -20,6 +20,11 @@ function initMoodTracker() {
     let existingMoodId = null;
     let isEditMode = false;
     
+    // Track original values to detect changes
+    let originalMoodType = null;
+    let originalMoodText = '';
+    let hasChanges = false;
+    
     const moodInfluence = document.getElementById('moodInfluence');
     const saveMoodBtn = document.getElementById('saveMoodBtn');
     const formTitle = document.querySelector('h2[style*="font-size: 1.2rem"]');
@@ -36,6 +41,42 @@ function initMoodTracker() {
         saveMoodBtn.disabled = true;
         saveMoodBtn.classList.add('disabled');
         console.log('Save button initially disabled');
+    }
+    
+    // Add change listener to mood influence textarea
+    if (moodInfluence) {
+        moodInfluence.addEventListener('input', function() {
+            if (isEditMode) {
+                // Check if text changed from original
+                hasChanges = this.value !== originalMoodText || selectedMood !== originalMoodType;
+                updateButtonState();
+            }
+        });
+    }
+    
+    // Function to update button state based on changes
+    function updateButtonState() {
+        if (saveMoodBtn) {
+            if (isEditMode) {
+                // In edit mode, only enable if there are changes
+                if (hasChanges && selectedMood) {
+                    saveMoodBtn.disabled = false;
+                    saveMoodBtn.classList.remove('disabled');
+                } else {
+                    saveMoodBtn.disabled = true;
+                    saveMoodBtn.classList.add('disabled');
+                }
+            } else {
+                // In create mode, enable if mood is selected
+                if (selectedMood) {
+                    saveMoodBtn.disabled = false;
+                    saveMoodBtn.classList.remove('disabled');
+                } else {
+                    saveMoodBtn.disabled = true;
+                    saveMoodBtn.classList.add('disabled');
+                }
+            }
+        }
     }
     
     // Inspirational messages for each mood type
@@ -101,6 +142,11 @@ function initMoodTracker() {
         isEditMode = true;
         existingMoodId = mood.id;
         
+        // Store original values for comparison
+        originalMoodType = mood.mood_type;
+        originalMoodText = mood.mood_text || '';
+        hasChanges = false;
+        
         // Update title and button text
         if (formTitle) {
             formTitle.innerHTML = 'Update today\'s mood:';
@@ -108,13 +154,20 @@ function initMoodTracker() {
         
         if (saveMoodBtn) {
             saveMoodBtn.textContent = 'UPDATE';
+            // Initially disable until changes are made
+            saveMoodBtn.disabled = true;
+            saveMoodBtn.classList.add('disabled');
         }
         
         // Select the current mood
         moodCircles.forEach(circle => {
             if (circle.dataset.mood === mood.mood_type) {
-                // Trigger a click on this mood
-                circle.click();
+                // Select this mood without triggering the click handler directly
+                circle.classList.add('selected');
+                selectedMood = circle.dataset.mood;
+                
+                // Show the inspirational message for this mood
+                updateInspirationalMessage(selectedMood);
             }
         });
         
@@ -207,11 +260,17 @@ function initMoodTracker() {
             console.log(`Added selected class to: ${selectedMoodType}`);
             selectedMood = selectedMoodType;
             
-            // Enable save button when mood is selected
-            if (saveMoodBtn) {
-                saveMoodBtn.disabled = false;
-                saveMoodBtn.classList.remove('disabled');
-                console.log('Save button enabled');
+            // In edit mode, check if mood changed from original
+            if (isEditMode) {
+                hasChanges = selectedMoodType !== originalMoodType || 
+                             (moodInfluence && moodInfluence.value !== originalMoodText);
+                updateButtonState();
+            } else {
+                // In create mode, always enable when mood is selected
+                if (saveMoodBtn) {
+                    saveMoodBtn.disabled = false;
+                    saveMoodBtn.classList.remove('disabled');
+                }
             }
             
             // Update inspirational message based on selected mood
@@ -291,10 +350,21 @@ function initMoodTracker() {
                     formTitle.innerHTML = 'Update today\'s mood:';
                 }
                 
+                // Store the new original values
+                originalMoodType = selectedMood;
+                originalMoodText = moodInfluence.value;
+                hasChanges = false;
+                
+                // Clear the mood influence field as requested
+                if (moodInfluence) {
+                    moodInfluence.value = '';
+                    originalMoodText = '';
+                }
+                
                 // Reset button
                 this.textContent = 'UPDATE';
-                this.disabled = false;
-                this.classList.remove('disabled');
+                this.disabled = true; // Disable until new changes
+                this.classList.add('disabled');
                 
             } else {
                 throw new Error(data.message);
