@@ -32,6 +32,8 @@ if(isset($_GET['page'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Load the mood tracker script -->
     <script src="../js/mood-tracker.js"></script>
+    <!-- Load the calendar script (will be used on calendar page) -->
+    <script src="../js/calendar.js"></script>
     <style>
         * {
             margin: 0;

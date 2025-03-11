@@ -144,18 +144,61 @@ if ($dayOfWeekPatterns) {
         Mood Calendar
         <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
     </h1>
+    <div class="search-box">
+        <i class="fas fa-calendar"></i>
+        <select id="monthYearSelect" style="cursor: pointer; padding-left: 30px;">
+            <?php
+            // Get available months
+            $availableMonths = $mood->getAvailableMonths($userId);
+            
+            // Add current and surrounding months
+            $currentMonthYear = date('Y-m');
+            $showingMonths = [];
+            
+            // Add 6 months before and after current month
+            for ($i = -6; $i <= 6; $i++) {
+                $timeStamp = strtotime("$i months");
+                $formattedDate = date('Y-m', $timeStamp);
+                $showingMonths[$formattedDate] = date('F Y', $timeStamp);
+            }
+            
+            // Add any available months from database
+            foreach ($availableMonths as $monthStr) {
+                $timestamp = strtotime($monthStr . '-01');
+                $showingMonths[$monthStr] = date('F Y', $timestamp);
+            }
+            
+            // Sort years and months
+            ksort($showingMonths);
+            
+            // Current selection
+            $selectedMonthYear = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT);
+            
+            // Output options
+            foreach ($showingMonths as $value => $label) {
+                echo '<option value="' . $value . '"' . 
+                     ($value == $selectedMonthYear ? ' selected' : '') . 
+                     '>' . $label . '</option>';
+            }
+            ?>
+        </select>
+    </div>
 </div>
 
-<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 30px; border-radius: 16px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07);">
+<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 30px;">
     <div style="padding: 20px; background-color: #f8dfeb; text-align: center; display: flex; justify-content: space-between; align-items: center;">
-        <a href="dashboard.php?page=calendar&month=<?php echo $prevMonth; ?>&year=<?php echo $prevYear; ?>" 
-           style="color: #d1789c; font-size: 1.2rem; text-decoration: none; display: flex; align-items: center; padding: 5px 10px; border-radius: 20px; transition: background-color 0.2s ease;">
-            <i class="fas fa-chevron-left"></i>
+        <a href="#" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
+           style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
+            <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
+            <?php echo date('M', mktime(0, 0, 0, $prevMonth, 1, $prevYear)); ?>
         </a>
-        <h2 style="margin: 0; color: #4a3347; font-weight: 600;"><?php echo $monthName . ' ' . $selectedYear; ?></h2>
-        <a href="dashboard.php?page=calendar&month=<?php echo $nextMonth; ?>&year=<?php echo $nextYear; ?>" 
-           style="color: #d1789c; font-size: 1.2rem; text-decoration: none; display: flex; align-items: center; padding: 5px 10px; border-radius: 20px; transition: background-color 0.2s ease;">
-            <i class="fas fa-chevron-right"></i>
+        
+        <h2 style="margin: 0; color: #4a3347; font-size: 1.4rem;"><?php echo $monthName . ' ' . $selectedYear; ?></h2>
+        
+        <a href="#" id="nextMonthBtn" data-month="<?php echo $nextMonth; ?>" data-year="<?php echo $nextYear; ?>" 
+           style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
+            <?php echo date('M', mktime(0, 0, 0, $nextMonth, 1, $nextYear)); ?>
+            <i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
         </a>
     </div>
     
@@ -401,11 +444,41 @@ if ($dayOfWeekPatterns) {
     }
     
     /* Enhance month navigation buttons */
-    a[href*="?page=calendar"] {
+    a[href="#"] {
         transition: background-color 0.2s ease;
     }
     
-    a[href*="?page=calendar"]:hover {
-        background-color: rgba(209, 120, 156, 0.1);
+    a[href="#"]:hover {
+        background-color: rgba(209, 120, 156, 0.2);
     }
-</style> 
+    
+    /* Tooltip styles */
+    .mood-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        width: max-content;
+        max-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 10;
+    }
+    
+    .mood-entry {
+        position: relative;
+    }
+    
+    .mood-entry:hover .mood-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+<!-- Load the calendar script -->
+<script src="../js/calendar.js"></script> 
