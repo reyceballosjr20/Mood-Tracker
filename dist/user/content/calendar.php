@@ -161,6 +161,15 @@ if ($dayOfWeekPatterns) {
         }
     }
 }
+
+// At the top of the file, add a debug line to see what's actually being selected:
+// echo "Debug: Selected Month/Year: $selectedMonth/$selectedYear";
+
+// We need to ensure the summary is always showing the selected month (first month in grid)
+$monthName = date('F', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
+
+// Make sure the year is correct for display
+$displayYear = $selectedYear;
 ?>
 
 <div class="header">
@@ -333,150 +342,161 @@ if ($dayOfWeekPatterns) {
     <?php endforeach; ?>
 </div>
 
-<div class="mood-chart">
-    <div class="section-header" style="margin-bottom: 20px;">
-        <h2 class="section-title" style="color: #d1789c; font-size: 1.4rem; font-weight: 500; position: relative; display: inline-block;">
-            <?php echo $monthName; ?> Summary
-            <span style="position: absolute; bottom: -5px; left: 0; width: 50%; height: 2px; background: linear-gradient(90deg, #d1789c, transparent); border-radius: 2px;"></span>
-        </h2>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-top: 20px; margin-bottom: 20px;">
-        <?php if ($totalEntries > 0): ?>
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Dominant Mood</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                </div>
-                <div style="font-size: 2rem; margin: 15px 0; display: flex; align-items: center;">
-                    <?php echo isset($moodEmojis[$topMood]) ? $moodEmojis[$topMood] : '❓'; ?> 
-                    <span style="font-size: 1.2rem; margin-left: 10px; text-transform: capitalize; color: #4a3347;"><?php echo $topMood; ?></span>
-                </div>
-                <div style="font-size: 0.9rem; color: #888;">
-                    <?php echo round(($topMoodCount / $totalEntries) * 100); ?>% of your entries
+<div style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0;">
+    <h2 style="color: #d1789c; font-size: 1.4rem; margin: 0; font-weight: 500; position: relative; display: inline-block;">
+        <?php echo $monthName . ' ' . $displayYear; ?> Summary
+        <span style="position: absolute; bottom: -5px; left: 0; width: 40%; height: 2px; background: linear-gradient(90deg, #d1789c, transparent); border-radius: 2px;"></span>
+    </h2>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+    <?php if ($totalEntries > 0): ?>
+        <!-- Card 1: Dominant Mood - Only show if we have mood data -->
+        <?php if ($topMood): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Dominant Mood</h2>
+                <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                    <i class="fas fa-chart-pie"></i>
                 </div>
             </div>
-            
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Tracking Score</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                </div>
-                <div style="font-size: 2rem; margin: 15px 0; color: #4a3347;">
-                    <?php echo $totalEntries; ?><span style="font-size: 1rem; color: #888;">/<?php echo $daysInMonth; ?></span>
-                </div>
-                <div style="font-size: 0.9rem; color: #888;">
-                    <?php echo round(($totalEntries / $daysInMonth) * 100); ?>% of days tracked
-                </div>
+            <div style="font-size: 2rem; margin: 15px 0;">
+                <?php 
+                echo isset($moodEmojis[$topMood]) ? $moodEmojis[$topMood] : '😐';
+                ?>
             </div>
-            
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Logging Streak</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                </div>
-                <div style="font-size: 2rem; margin: 15px 0; color: #4a3347;">
-                    <?php echo $streak; ?> <span style="font-size: 1.2rem;">Days</span>
-                </div>
-                <div style="font-size: 0.9rem; color: #888;">
-                    <?php 
-                    if ($streak >= 7) {
-                        echo 'Excellent consistency!';
-                    } elseif ($streak >= 3) {
-                        echo 'Good progress!';
-                    } else {
-                        echo 'Keep going!';
-                    }
-                    ?>
-                </div>
+            <div style="font-size: 1.2rem; color: #4a3347; text-transform: capitalize;">
+                <?php echo $topMood; ?>
             </div>
-            
-            <!-- New Card: Mood Trend -->
-            <?php if ($currentMonthAvg > 0 && $prevMonthAvg > 0): ?>
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Mood Trend</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                </div>
-                <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347; display: flex; align-items: center;">
-                    <?php if ($trendPercentage > 0): ?>
-                        <i class="fas fa-arrow-up" style="color: #4CAF50; margin-right: 10px;"></i>
-                    <?php elseif ($trendPercentage < 0): ?>
-                        <i class="fas fa-arrow-down" style="color: #F44336; margin-right: 10px;"></i>
-                    <?php else: ?>
-                        <i class="fas fa-arrows-alt-h" style="color: #FFC107; margin-right: 10px;"></i>
-                    <?php endif; ?>
-                    <span style="text-transform: capitalize;"><?php echo $trendDirection; ?></span>
-                </div>
-                <div style="font-size: 0.9rem; color: #888;">
-                    <?php echo abs($trendPercentage); ?>% <?php echo $trendPercentage >= 0 ? 'better' : 'lower'; ?> than last month
-                </div>
+            <div style="font-size: 0.9rem; color: #888; margin-top: 5px;">
+                <?php echo $topMoodCount; ?> out of <?php echo $totalEntries; ?> entries (<?php echo round(($topMoodCount / $totalEntries) * 100); ?>%)
             </div>
-            <?php endif; ?>
-            
-            <!-- New Card: Best Day -->
-            <?php if ($bestDay): ?>
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Happiest Day</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-calendar-day"></i>
-                    </div>
-                </div>
-                <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347; display: flex; align-items: center;">
-                    <?php 
-                    $happyDay = date('j', strtotime($bestDay['created_at']));
-                    $happyEmoji = isset($moodEmojis[$bestDay['mood_type']]) ? $moodEmojis[$bestDay['mood_type']] : '🤩';
-                    echo $happyEmoji . ' ' . $monthName . ' ' . $happyDay;
-                    ?>
-                </div>
-                <div style="font-size: 0.9rem; color: #888; text-transform: capitalize;">
-                    Mood: <?php echo $bestDay['mood_type']; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- New Card: Weekly Pattern -->
-            <?php if ($bestDayOfWeek): ?>
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Weekly Pattern</h2>
-                    <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                        <i class="fas fa-calendar-week"></i>
-                    </div>
-                </div>
-                <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347;">
-                    <?php echo $bestDayOfWeek; ?> 🌟
-                </div>
-                <div style="font-size: 0.9rem; color: #888;">
-                    Your best day of the week
-                </div>
-            </div>
-            <?php endif; ?>
-        <?php else: ?>
-            <!-- No entries message -->
-            <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px; grid-column: 1 / -1;">
-                <div style="text-align: center; padding: 30px 20px;">
-                    <div style="font-size: 3rem; margin-bottom: 15px; color: #f5d7e3;">
-                        <i class="fas fa-calendar-plus"></i>
-                    </div>
-                    <h3 style="font-size: 1.2rem; color: #6e3b5c; margin-bottom: 10px;">No mood entries for <?php echo $monthName; ?></h3>
-                    <p style="color: #888; margin-bottom: 20px;">Start logging your moods to see insights and patterns.</p>
-                    <a href="dashboard.php?page=log-mood" style="background: linear-gradient(135deg, #d1789c, #e896b8); color: white; text-decoration: none; padding: 10px 20px; border-radius: 25px; display: inline-block; font-weight: 500;">
-                        Log Your Mood
-                    </a>
-                </div>
-            </div>
+        </div>
         <?php endif; ?>
-    </div>
+        
+        <!-- Card 2: Logging Streak - Only show if user has a streak -->
+        <?php if ($streak > 0): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Logging Streak</h2>
+                <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                    <i class="fas fa-fire"></i>
+                </div>
+            </div>
+            <div style="font-size: 2rem; margin: 15px 0; color: #4a3347;">
+                <?php echo $streak; ?> <?php echo $streak == 1 ? 'day' : 'days'; ?>
+            </div>
+            <div style="font-size: 0.9rem; color: #888;">
+                <?php 
+                if ($streak >= 7) {
+                    echo 'Excellent consistency!';
+                } elseif ($streak >= 3) {
+                    echo 'Good progress!';
+                } else {
+                    echo 'Keep going!';
+                }
+                ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Card 3: Mood Trend - Only show if we have comparison data -->
+        <?php if ($currentMonthAvg > 0 && $prevMonthAvg > 0 && abs($trendPercentage) > 0): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Mood Trend</h2>
+                <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347; display: flex; align-items: center;">
+                <?php if ($trendPercentage > 0): ?>
+                    <i class="fas fa-arrow-up" style="color: #4CAF50; margin-right: 10px;"></i>
+                <?php elseif ($trendPercentage < 0): ?>
+                    <i class="fas fa-arrow-down" style="color: #F44336; margin-right: 10px;"></i>
+                <?php else: ?>
+                    <i class="fas fa-arrows-alt-h" style="color: #FFC107; margin-right: 10px;"></i>
+                <?php endif; ?>
+                <span style="text-transform: capitalize;"><?php echo $trendDirection; ?></span>
+            </div>
+            <div style="font-size: 0.9rem; color: #888;">
+                <?php echo abs($trendPercentage); ?>% <?php echo $trendPercentage >= 0 ? 'better' : 'lower'; ?> than last month
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Card 4: Best Day - Only show if we have a best day -->
+        <?php if (isset($bestDay) && $bestDay): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Happiest Day</h2>
+                <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347; display: flex; align-items: center;">
+                <?php 
+                $happyDay = date('j', strtotime($bestDay['created_at']));
+                $happyEmoji = isset($moodEmojis[$bestDay['mood_type']]) ? $moodEmojis[$bestDay['mood_type']] : '🤩';
+                echo $happyEmoji . ' ' . $monthName . ' ' . $happyDay;
+                ?>
+            </div>
+            <div style="font-size: 0.9rem; color: #888; text-transform: capitalize;">
+                Mood: <?php echo $bestDay['mood_type']; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Card 5: Weekly Pattern - Only show if we have a best day of week -->
+        <?php if (!empty($bestDayOfWeek)): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="font-size: 1.1rem; color: #6e3b5c; margin: 0; font-weight: 500;">Weekly Pattern</h2>
+                <div style="color: #d1789c; background-color: #fff3f8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.5rem; margin: 15px 0; color: #4a3347;">
+                <?php echo $bestDayOfWeek; ?> 🌟
+            </div>
+            <div style="font-size: 0.9rem; color: #888;">
+                Your best day of the week
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- If none of the specific cards have data, show a generic info card -->
+        <?php if (!$topMood && $streak == 0 && !$bestDay && empty($bestDayOfWeek) && !($currentMonthAvg > 0 && $prevMonthAvg > 0)): ?>
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px; grid-column: 1 / -1;">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 15px; color: #f5d7e3;">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3 style="font-size: 1.2rem; color: #6e3b5c; margin-bottom: 10px;">Limited Data Available</h3>
+                <p style="color: #888; margin-bottom: 10px;">
+                    Continue logging your moods to unlock more insights for <?php echo $monthName; ?>.
+                </p>
+                <p style="color: #888; font-size: 0.9rem;">
+                    More entries = better insights!
+                </p>
+            </div>
+        </div>
+        <?php endif; ?>
+    <?php else: ?>
+        <!-- No entries message - When there are no entries for the month -->
+        <div class="card" style="margin-bottom: 0; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; padding: 25px; grid-column: 1 / -1;">
+            <div style="text-align: center; padding: 30px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 15px; color: #f5d7e3;">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <h3 style="font-size: 1.2rem; color: #6e3b5c; margin-bottom: 10px;">No mood entries for <?php echo $monthName; ?> <?php echo $selectedYear; ?></h3>
+                <p style="color: #888; margin-bottom: 20px;">Start logging your moods to see insights and patterns.</p>
+                <a href="dashboard.php?page=log-mood" class="btn" style="background: linear-gradient(135deg, #d1789c, #e896b8); color: white; text-decoration: none; padding: 10px 20px; border-radius: 25px; display: inline-block; font-weight: 500;">
+                    Log Your Mood
+                </a>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <style>
