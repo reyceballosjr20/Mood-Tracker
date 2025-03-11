@@ -221,182 +221,212 @@ $moodRecommendations = [
     ]
 ];
 
-// Get recommendations for current mood
-$recommendations = $moodRecommendations[$currentMood] ?? $moodRecommendations['none'];
-
-// Define mood-specific resources
+// Define mood-specific resources with links
 $moodResources = [
     'sad' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Understanding and Coping with Sadness"',
-            'time' => '7 min read'
+            'time' => '7 min read',
+            'link' => 'https://www.psychologytoday.com/us/blog/the-mindful-self-express/201603/8-ways-stay-strong-when-youre-feeling-sad'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Self-Care Practices for Low Mood"',
-            'time' => '10 min watch'
+            'time' => '10 min watch',
+            'link' => 'https://www.youtube.com/watch?v=TFbv757kup4'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Finding Hope During Difficult Times"',
-            'time' => '25 min listen'
+            'time' => '25 min listen',
+            'link' => 'https://www.npr.org/2019/12/16/788568340/how-to-find-joy'
         ]
     ],
     'unhappy' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Turning a Bad Day Around"',
-            'time' => '5 min read'
+            'time' => '5 min read',
+            'link' => 'https://www.verywellmind.com/how-to-turn-a-bad-day-around-5095169'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Quick Mood Boosters That Work"',
-            'time' => '8 min watch'
+            'time' => '8 min watch',
+            'link' => 'https://www.youtube.com/watch?v=F28MGLlpP90'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Reframing Negative Thoughts"',
-            'time' => '22 min listen'
+            'time' => '22 min listen',
+            'link' => 'https://www.npr.org/2015/12/29/461399375/why-we-should-say-no-to-positive-thinking'
         ]
     ],
     'neutral' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Finding Meaning in Everyday Life"',
-            'time' => '6 min read'
+            'time' => '6 min read',
+            'link' => 'https://www.mindful.org/finding-meaning-in-the-mundane/'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Mindfulness for Emotional Awareness"',
-            'time' => '15 min watch'
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=w6T02g5hnT4'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Creating More Engaging Days"',
-            'time' => '28 min listen'
+            'time' => '28 min listen',
+            'link' => 'https://www.npr.org/2020/04/09/830286321/bored-and-brilliant-how-spacing-out-can-unlock-your-most-productive-creative-sel'
         ]
     ],
     'good' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Building on Positive Momentum"',
-            'time' => '5 min read'
+            'time' => '5 min read',
+            'link' => 'https://www.psychologytoday.com/us/blog/click-here-happiness/201902/how-capitalize-your-positive-emotions'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Habits That Maintain Good Moods"',
-            'time' => '12 min watch'
+            'time' => '12 min watch',
+            'link' => 'https://www.youtube.com/watch?v=75d_29QWELk'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "The Science of Positive Emotions"',
-            'time' => '30 min listen'
+            'time' => '30 min listen',
+            'link' => 'https://www.npr.org/2019/01/11/684435633/brene-brown-what-does-it-mean-to-be-brave'
         ]
     ],
     'energetic' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Channeling Energy Productively"',
-            'time' => '4 min read'
+            'time' => '4 min read',
+            'link' => 'https://www.verywellmind.com/how-to-increase-productivity-4142969'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "High-Energy Workout Routines"',
-            'time' => '20 min watch'
+            'time' => '20 min watch',
+            'link' => 'https://www.youtube.com/watch?v=ml6cT4AZdqI'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Maintaining Sustainable Energy"',
-            'time' => '35 min listen'
+            'time' => '35 min listen',
+            'link' => 'https://www.npr.org/2020/01/24/799257834/work-life-the-science-of-making-work-not-suck'
         ]
     ],
     'excellent' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Making the Most of Peak Experiences"',
-            'time' => '6 min read'
+            'time' => '6 min read',
+            'link' => 'https://www.psychologytoday.com/us/blog/finding-light-in-the-darkness/202005/peak-experiences-and-how-have-more-them'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Creating More Peak Moments"',
-            'time' => '11 min watch'
+            'time' => '11 min watch',
+            'link' => 'https://www.youtube.com/watch?v=nT1TpVzGRVQ'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "The Psychology of Flow States"',
-            'time' => '40 min listen'
+            'time' => '40 min listen',
+            'link' => 'https://www.npr.org/2015/04/17/399806632/what-makes-a-life-worth-living'
         ]
     ],
     'anxious' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Quick Techniques to Reduce Anxiety"',
-            'time' => '5 min read'
+            'time' => '5 min read',
+            'link' => 'https://www.healthline.com/health/anxiety/how-to-calm-anxiety'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Guided Anxiety Relief Meditation"',
-            'time' => '15 min watch'
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=O-6f5wQXSu8'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Understanding Your Anxiety Triggers"',
-            'time' => '32 min listen'
+            'time' => '32 min listen',
+            'link' => 'https://www.npr.org/2022/01/07/1071120196/anxiety-management-tips'
         ]
     ],
     'tired' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Energy Management vs. Time Management"',
-            'time' => '7 min read'
+            'time' => '7 min read',
+            'link' => 'https://hbr.org/2007/10/manage-your-energy-not-your-time'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Yoga for Energy Restoration"',
-            'time' => '18 min watch'
+            'time' => '18 min watch',
+            'link' => 'https://www.youtube.com/watch?v=UEEsdXn8oG8'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "Sleep Science and Recovery"',
-            'time' => '45 min listen'
+            'time' => '45 min listen',
+            'link' => 'https://www.npr.org/2017/10/16/558058812/sleep-and-sleep-deprivation'
         ]
     ],
     'focused' => [
         [
             'icon' => 'book',
             'title' => 'Article: "Maintaining Deep Focus States"',
-            'time' => '8 min read'
+            'time' => '8 min read',
+            'link' => 'https://www.verywellmind.com/ways-to-improve-your-focus-4129534'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Productivity Techniques for Flow"',
-            'time' => '14 min watch'
+            'time' => '14 min watch',
+            'link' => 'https://www.youtube.com/watch?v=y2X7c9TUQJ8'
         ],
         [
             'icon' => 'headphones',
-            'title' => 'Podcast: "The Neuroscience of Focus"',
-            'time' => '38 min listen'
+            'title' => 'Podcast: "Deep Work and Focus in a Distracted World"',
+            'time' => '38 min listen',
+            'link' => 'https://www.npr.org/2017/03/27/521672358/deep-work-how-to-cultivate-a-work-ethic-of-focus'
         ]
     ],
     'none' => [
         [
             'icon' => 'book',
-            'title' => 'Article: "5 Ways to Improve Your Mood Naturally"',
-            'time' => '5 min read'
+            'title' => 'Article: "Understanding Your Emotions"',
+            'time' => '6 min read',
+            'link' => 'https://www.verywellmind.com/what-are-emotions-2795178'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Understanding Mood Patterns"',
-            'time' => '12 min watch'
+            'title' => 'Video: "Introduction to Mood Tracking"',
+            'time' => '9 min watch',
+            'link' => 'https://www.youtube.com/watch?v=W1-qN3YDsVQ'
         ],
         [
             'icon' => 'headphones',
             'title' => 'Podcast: "The Science of Happiness"',
-            'time' => '30 min listen'
+            'time' => '30 min listen',
+            'link' => 'https://www.npr.org/2018/08/06/635552704/you-2-0-the-science-of-happiness'
         ]
     ]
 ];
+
+// Get recommendations for current mood
+$recommendations = $moodRecommendations[$currentMood] ?? $moodRecommendations['none'];
 
 // Get resources for current mood
 $resources = $moodResources[$currentMood] ?? $moodResources['none'];
@@ -476,9 +506,9 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
                 <div class="activity-title"><?php echo htmlspecialchars($resource['title']); ?></div>
                 <div class="activity-time"><?php echo htmlspecialchars($resource['time']); ?></div>
             </div>
-            <button class="activity-action">
+            <a href="<?php echo htmlspecialchars($resource['link']); ?>" target="_blank" class="activity-action">
                 <i class="fas fa-external-link-alt"></i>
-            </button>
+            </a>
         </li>
         <?php endforeach; ?>
     </ul>
