@@ -263,19 +263,23 @@ $yearMonths = $mood->getAvailableMonths($userId);
                     $now = time();  // Current time in the set timezone (UTC+8)
                     $diff = $now - $entryDate;
                     
-                    if ($diff < 86400) { // Less than 24 hours
-                        if ($diff < 3600) { // Less than an hour
-                            $minutes = floor($diff / 60);
-                            echo $minutes . ' minute' . ($minutes != 1 ? 's' : '') . ' ago';
-                        } else {
-                            $hours = floor($diff / 3600);
-                            echo $hours . ' hour' . ($hours != 1 ? 's' : '') . ' ago';
-                        }
+                    // Improved time formatting
+                    if ($diff < 60) { // Less than a minute
+                        echo 'Just now';
+                    } elseif ($diff < 3600) { // Less than an hour
+                        $minutes = floor($diff / 60);
+                        echo $minutes . ' minute' . ($minutes != 1 ? 's' : '') . ' ago';
+                    } elseif ($diff < 86400) { // Less than 24 hours
+                        $hours = floor($diff / 3600);
+                        echo $hours . ' hour' . ($hours != 1 ? 's' : '') . ' ago';
                     } elseif ($diff < 172800) { // Less than 48 hours
                         echo 'Yesterday at ' . date('g:i A', $entryDate);
                     } elseif ($diff < 604800) { // Less than a week
                         $days = floor($diff / 86400);
-                        echo $days . ' days ago';
+                        echo $days . ' day' . ($days != 1 ? 's' : '') . ' ago';
+                    } elseif ($diff < 2592000) { // Less than a month
+                        $weeks = floor($diff / 604800);
+                        echo $weeks . ' week' . ($weeks != 1 ? 's' : '') . ' ago';
                     } else {
                         echo date('M j, Y \a\t g:i A', $entryDate);
                     }
