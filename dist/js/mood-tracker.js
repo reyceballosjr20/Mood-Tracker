@@ -393,4 +393,4 @@ document.addEventListener('DOMContentLoaded', function() {
 function reinitMoodTracker() {
     console.log('Reinitializing mood tracker for dynamically loaded content');
     initMoodTracker();
-} 
+}
