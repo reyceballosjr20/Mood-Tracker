@@ -745,12 +745,8 @@ if(isset($_GET['page'])) {
                         <span>Log Mood</span>
                     </a>
                 </li>
-                <li class="menu-item <?php echo $current_page === 'mood-history' ? 'active' : ''; ?>">
-                    <a href="#" class="menu-link" data-page="mood-history">
-                        <i class="fas fa-history"></i>
-                        <span>Mood History</span>
-                    </a>
-                </li>
+               
+
                 <li class="menu-item <?php echo $current_page === 'calendar' ? 'active' : ''; ?>">
                     <a href="#" class="menu-link" data-page="calendar">
                         <i class="fas fa-calendar-alt"></i>

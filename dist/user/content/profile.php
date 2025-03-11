@@ -17,107 +17,247 @@ $user = [
 ?>
 
 <div class="header">
-    <h1 class="page-title">Your Profile</h1>
+    <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
+        Your Profile
+        <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
+    </h1>
     <div class="search-box">
-        <button style="background: #ff8fb1; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+        <button id="saveChangesBtn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">
             <i class="fas fa-save"></i> Save Changes
         </button>
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px;">
+<div class="profile-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px;">
     <!-- Profile Image Section -->
-    <div class="card" style="margin-bottom: 0; text-align: center;">
+    <div class="card" style="margin-bottom: 0; text-align: center; background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
         <div style="padding: 20px;">
-            <div style="width: 150px; height: 150px; border-radius: 50%; background-color: #ff8fb1; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 60px; font-weight: 300;">
+            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #d1789c, #e896b8); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 60px; font-weight: 300;">
                 <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
             </div>
-            <button style="background: #6e3b5c; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; width: 100%;">
+            <button class="profile-btn primary-btn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 15px; border-radius: 25px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">
                 <i class="fas fa-camera"></i> Change Photo
             </button>
-            <button style="background: white; border: 1px solid #d3d3d3; color: #333; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%;">
+            <button class="profile-btn secondary-btn" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 10px 15px; border-radius: 25px; cursor: pointer; width: 100%; font-weight: 500;">
                 <i class="fas fa-trash"></i> Remove
             </button>
         </div>
     </div>
     
     <!-- Profile Details Section -->
-    <div class="card" style="margin-bottom: 0;">
-        <div class="card-header">
-            <h2 class="card-title">Personal Information</h2>
+    <div class="card" style="margin-bottom: 0; background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
+        <div class="card-header" style="padding: 15px 20px; border-bottom: 1px solid #f9e8f0;">
+            <h2 class="card-title" style="font-size: 1.25rem; color: #d1789c; font-weight: 500; margin: 0;">Personal Information</h2>
             <div class="card-icon">
-                <i class="fas fa-user-edit"></i>
+                <i class="fas fa-user-edit" style="color: #d1789c;"></i>
             </div>
         </div>
         <div style="padding: 20px;">
             <form>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">First Name</label>
-                        <input type="text" value="<?php echo htmlspecialchars($user['first_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="text" value="<?php echo htmlspecialchars($user['first_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Last Name</label>
-                        <input type="text" value="<?php echo htmlspecialchars($user['last_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="text" value="<?php echo htmlspecialchars($user['last_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                     </div>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Email</label>
-                    <input type="email" value="<?php echo htmlspecialchars($user['email']); ?>" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="email" value="<?php echo htmlspecialchars($user['email']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                 </div>
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Bio</label>
-                    <textarea style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; height: 100px; resize: vertical;">I'm tracking my mood to improve my mental well-being and understand my emotional patterns.</textarea>
+                    <textarea style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; height: 100px; resize: vertical; background-color: #fffcfd; font-family: inherit;">I'm tracking my mood to improve my mental well-being and understand my emotional patterns.</textarea>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h2 class="card-title">Security Settings</h2>
+<div class="card" style="background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
+    <div class="card-header" style="padding: 15px 20px; border-bottom: 1px solid #f9e8f0;">
+        <h2 class="card-title" style="font-size: 1.25rem; color: #d1789c; font-weight: 500; margin: 0;">Security Settings</h2>
         <div class="card-icon">
-            <i class="fas fa-shield-alt"></i>
+            <i class="fas fa-shield-alt" style="color: #d1789c;"></i>
         </div>
     </div>
     <div style="padding: 20px;">
-        <div style="margin-bottom: 20px;">
+        <div>
             <h3 style="font-size: 16px; margin-bottom: 15px; color: #6e3b5c;">Change Password</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="password-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Current Password</label>
-                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                 </div>
-                <div></div>
+                <div class="password-spacer"></div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">New Password</label>
-                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Confirm New Password</label>
-                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <input type="password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
                 </div>
             </div>
-            <button style="background: #ff8fb1; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+            <button style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-top: 15px; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">
                 Update Password
             </button>
         </div>
-        
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        
-        <div>
-            <h3 style="font-size: 16px; margin-bottom: 15px; color: #6e3b5c;">Two-Factor Authentication</h3>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <p style="margin-bottom: 5px;">Add an extra layer of security to your account</p>
-                    <p style="color: #888; font-size: 14px;">Currently disabled</p>
-                </div>
-                <label class="toggle-switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
-                    <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
-                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
-                </label>
-            </div>
-        </div>
     </div>
-</div> 
+</div>
+
+<style>
+    /* Card styling */
+    .card {
+        transition: none !important;
+    }
+    
+    .card:hover {
+        transform: none !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.07) !important;
+    }
+    
+    /* Form input focus states */
+    input:focus, textarea:focus {
+        border-color: #d1789c !important;
+        box-shadow: 0 0 0 3px rgba(209, 120, 156, 0.15) !important;
+        outline: none !important;
+    }
+    
+    /* Toggle switch styling */
+    .toggle-switch span:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    .toggle-switch input:checked + span {
+        background-color: #d1789c;
+    }
+    
+    .toggle-switch input:checked + span:before {
+        transform: translateX(26px);
+    }
+    
+    /* Button hover states */
+    .primary-btn:hover {
+        background: linear-gradient(135deg, #c76490, #e48db0) !important;
+    }
+    
+    .secondary-btn:hover {
+        background: #f9f9f9 !important;
+        border-color: #d1789c !important;
+    }
+    
+    #saveChangesBtn:hover {
+        background: linear-gradient(135deg, #c76490, #e48db0) !important;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 992px) {
+        .profile-grid {
+            gap: 15px !important;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        /* Fix the gap between sidebar and content */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container-fluid,
+        .row,
+        main,
+        .content-area {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        /* Ensure the sidebar connects directly with content */
+        .sidebar {
+            margin-right: 0;
+            padding-right: 0;
+        }
+        
+        /* Adjust profile grid for mobile */
+        .profile-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+        
+        /* Center the page title on mobile */
+        h1.page-title {
+            font-size: 1.6rem !important;
+            text-align: center;
+            display: block !important;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        h1.page-title span {
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+        }
+        
+        /* Adjust header layout */
+        .header {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .search-box {
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        
+        #saveChangesBtn {
+            width: 100%;
+            max-width: 250px;
+            padding: 12px 20px;
+        }
+        
+        /* Adjust password grid */
+        .password-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .password-spacer {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        /* Further adjustments for very small screens */
+        .form-row {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .card-header {
+            padding: 15px !important;
+        }
+        
+        div[style*="padding: 20px"] {
+            padding: 15px !important;
+        }
+        
+        h2.card-title {
+            font-size: 1.1rem !important;
+        }
+    }
+</style> 
