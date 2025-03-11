@@ -728,6 +728,9 @@ if(isset($_GET['page'])) {
                 // Get profile image from session
                 $profile_image = $_SESSION['profile_image'] ?? '';
                 
+                // Debug output
+                echo "<!-- Debug: Profile image = $profile_image -->";
+                
                 if (!empty($profile_image)): 
                     // Check if it's just a filename or a full path
                     if (strpos($profile_image, '/') !== false) {
@@ -738,14 +741,20 @@ if(isset($_GET['page'])) {
                         $image_path = 'uploads/profile_images/' . $profile_image;
                     }
                     
+                    // Debug output
+                    echo "<!-- Debug: Image path = $image_path -->";
+                    echo "<!-- Debug: Full path = " . realpath('../' . $image_path) . " -->";
+                    
                     // Check if file exists
                     if (file_exists('../' . $image_path)):
                 ?>
                     <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                 <?php else: ?>
+                    <!-- Image file not found -->
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>
                 <?php else: ?>
+                    <!-- No profile image set -->
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>
             </div>

@@ -264,6 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (profileImageContainer) {
                                     // Use the full path returned from the server
                                     profileImageContainer.innerHTML = `<img src="../../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                                    console.log('Updated image path:', data.image_path);
                                 }
                                 
                                 // Also update the user avatar in the sidebar if it exists

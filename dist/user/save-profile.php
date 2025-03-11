@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
             $result = $stmt->execute([$new_filename, $user_id]);
             
             if ($result) {
-                // Update session data - store the full path for display
+                // Update session data - store the filename only
                 $_SESSION['profile_image'] = $new_filename;
                 
                 // Return the full path for the frontend
@@ -175,7 +175,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
                     'success' => true, 
                     'message' => 'Profile image updated successfully',
                     'image_path' => $image_path,
-                    'filename' => $new_filename
+                    'filename' => $new_filename,
+                    'debug_info' => [
+                        'upload_dir' => $upload_dir,
+                        'new_filename' => $new_filename,
+                        'full_path' => $upload_path,
+                        'exists' => file_exists($upload_path) ? 'yes' : 'no'
+                    ]
                 ]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update profile image in database']);
@@ -184,7 +190,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image'])) {
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
         }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to upload image']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Failed to upload image',
+            'debug_info' => [
+                'upload_error' => $_FILES['profile_image']['error'],
+                'tmp_name' => $_FILES['profile_image']['tmp_name'],
+                'upload_path' => $upload_path,
+                'dir_exists' => file_exists($upload_dir) ? 'yes' : 'no',
+                'dir_writable' => is_writable($upload_dir) ? 'yes' : 'no'
+            ]
+        ]);
     }
     exit;
 }

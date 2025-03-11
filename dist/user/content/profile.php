@@ -75,14 +75,20 @@ if ($user_id > 0) {
                         $image_path = 'uploads/profile_images/' . $profile_image;
                     }
                     
+                    // Debug output to check paths
+                    echo "<!-- Debug: Image path = $image_path -->";
+                    echo "<!-- Debug: Full path = " . realpath('../../' . $image_path) . " -->";
+                    
                     // Check if file exists
                     if (file_exists('../../' . $image_path)):
                 ?>
-                    <img src="../../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                 <?php else: ?>
+                    <!-- Image file not found -->
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>
                 <?php else: ?>
+                    <!-- No profile image set -->
                     <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
                 <?php endif; ?>
             </div>
