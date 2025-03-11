@@ -139,9 +139,7 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 40px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(245, 182, 208, 0.2);
         transition: all 0.3s ease;
         border: 2px solid transparent;
     }
@@ -208,6 +206,22 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
         color: #d1789c;
         font-weight: 600;
         letter-spacing: 0.5px;
+    }
+    
+    /* Animation for inspirational message */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-animation {
+        animation: fadeInUp 0.5s ease-out forwards;
     }
     
     /* Responsive adjustments */
@@ -295,59 +309,6 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let selectedMood = null;
-    const moodCircles = document.querySelectorAll('.mood-circle');
-    const moodInfluence = document.getElementById('moodInfluence');
-    const saveMoodBtn = document.getElementById('saveMoodBtn');
-
-    // Handle mood selection
-    moodCircles.forEach(circle => {
-        circle.addEventListener('click', function() {
-            // Remove selected class from all circles
-            moodCircles.forEach(c => c.classList.remove('selected'));
-            // Add selected class to clicked circle
-            this.classList.add('selected');
-            selectedMood = this.dataset.mood;
-        });
-    });
-
-    // Handle save button click
-    saveMoodBtn.addEventListener('click', async function() {
-        if (!selectedMood) {
-            alert('Please select a mood first');
-            return;
-        }
-
-        try {
-            const response = await fetch('save-mood.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    mood_type: selectedMood,
-                    mood_text: moodInfluence.value
-                })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                alert('Mood logged successfully!');
-                // Reset form
-                moodCircles.forEach(c => c.classList.remove('selected'));
-                moodInfluence.value = '';
-                selectedMood = null;
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (error) {
-            alert('Error saving mood: ' + error.message);
-        }
-    });
-});
-</script>
+<!-- All JavaScript code has been moved to the external mood-tracker.js file -->
 
 

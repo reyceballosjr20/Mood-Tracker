@@ -30,6 +30,7 @@ if(isset($_GET['page'])) {
     <title>Dashboard - Mood Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Load the mood tracker script -->
     <script src="../js/mood-tracker.js"></script>
     <style>
         * {
@@ -819,55 +820,53 @@ if(isset($_GET['page'])) {
         let currentPage = '<?php echo $current_page; ?>';
         
         // Function to load page content
-        async function loadPage(page) {
-            // Don't reload if it's the current page
-            if (page === currentPage && mainContent.innerHTML.trim() !== '') {
+        const loadPage = (page) => {
+            console.log(`Loading page: ${page}`);
+            const mainContent = document.getElementById('mainContent');
+            
+            if (!mainContent) {
+                console.error('Main content container not found in DOM');
                 return;
             }
             
-            try {
-                // Show loading overlay
-                showLoading();
-                
-                // Fetch the page content
-                const response = await fetch(`content/${page}.php?_=${Date.now()}`);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load page: ${response.status}`);
-                }
-                
-                const html = await response.text();
-                
-                // Update content
-                mainContent.innerHTML = html;
-                
-                // Update active state
-                updateActiveMenu(page);
-                
-                // Update URL without reload
-                window.history.pushState({page}, '', `?page=${page}`);
-                
-                // Update current page
-                currentPage = page;
-                
-                // Initialize any scripts on the new page
-                initPageScripts();
-            } catch (error) {
-                console.error('Error loading page:', error);
-                mainContent.innerHTML = `
-                    <div style="padding: 20px; text-align: center;">
-                        <h2>Error Loading Content</h2>
-                        <p>${error.message}</p>
-                        <button onclick="loadPage('dashboard')" class="signup-btn" style="max-width: 200px; margin: 20px auto;">
-                            Go to Dashboard
-                        </button>
-                    </div>
-                `;
-            } finally {
-                // Hide loading overlay
-                hideLoading();
-            }
-        }
+            // Loading animation
+            mainContent.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
+            
+            fetch(`content/${page}.php`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Page not found');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    mainContent.innerHTML = html;
+                    
+                    // After loading content, initialize/reinitialize any scripts
+                    if (typeof reinitMoodTracker === 'function') {
+                        console.log('Calling reinitMoodTracker for dynamically loaded content');
+                        reinitMoodTracker();
+                    }
+                    
+                    // Update browser history
+                    if (!history.state || history.state.page !== page) {
+                        history.pushState({ page }, `${page} - Mood Tracker`, `?page=${page}`);
+                    }
+                    
+                    // Update active menu item
+                    updateActiveMenu(page);
+                })
+                .catch(error => {
+                    mainContent.innerHTML = `
+                        <div class="error-container">
+                            <h2>Oops! Something went wrong</h2>
+                            <p>${error.message}</p>
+                            <button onclick="loadPage('dashboard')">Go to Dashboard</button>
+                        </div>
+                    `;
+                    console.error('Error loading page:', error);
+                });
+        };
         
         // Update active menu item
         function updateActiveMenu(page) {
