@@ -585,55 +585,127 @@ if (isset($_GET['page'])) {
             }
         }
 
+        /* Mobile styles */
         @media (max-width: 768px) {
-            body {
-                padding-top: 70px;
+            /* Mobile header */
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                z-index: 1040;
+                padding: 15px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
-            
-            .mobile-header {
-                display: flex;
-            }
-            
+
+            /* Mobile sidebar */
             .sidebar {
-                left: -250px;
+                position: fixed;
+                left: -100%;
+                width: 85%;
+                max-width: 300px;
+                height: 100%;
+                background: linear-gradient(180deg, #f5d7e3 0%, #f8dfeb 100%);
+                transition: all 0.3s ease;
+                z-index: 1050;
+                padding: 20px 15px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 box-shadow: none;
+                visibility: hidden; /* Hide initially */
             }
 
             .sidebar.active {
                 left: 0;
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                visibility: visible;
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
             }
 
-            .tooltip::after {
+            /* Mobile toggle button */
+            .sidebar-toggle {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1060;
+                background: white;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                color: #6e3b5c;
+            }
+
+            /* Mobile overlay */
+            .sidebar-overlay {
                 display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1045;
+                opacity: 0;
+                transition: opacity 0.3s ease;
             }
 
-            .main-content {
-                margin-left: 0;
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+
+            /* Mobile content area */
+            #content {
+                margin-left: 0 !important;
+                padding: 15px;
+                padding-top: 70px;
+                width: 100%;
+                min-height: 100vh;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Hide desktop elements */
+            .desktop-only {
+                display: none !important;
+            }
+
+            /* Prevent body scroll when sidebar is open */
+            body.sidebar-open {
+                overflow: hidden;
+                position: fixed;
                 width: 100%;
             }
         }
 
-        @media (max-width: 480px) {
-            .header {
-                margin-bottom: 20px;
-                margin-top: 30px;
-            }
-
-            .page-title {
-                font-size: 20px;
+        /* Small mobile devices */
+        @media (max-width: 375px) {
+            .content-container {
+                padding: 10px;
+                padding-top: 60px;
             }
 
             .card {
                 padding: 15px;
             }
 
-            .card-content {
-                font-size: 24px;
+            .mood-icon {
+                width: 50px;
+                height: 50px;
             }
 
-            .activity-title {
-                font-size: 14px;
+            .mood-text {
+                font-size: 18px;
+            }
+
+            .streak-number {
+                font-size: 28px;
             }
         }
 

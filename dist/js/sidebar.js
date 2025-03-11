@@ -54,6 +54,40 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
+    // Toggle sidebar function
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        
+        sidebar.classList.toggle('active');
+        
+        if (window.innerWidth <= 768) {
+            if (sidebar.classList.contains('active')) {
+                overlay.classList.add('active');
+                document.body.classList.add('sidebar-open');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        handleMobileLayout();
+    }
+    
+    // Add click event listeners
+    sidebarToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleSidebar();
+    });
+    
+    overlay.addEventListener('click', function() {
+        if (sidebar.classList.contains('active')) {
+            toggleSidebar();
+        }
+    });
+    
     // Add click event listeners to menu links
     menuLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -74,50 +108,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Toggle sidebar function
-    function toggleSidebar() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        
-        // Adjust main content margin and toggle button position
-        if (window.innerWidth >= 768) {
-            if (sidebar.classList.contains('active')) {
-                content.style.marginLeft = '0';
-                sidebarToggle.style.left = '20px';
-            } else {
-                content.style.marginLeft = '250px';
-                sidebarToggle.style.left = '270px';
-            }
-        }
-    }
-    
-    // Event listeners
-    sidebarToggle.addEventListener('click', toggleSidebar);
-    
-    overlay.addEventListener('click', function() {
-        if (sidebar.classList.contains('active')) {
-            toggleSidebar();
-        }
-    });
-    
     // Handle window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth >= 768) {
-            if (sidebar.classList.contains('active')) {
-                content.style.marginLeft = '0';
-                sidebarToggle.style.left = '20px';
-            } else {
-                content.style.marginLeft = '250px';
-                sidebarToggle.style.left = '270px';
-            }
-            overlay.classList.remove('active');
-        } else {
-            content.style.marginLeft = '0';
-            sidebarToggle.style.left = sidebar.classList.contains('active') ? '265px' : '15px';
-        }
-    });
+    window.addEventListener('resize', handleMobileLayout);
+    window.addEventListener('load', handleMobileLayout);
     
     // Load initial page
     const initialPage = 'dashboard';
     loadPage(initialPage);
-}); 
+});
+
+function handleMobileLayout() {
+    const isMobile = window.innerWidth <= 768;
+    const content = document.getElementById('content');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    if (isMobile) {
+        // Mobile layout
+        content.style.marginLeft = '0';
+        sidebarToggle.style.left = '15px';
+        
+        if (sidebar.classList.contains('active')) {
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        } else {
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
+    } else {
+        // Desktop layout
+        document.body.classList.remove('sidebar-open');
+        document.body.style.overflow = '';
+        content.style.marginLeft = sidebar.classList.contains('active') ? '0' : '250px';
+        sidebarToggle.style.left = sidebar.classList.contains('active') ? '20px' : '270px';
+        overlay.classList.remove('active');
+    }
+} 
