@@ -34,6 +34,8 @@ if(isset($_GET['page'])) {
     <script src="../js/mood-tracker.js"></script>
     <!-- Load the calendar script (will be used on calendar page) -->
     <script src="../js/calendar.js"></script>
+    <script src="../js/profile.js"></script>
+    <!-- Load the history script (will be used on history page) -->
     <style>
         * {
             margin: 0;
