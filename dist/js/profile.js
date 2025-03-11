@@ -217,12 +217,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         showPreview: true,
                         previewSrc: e.target.result,
                         onConfirm: () => {
+                            // Hide the confirmation buttons
+                            document.getElementById('modalConfirm').style.display = 'none';
+                            document.getElementById('modalCancel').style.display = 'none';
+                            document.getElementById('modalMessage').style.display = 'none';
+                            document.getElementById('modalImagePreview').style.display = 'none';
+                            
                             // Show loading state in modal
                             updateModalStatus('loading', 'Uploading image...');
-                            
-                            // Disable buttons during upload
-                            document.getElementById('modalConfirm').disabled = true;
-                            document.getElementById('modalCancel').disabled = true;
                             
                             // Also update button state
                             if (changePhotoBtn) {
@@ -262,23 +264,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                     // Also update the user avatar in the sidebar if it exists
                                     updateUserAvatar(data.image_path);
                                     
-                                    // Show success in modal
+                                    // Show success in modal with confetti
                                     updateModalStatus('success', 'Profile image updated successfully!');
+                                    startConfetti();
                                     
                                     // Reload the page after a short delay
                                     setTimeout(() => {
                                         window.location.reload();
-                                    }, 1500);
+                                    }, 2000);
                                 } else {
                                     // Show error in modal
                                     updateModalStatus('error', data.message || 'Failed to upload image');
-                                    
-                                    // Restore initials if upload failed
-                                    restoreInitialsImage();
-                                    
-                                    // Re-enable buttons
-                                    document.getElementById('modalConfirm').disabled = false;
-                                    document.getElementById('modalCancel').disabled = false;
                                 }
                             })
                             .catch(error => {
@@ -292,13 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 // Show error in modal
                                 updateModalStatus('error', 'An error occurred while uploading the image.');
-                                
-                                // Restore initials if upload failed
-                                restoreInitialsImage();
-                                
-                                // Re-enable buttons
-                                document.getElementById('modalConfirm').disabled = false;
-                                document.getElementById('modalCancel').disabled = false;
                             });
                         },
                         onCancel: () => {
@@ -364,12 +353,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Remove Profile Picture',
                 message: 'Are you sure you want to remove your profile picture?',
                 onConfirm: () => {
+                    // Hide the confirmation buttons
+                    document.getElementById('modalConfirm').style.display = 'none';
+                    document.getElementById('modalCancel').style.display = 'none';
+                    document.getElementById('modalMessage').style.display = 'none';
+                    
                     // Show loading state in modal
                     updateModalStatus('loading', 'Removing image...');
-                    
-                    // Disable buttons during removal
-                    document.getElementById('modalConfirm').disabled = true;
-                    document.getElementById('modalCancel').disabled = true;
                     
                     // Also update button state
                     if (removePhotoBtn) {
@@ -394,20 +384,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         if (data.success) {
-                            // Show success in modal
+                            // Show success in modal with confetti
                             updateModalStatus('success', 'Profile image removed successfully!');
+                            startConfetti();
                             
                             // Reload the page after a short delay
                             setTimeout(() => {
                                 window.location.reload();
-                            }, 1500);
+                            }, 2000);
                         } else {
                             // Show error in modal
                             updateModalStatus('error', data.message || 'Failed to remove image');
-                            
-                            // Re-enable buttons
-                            document.getElementById('modalConfirm').disabled = false;
-                            document.getElementById('modalCancel').disabled = false;
                         }
                     })
                     .catch(error => {
@@ -419,10 +406,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         // Show error in modal
                         updateModalStatus('error', 'An error occurred while removing the image.');
-                        
-                        // Re-enable buttons
-                        document.getElementById('modalConfirm').disabled = false;
-                        document.getElementById('modalCancel').disabled = false;
                         
                         console.error('Error:', error);
                     });
@@ -465,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal functions
     function showModal(options) {
         const modal = document.getElementById('profileModal');
+        const modalContent = modal.querySelector('.modal-content');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
         const modalImagePreview = document.getElementById('modalImagePreview');
@@ -479,6 +463,23 @@ document.addEventListener('DOMContentLoaded', function() {
         modalImagePreview.style.display = 'none';
         modalConfirm.disabled = false;
         modalCancel.disabled = false;
+        
+        // Reset any animations
+        const statusIcon = document.getElementById('statusIcon');
+        const statusMessage = document.getElementById('statusMessage');
+        statusIcon.style.transform = 'scale(0.5)';
+        statusIcon.style.opacity = '0';
+        statusMessage.style.opacity = '0';
+        statusMessage.style.transform = 'translateY(10px)';
+        
+        // Hide progress bar
+        const statusProgress = document.getElementById('statusProgress');
+        const progressBar = document.getElementById('progressBar');
+        statusProgress.style.display = 'none';
+        progressBar.style.width = '0%';
+        
+        // Remove animation classes
+        statusIcon.classList.remove('pulse-animation', 'success-animation', 'error-animation');
         
         // Set modal content
         modalTitle.textContent = options.title || 'Confirmation';
@@ -513,8 +514,12 @@ document.addEventListener('DOMContentLoaded', function() {
             hideModal();
         };
         
-        // Show the modal
+        // Show the modal with animation
         modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            modalContent.style.transform = 'translateY(0)';
+        }, 10);
         
         // Add event listener to close modal when clicking outside
         modal.onclick = (e) => {
@@ -529,30 +534,174 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideModal() {
         const modal = document.getElementById('profileModal');
-        modal.style.display = 'none';
+        const modalContent = modal.querySelector('.modal-content');
+        
+        // Animate out
+        modal.style.opacity = '0';
+        modalContent.style.transform = 'translateY(20px)';
+        
+        // Hide after animation completes
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
     }
     
     function updateModalStatus(type, message) {
         const modalStatus = document.getElementById('modalStatus');
         const statusIcon = document.getElementById('statusIcon');
         const statusMessage = document.getElementById('statusMessage');
+        const statusProgress = document.getElementById('statusProgress');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Show status section
+        modalStatus.style.display = 'block';
         
         // Set icon and color based on type
         if (type === 'success') {
             statusIcon.className = 'fas fa-check-circle';
             statusIcon.style.color = '#4CAF50';
+            
+            // Show progress bar for success (for page reload countdown)
+            statusProgress.style.display = 'block';
+            setTimeout(() => {
+                progressBar.style.width = '100%';
+            }, 50);
+            
+            // Add success animation class
+            setTimeout(() => {
+                statusIcon.classList.add('success-animation');
+            }, 100);
         } else if (type === 'error') {
             statusIcon.className = 'fas fa-times-circle';
             statusIcon.style.color = '#F44336';
+            
+            // Add error animation class
+            setTimeout(() => {
+                statusIcon.classList.add('error-animation');
+            }, 100);
         } else if (type === 'loading') {
-            statusIcon.className = 'fas fa-spinner fa-spin';
+            statusIcon.className = 'fas fa-spinner';
             statusIcon.style.color = '#d1789c';
+            
+            // Add loading animation
+            setTimeout(() => {
+                statusIcon.classList.add('pulse-animation');
+            }, 100);
         }
         
         // Set message
         statusMessage.textContent = message;
         
-        // Show status section
-        modalStatus.style.display = 'block';
+        // Animate in the icon and message
+        setTimeout(() => {
+            statusIcon.style.opacity = '1';
+            statusIcon.style.transform = 'scale(1)';
+            
+            setTimeout(() => {
+                statusMessage.style.opacity = '1';
+                statusMessage.style.transform = 'translateY(0)';
+            }, 100);
+        }, 50);
+    }
+    
+    // Confetti animation
+    function startConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        if (!canvas) return;
+        
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        // Confetti colors
+        const colors = ['#d1789c', '#e896b8', '#f5d7e3', '#6e3b5c', '#4CAF50', '#FFC107'];
+        
+        // Create confetti pieces
+        const confetti = [];
+        const confettiCount = 100;
+        const gravity = 0.5;
+        const terminalVelocity = 5;
+        const drag = 0.075;
+        
+        // Initialize confetti
+        for (let i = 0; i < confettiCount; i++) {
+            confetti.push({
+                color: colors[Math.floor(Math.random() * colors.length)],
+                dimensions: {
+                    x: Math.random() * 10 + 5,
+                    y: Math.random() * 10 + 5
+                },
+                position: {
+                    x: Math.random() * canvas.width,
+                    y: -20 - Math.random() * 100
+                },
+                rotation: Math.random() * 2 * Math.PI,
+                scale: {
+                    x: 1,
+                    y: 1
+                },
+                velocity: {
+                    x: Math.random() * 25 - 12.5,
+                    y: Math.random() * 15 + 5
+                }
+            });
+        }
+        
+        // Render loop
+        let animationFrame = null;
+        const render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            confetti.forEach((confetto, index) => {
+                let width = confetto.dimensions.x * confetto.scale.x;
+                let height = confetto.dimensions.y * confetto.scale.y;
+                
+                // Move confetto
+                confetto.velocity.x -= confetto.velocity.x * drag;
+                confetto.velocity.y = Math.min(confetto.velocity.y + gravity, terminalVelocity);
+                confetto.velocity.x += Math.random() > 0.5 ? Math.random() : -Math.random();
+                
+                confetto.position.x += confetto.velocity.x;
+                confetto.position.y += confetto.velocity.y;
+                
+                // Spin confetto
+                confetto.rotation += 0.01;
+                
+                // Draw confetto
+                ctx.save();
+                ctx.translate(confetto.position.x, confetto.position.y);
+                ctx.rotate(confetto.rotation);
+                
+                ctx.fillStyle = confetto.color;
+                ctx.fillRect(-width / 2, -height / 2, width, height);
+                
+                ctx.restore();
+                
+                // Remove confetti that fall off the screen
+                if (confetto.position.y >= canvas.height) {
+                    confetti.splice(index, 1);
+                }
+            });
+            
+            // Stop animation when all confetti are gone
+            if (confetti.length > 0) {
+                animationFrame = requestAnimationFrame(render);
+            } else {
+                cancelAnimationFrame(animationFrame);
+                canvas.style.display = 'none';
+            }
+        };
+        
+        // Start animation
+        render();
+        
+        // Stop animation after 3 seconds
+        setTimeout(() => {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                canvas.style.display = 'none';
+            }
+        }, 3000);
     }
 });

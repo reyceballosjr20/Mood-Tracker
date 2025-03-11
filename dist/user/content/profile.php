@@ -420,27 +420,100 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Modal Component -->
-<div id="profileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div class="modal-content" style="background-color: white; border-radius: 16px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden;">
+<div id="profileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="modal-content" style="background-color: white; border-radius: 16px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; transform: translateY(20px); transition: transform 0.3s ease;">
         <div class="modal-header" style="background: linear-gradient(135deg, #d1789c, #e896b8); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
             <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 500;">Confirmation</h3>
             <button id="modalClose" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
         </div>
         <div class="modal-body" style="padding: 20px;">
             <p id="modalMessage" style="margin-top: 0; margin-bottom: 20px; color: #6e3b5c;">Are you sure you want to proceed?</p>
-            <div id="modalImagePreview" style="display: none; width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; overflow: hidden;">
+            <div id="modalImagePreview" style="display: none; width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(209, 120, 156, 0.2);">
                 <img id="previewImage" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button id="modalCancel" class="btn-secondary" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 500;">Cancel</button>
-                <button id="modalConfirm" class="btn-primary" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">Confirm</button>
+                <button id="modalCancel" class="btn-secondary" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;">Cancel</button>
+                <button id="modalConfirm" class="btn-primary" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25); transition: all 0.2s ease;">Confirm</button>
             </div>
         </div>
-        <div id="modalStatus" class="modal-status" style="display: none; padding: 15px 20px; text-align: center; border-top: 1px solid #f9e8f0;">
-            <div class="status-icon" style="margin-bottom: 10px; font-size: 40px;">
-                <i id="statusIcon" class="fas fa-check-circle" style="color: #4CAF50;"></i>
+        <div id="modalStatus" class="modal-status" style="display: none; padding: 25px 20px; text-align: center; border-top: 1px solid #f9e8f0; background-color: #fffcfd; position: relative; overflow: hidden;">
+            <canvas id="confettiCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;"></canvas>
+            <div class="status-content" style="position: relative; z-index: 2;">
+                <div class="status-icon" style="margin-bottom: 15px; font-size: 60px; transform: scale(0.5); opacity: 0; transition: all 0.3s ease;">
+                    <i id="statusIcon" class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                </div>
+                <p id="statusMessage" style="margin: 0 0 15px 0; color: #6e3b5c; font-weight: 500; font-size: 18px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease 0.1s;">Operation completed successfully!</p>
+                <div id="statusProgress" style="width: 100%; height: 4px; background-color: #f5d7e3; border-radius: 2px; margin-top: 20px; overflow: hidden; display: none;">
+                    <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #d1789c, #e896b8); transition: width 1.5s linear;"></div>
+                </div>
             </div>
-            <p id="statusMessage" style="margin: 0; color: #6e3b5c; font-weight: 500;">Operation completed successfully!</p>
         </div>
     </div>
-</div> 
+</div>
+
+<style>
+    /* Modal animations and hover effects */
+    #modalCancel:hover {
+        background-color: #f9f9f9;
+        border-color: #e0b9c7;
+    }
+    
+    #modalConfirm:hover {
+        background: linear-gradient(135deg, #c76490, #e48db0);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(209, 120, 156, 0.35);
+    }
+    
+    #modalConfirm:active, #modalCancel:active {
+        transform: translateY(1px);
+    }
+    
+    /* Loading animation */
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 0.5; }
+        100% { transform: scale(0.8); opacity: 0.8; }
+    }
+    
+    .pulse-animation {
+        animation: pulse-ring 1.5s infinite;
+    }
+    
+    /* Success animation */
+    @keyframes success-bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1); }
+        40% { transform: translateY(-20px) scale(1.1); }
+        60% { transform: translateY(-10px) scale(1.05); }
+    }
+    
+    .success-animation {
+        animation: success-bounce 1s forwards;
+    }
+    
+    /* Error shake animation */
+    @keyframes error-shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .error-animation {
+        animation: error-shake 0.5s forwards;
+    }
+    
+    /* Confetti animation */
+    @keyframes confetti-slow {
+        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+        100% { transform: translate3d(25px, 105vh, 0) rotateX(360deg) rotateY(180deg); }
+    }
+    
+    @keyframes confetti-medium {
+        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+        100% { transform: translate3d(100px, 105vh, 0) rotateX(100deg) rotateY(360deg); }
+    }
+    
+    @keyframes confetti-fast {
+        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
+        100% { transform: translate3d(-50px, 105vh, 0) rotateX(10deg) rotateY(250deg); }
+    }
+</style> 
