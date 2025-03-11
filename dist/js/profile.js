@@ -62,7 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = new FormData(profileForm);
             
-            fetch('../save-profile.php', {
+            // Fix the URL path
+            fetch('../user/save-profile.php', {
                 method: 'POST',
                 body: formData
             })
@@ -109,7 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
         function handlePasswordUpdate() {
             const formData = new FormData(passwordForm);
             
-            fetch('../save-profile.php', {
+            // Fix the URL path
+            fetch('../user/save-profile.php', {
                 method: 'POST',
                 body: formData
             })
@@ -203,54 +205,110 @@ document.addEventListener('DOMContentLoaded', function() {
             if (input.files && input.files[0]) {
                 console.log('File selected:', input.files[0].name);
                 
-                // Show loading state
-                if (changePhotoBtn) {
-                    changePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                    changePhotoBtn.disabled = true;
-                }
+                // Show image preview before uploading
+                const file = input.files[0];
+                const reader = new FileReader();
                 
-                const formData = new FormData();
-                formData.append('profile_image', input.files[0]);
-                
-                fetch('../save-profile.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    console.log('Response received');
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Upload result:', data);
-                    
-                    // Reset button state
-                    if (changePhotoBtn) {
-                        changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                        changePhotoBtn.disabled = false;
+                reader.onload = function(e) {
+                    // Show preview
+                    if (profileImageContainer) {
+                        profileImageContainer.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
+                        
+                        // Add preview indicator
+                        const previewBadge = document.createElement('div');
+                        previewBadge.style.position = 'absolute';
+                        previewBadge.style.bottom = '0';
+                        previewBadge.style.right = '0';
+                        previewBadge.style.background = 'rgba(0,0,0,0.6)';
+                        previewBadge.style.color = 'white';
+                        previewBadge.style.padding = '3px 8px';
+                        previewBadge.style.fontSize = '10px';
+                        previewBadge.style.borderRadius = '8px 0 0 0';
+                        previewBadge.textContent = 'Preview';
+                        profileImageContainer.appendChild(previewBadge);
                     }
                     
-                    if (data.success) {
-                        // Update profile image display
-                        if (profileImageContainer) {
-                            profileImageContainer.innerHTML = `<img src="../../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    // Show confirmation dialog
+                    const confirmUpload = confirm('Upload this image as your profile picture?');
+                    
+                    if (confirmUpload) {
+                        // Show loading state
+                        if (changePhotoBtn) {
+                            changePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                            changePhotoBtn.disabled = true;
                         }
-                        showAlert('success', data.message);
+                        
+                        const formData = new FormData();
+                        formData.append('profile_image', file);
+                        
+                        // Fix the URL path - use the correct path to save-profile.php
+                        fetch('../user/save-profile.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            console.log('Response received');
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Upload result:', data);
+                            
+                            // Reset button state
+                            if (changePhotoBtn) {
+                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                changePhotoBtn.disabled = false;
+                            }
+                            
+                            if (data.success) {
+                                // Update profile image display (remove preview badge)
+                                if (profileImageContainer) {
+                                    profileImageContainer.innerHTML = `<img src="../../${data.image_path}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                                }
+                                showAlert('success', data.message);
+                            } else {
+                                showAlert('danger', data.message);
+                                // Restore initials if upload failed
+                                restoreInitialsImage();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Upload error:', error);
+                            
+                            // Reset button state
+                            if (changePhotoBtn) {
+                                changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
+                                changePhotoBtn.disabled = false;
+                            }
+                            
+                            showAlert('danger', 'An error occurred while uploading the image.');
+                            // Restore initials if upload failed
+                            restoreInitialsImage();
+                        });
                     } else {
-                        showAlert('danger', data.message);
+                        // User canceled, restore original image or initials
+                        restoreInitialsImage();
                     }
-                })
-                .catch(error => {
-                    console.error('Upload error:', error);
-                    
-                    // Reset button state
-                    if (changePhotoBtn) {
-                        changePhotoBtn.innerHTML = '<i class="fas fa-camera"></i> Change Photo';
-                        changePhotoBtn.disabled = false;
-                    }
-                    
-                    showAlert('danger', 'An error occurred while uploading the image.');
-                });
+                };
+                
+                reader.readAsDataURL(file);
             }
+        }
+        
+        // Helper function to restore initials image if upload is canceled or fails
+        function restoreInitialsImage() {
+            const firstName = document.getElementById('firstName')?.value || '';
+            const lastName = document.getElementById('lastName')?.value || '';
+            const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+            
+            // Check if there's an existing profile image
+            const existingImg = document.querySelector('#profileImageContainer img');
+            if (!existingImg && profileImageContainer) {
+                profileImageContainer.innerHTML = initials;
+            } else if (existingImg && existingImg.src.includes('data:image')) {
+                // If it's a preview image (data URL), replace with initials
+                profileImageContainer.innerHTML = initials;
+            }
+            // Otherwise keep the existing image
         }
         
         // Image removal handler
@@ -264,7 +322,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('action', 'remove_image');
             
-            fetch('../save-profile.php', {
+            // Fix the URL path
+            fetch('../user/save-profile.php', {
                 method: 'POST',
                 body: formData
             })
