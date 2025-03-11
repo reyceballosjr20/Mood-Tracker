@@ -81,30 +81,36 @@ if ($prevMonth < 1) {
     $prevYear--;
 }
 
-// Define mood-to-icon mapping (replacing emojis with Font Awesome icons)
+// Update the mood icons mapping to match new emotions
 $moodIcons = [
+    'happy' => 'fa-smile-beam',
     'sad' => 'fa-sad-tear',
-    'unhappy' => 'fa-frown',
-    'neutral' => 'fa-meh',
-    'good' => 'fa-smile',
-    'energetic' => 'fa-dumbbell',
-    'excellent' => 'fa-laugh-beam',
+    'angry' => 'fa-angry',
     'anxious' => 'fa-bolt',
+    'stressed' => 'fa-head-side-virus',
+    'calm' => 'fa-peace',
     'tired' => 'fa-bed',
-    'focused' => 'fa-bullseye'
+    'energetic' => 'fa-bolt',
+    'neutral' => 'fa-meh',
+    'excited' => 'fa-grin-stars',
+    'frustrated' => 'fa-angry',
+    'grateful' => 'fa-heart'
 ];
 
-// Keep existing emoji mapping for fallback and other parts of the UI
+// Update emoji mapping for fallback
 $moodEmojis = [
+    'happy' => '😊',
     'sad' => '😢',
-    'unhappy' => '😞',
-    'neutral' => '😐',
-    'good' => '😊',
-    'energetic' => '💪',
-    'excellent' => '🤩',
+    'angry' => '😠',
     'anxious' => '😰',
+    'stressed' => '😫',
+    'calm' => '😌',
     'tired' => '😴',
-    'focused' => '🎯'
+    'energetic' => '⚡',
+    'neutral' => '😐',
+    'excited' => '🤩',
+    'frustrated' => '😤',
+    'grateful' => '🙏'
 ];
 
 // Get mood stats for the selected month (for summary cards)
@@ -289,7 +295,9 @@ $displayYear = $selectedYear;
                         $moodText = $moodsByDay[$day]['mood_text'];
                         
                         echo '<div class="mood-entry" style="font-size: 1rem; cursor: pointer;">';
-                        echo '<div class="calendar-mood-icon"><i class="fas ' . $moodIcon . '"></i></div>';
+                        echo '<div class="calendar-mood-icon" data-mood="' . $moodType . '">';
+                        echo '<i class="fas ' . ($moodIcons[$moodType] ?? 'fa-meh') . '"></i>';
+                        echo '</div>';
                         
                         // Add tooltip with mood details
                         if (!empty($moodText)) {
@@ -464,6 +472,32 @@ $displayYear = $selectedYear;
         .summary-mood-icon i {
             font-size: 18px;
         }
+    }
+    
+    /* Add color coding based on mood type */
+    .calendar-mood-icon[data-mood="happy"],
+    .calendar-mood-icon[data-mood="excited"],
+    .calendar-mood-icon[data-mood="grateful"] {
+        background: linear-gradient(135deg, #feeef5, #ffe8d6);
+    }
+    .calendar-mood-icon[data-mood="sad"],
+    .calendar-mood-icon[data-mood="angry"],
+    .calendar-mood-icon[data-mood="frustrated"] {
+        background: linear-gradient(135deg, #f5e6e6, #fee6e3);
+    }
+    .calendar-mood-icon[data-mood="anxious"],
+    .calendar-mood-icon[data-mood="stressed"] {
+        background: linear-gradient(135deg, #e6f5f5, #e3eefe);
+    }
+    .calendar-mood-icon[data-mood="calm"],
+    .calendar-mood-icon[data-mood="neutral"] {
+        background: linear-gradient(135deg, #e6f5eb, #e3feef);
+    }
+    .calendar-mood-icon[data-mood="tired"] {
+        background: linear-gradient(135deg, #f5f5f5, #efefef);
+    }
+    .calendar-mood-icon[data-mood="energetic"] {
+        background: linear-gradient(135deg, #fff3d6, #ffedd6);
     }
 </style>
 

@@ -18,6 +18,9 @@ function initCalendar() {
     
     // Handle calendar view options
     setupViewOptions();
+    
+    // Add mood-specific styling
+    setupMoodColors();
 }
 
 /**
@@ -136,12 +139,16 @@ function setupMoodTooltips() {
     const moodEntries = document.querySelectorAll('.mood-entry');
     
     moodEntries.forEach(entry => {
-        // Add hover effect
+        const moodType = entry.querySelector('.calendar-mood-icon').dataset.mood;
+        
         entry.addEventListener('mouseenter', function() {
             const tooltip = this.querySelector('.mood-tooltip');
             if (tooltip) {
                 tooltip.style.opacity = '1';
                 tooltip.style.visibility = 'visible';
+                
+                // Add mood-specific styling to tooltip
+                tooltip.style.borderLeft = `4px solid var(--mood-${moodType}-color, #d1789c)`;
             }
         });
         
@@ -161,4 +168,70 @@ function setupMoodTooltips() {
 function setupViewOptions() {
     // Future enhancement: Add ability to toggle between different calendar views
     // (e.g., monthly, weekly, daily)
-} 
+}
+
+// Add new function to handle mood-specific styling
+function setupMoodColors() {
+    const moodColors = {
+        happy: '#ffd6a5',
+        sad: '#a5c4ff',
+        angry: '#ffa5a5',
+        anxious: '#a5e6ff',
+        stressed: '#ffe6a5',
+        calm: '#a5ffd6',
+        tired: '#e6e6e6',
+        energetic: '#ffd6e6',
+        neutral: '#f0f0f0',
+        excited: '#ffb366',
+        frustrated: '#ff8080',
+        grateful: '#b3ffb3'
+    };
+
+    // Apply hover effects for mood entries
+    const moodEntries = document.querySelectorAll('.mood-entry');
+    moodEntries.forEach(entry => {
+        const moodType = entry.querySelector('.calendar-mood-icon').dataset.mood;
+        if (moodType && moodColors[moodType]) {
+            entry.addEventListener('mouseenter', function() {
+                this.querySelector('.calendar-mood-icon').style.transform = 'scale(1.1)';
+                this.querySelector('.calendar-mood-icon').style.boxShadow = 
+                    `0 4px 8px ${moodColors[moodType]}80`; // 80 is for 50% opacity
+            });
+
+            entry.addEventListener('mouseleave', function() {
+                this.querySelector('.calendar-mood-icon').style.transform = 'scale(1)';
+                this.querySelector('.calendar-mood-icon').style.boxShadow = 
+                    '0 2px 5px rgba(209, 120, 156, 0.2)';
+            });
+        }
+    });
+}
+
+// Add CSS variables for mood colors
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        :root {
+            --mood-happy-color: #ffd6a5;
+            --mood-sad-color: #a5c4ff;
+            --mood-angry-color: #ffa5a5;
+            --mood-anxious-color: #a5e6ff;
+            --mood-stressed-color: #ffe6a5;
+            --mood-calm-color: #a5ffd6;
+            --mood-tired-color: #e6e6e6;
+            --mood-energetic-color: #ffd6e6;
+            --mood-neutral-color: #f0f0f0;
+            --mood-excited-color: #ffb366;
+            --mood-frustrated-color: #ff8080;
+            --mood-grateful-color: #b3ffb3;
+        }
+        
+        .calendar-mood-icon {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .mood-tooltip {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+    </style>
+`); 
