@@ -1,3 +1,54 @@
+<?php
+// Start session
+session_start();
+
+// Load models
+require_once '../models/Auth.php';
+
+// Initialize auth
+$auth = new Auth();
+
+// Define variables
+$name = $email = $password = $confirm_password = "";
+$formErrors = [];
+$signupSuccess = false;
+
+// Check if form is submitted via POST
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
+    // Get form data
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $terms = isset($_POST['terms']) ? true : false;
+    
+    // Prepare form data
+    $formData = [
+        'name' => $name,
+        'email' => $email,
+        'password' => $password,
+        'confirm_password' => $confirm_password,
+        'terms' => $terms
+    ];
+    
+    // Register the user using the Auth class
+    $result = $auth->register($formData);
+    
+    if ($result['status'] === 'success') {
+        // Redirect to dashboard instead of login page
+        header('Location: dashboard.php?welcome=new');
+        exit();
+    } else {
+        // Handle errors
+        if (isset($result['errors'])) {
+            $formErrors = $result['errors'];
+        } else {
+            $formErrors[] = $result['message'];
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -374,10 +425,17 @@
                     Already have an account? <a href="login.php">Login</a>
                 </div>
                 
-                <div class="error-container" id="error-container">
+                <div class="error-container" id="error-container" <?php if (!empty($formErrors)) echo 'style="display: block;"'; ?>>
                     <strong>Please fix the following errors:</strong>
                     <ul class="error-list" id="error-list">
-                        <!-- Error messages will be dynamically added here -->
+                        <?php
+                        if (!empty($formErrors)) {
+                            foreach ($formErrors as $error) {
+                                echo '<li>' . htmlspecialchars($error) . '</li>';
+                            }
+                        }
+                        ?>
+                        <!-- Error messages will also be dynamically added here via JavaScript -->
                     </ul>
                 </div>
                 
@@ -385,14 +443,16 @@
                     <div class="form-group">
                         <label for="name">FULL NAME</label>
                         <input type="text" id="name" name="name" placeholder="John Doe" required 
-                               aria-describedby="name-validation" pattern="^[A-Za-z]+(?: [A-Za-z]+)+$">
+                               aria-describedby="name-validation" pattern="^[A-Za-z]+(?: [A-Za-z]+)+$" 
+                               value="<?php echo htmlspecialchars($name); ?>">
                         <div class="validation-message" id="name-validation">Please enter your first and last name.</div>
                     </div>
                     
                     <div class="form-group">
                         <label for="email">EMAIL</label>
                         <input type="email" id="email" name="email" placeholder="hello@gmail.com" required
-                               aria-describedby="email-validation" autocomplete="email">
+                               aria-describedby="email-validation" autocomplete="email"
+                               value="<?php echo htmlspecialchars($email); ?>">
                         <div class="validation-message" id="email-validation">Please enter a valid email address.</div>
                     </div>
                     
@@ -554,7 +614,19 @@
         });
         
         function validateInput(input) {
+            // If the input doesn't have aria-describedby attribute, we can't validate it properly
+            if (!input.hasAttribute('aria-describedby') || !input.getAttribute('aria-describedby')) {
+                console.error('Input lacks aria-describedby attribute:', input.id);
+                return true; // Let server-side validation handle it
+            }
+            
             const validationMessage = document.getElementById(input.getAttribute('aria-describedby'));
+            
+            // Check if validationMessage exists before trying to access its properties
+            if (!validationMessage) {
+                console.error('Validation message element not found for', input.id, 'with aria-describedby', input.getAttribute('aria-describedby'));
+                return true; // Skip client-side validation for this field
+            }
             
             if (input.id === 'name') {
                 const namePattern = /^[A-Za-z]+(?: [A-Za-z]+)+$/;
@@ -596,48 +668,89 @@
         
         // Form submission
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Clear previous errors
-            errorList.innerHTML = '';
-            errorContainer.classList.remove('show');
-            
-            // Validate all fields
+            // Only apply client-side validation for inputs that have validation messages
             let errors = [];
             let isValid = true;
             
             document.querySelectorAll('input[required]').forEach(input => {
-                if (!validateInput(input)) {
-                    isValid = false;
-                    const label = input.previousElementSibling.textContent;
-                    const validationMessage = document.getElementById(input.getAttribute('aria-describedby')).textContent;
-                    errors.push(validationMessage);
+                // Only validate if it has a valid aria-describedby attribute
+                if (input.hasAttribute('aria-describedby') && input.getAttribute('aria-describedby')) {
+                    const validationMessageElement = document.getElementById(input.getAttribute('aria-describedby'));
+                    
+                    // Only apply validation if the validation message element exists
+                    if (validationMessageElement) {
+                        if (!validateInput(input)) {
+                            isValid = false;
+                            errors.push(validationMessageElement.textContent);
+                        }
+                    }
                 }
             });
             
             if (!isValid) {
-                // Display errors
+                e.preventDefault(); // Prevent form submission
+                
+                // Display client-side errors
+                // Clear previous errors (but keep PHP-generated ones)
+                const existingPhpErrors = [];
+                document.querySelectorAll('#error-list li[data-php-error]').forEach(item => {
+                    existingPhpErrors.push(item.cloneNode(true));
+                });
+                
+                errorList.innerHTML = '';
+                
+                // Add back PHP errors
+                existingPhpErrors.forEach(item => {
+                    errorList.appendChild(item);
+                });
+                
+                // Add client-side errors
                 errors.forEach(error => {
                     const li = document.createElement('li');
                     li.textContent = error;
+                    li.setAttribute('data-js-error', 'true');
                     errorList.appendChild(li);
                 });
+                
                 errorContainer.classList.add('show');
+                errorContainer.style.display = 'block';
                 
                 // Scroll to error container
                 errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
-            // Simulate form submission with loading state
+            // If client-side validation passes, show loading state
+            // The form will submit normally to be processed by PHP
             submitButton.classList.add('loading');
             submitButton.textContent = 'Creating Account...';
-            
-            // Simulate API call
-            setTimeout(() => {
-                // For demo purposes, redirect to login page
-                window.location.href = 'login.php?signup=success';
-            }, 2000);
+        });
+        
+        // Add to the beginning of your script section
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Checking form elements for proper validation message setup:');
+            document.querySelectorAll('input[required]').forEach(input => {
+                if (!input.hasAttribute('aria-describedby') || !input.getAttribute('aria-describedby')) {
+                    console.error('Input missing aria-describedby attribute:', input.id);
+                } else {
+                    const validationElement = document.getElementById(input.getAttribute('aria-describedby'));
+                    if (!validationElement) {
+                        console.error('Validation message element not found for input:', input.id, 
+                                     'with aria-describedby:', input.getAttribute('aria-describedby'));
+                    } else {
+                        console.log('Input properly configured:', input.id);
+                    }
+                }
+            });
+        });
+        
+        // Add to the beginning of your script section
+        window.addEventListener('error', function(e) {
+            // Log error but prevent it from interrupting the user
+            console.error('Caught JS error:', e.message);
+            // Prevent the error from breaking the page
+            e.preventDefault();
+            return true;
         });
     </script>
 </body>
