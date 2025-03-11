@@ -518,4 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
         100% { transform: translate3d(-50px, 105vh, 0) rotateX(10deg) rotateY(250deg); }
     }
-</style> 
+</style>
+
+<!-- Add this before closing body tag -->
+<script src="../js/personal-info.js"></script> 
