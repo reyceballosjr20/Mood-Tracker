@@ -175,5 +175,138 @@ class Mood {
             return false;
         }
     }
+
+    /**
+     * Get user moods for a specific month
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return array|bool Array of mood entries or false on failure
+     */
+    public function getUserMoodsByMonth($userId, $month, $year) {
+        try {
+            $sql = "SELECT id, mood_type, mood_text, created_at
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year
+                    ORDER BY created_at ASC";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log('Error retrieving monthly moods: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get mood statistics for a specific month
+     * 
+     * @param int $userId User ID
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2023)
+     * @return array|bool Array of mood statistics or false on failure
+     */
+    public function getMoodStatsByMonth($userId, $month, $year) {
+        try {
+            $sql = "SELECT mood_type, COUNT(*) as count
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    AND MONTH(created_at) = :month
+                    AND YEAR(created_at) = :year
+                    GROUP BY mood_type
+                    ORDER BY count DESC";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+            $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log('Error retrieving mood stats: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get user's current logging streak
+     * 
+     * @param int $userId User ID
+     * @return int Number of consecutive days with mood entries
+     */
+    public function getUserLoggingStreak($userId) {
+        try {
+            // Get the most recent mood entry date
+            $sql = "SELECT DATE(created_at) as entry_date
+                    FROM mood_entries
+                    WHERE user_id = :user_id
+                    ORDER BY created_at DESC
+                    LIMIT 1";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            
+            if (!$stmt->execute() || $stmt->rowCount() == 0) {
+                return 0; // No entries found
+            }
+            
+            $lastEntry = $stmt->fetch(PDO::FETCH_ASSOC);
+            $lastEntryDate = new DateTime($lastEntry['entry_date']);
+            $today = new DateTime(date('Y-m-d'));
+            
+            // If the last entry is not from today or yesterday, streak is broken
+            $daysDifference = $today->diff($lastEntryDate)->days;
+            if ($daysDifference > 1) {
+                return 0;
+            }
+            
+            // Count consecutive days backward from the last entry
+            $streak = 1; // Start with 1 for the last entry day
+            $currentDate = clone $lastEntryDate;
+            
+            while (true) {
+                $currentDate->modify('-1 day');
+                
+                // Check if there's an entry for this day
+                $sql = "SELECT 1
+                        FROM mood_entries
+                        WHERE user_id = :user_id
+                        AND DATE(created_at) = :check_date
+                        LIMIT 1";
+                
+                $stmt = $this->db->conn->prepare($sql);
+                $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                $checkDate = $currentDate->format('Y-m-d');
+                $stmt->bindParam(':check_date', $checkDate);
+                
+                if (!$stmt->execute() || $stmt->rowCount() == 0) {
+                    break; // No entry for this day, streak ends
+                }
+                
+                $streak++;
+            }
+            
+            return $streak;
+            
+        } catch (PDOException $e) {
+            error_log('Error calculating streak: ' . $e->getMessage());
+            return 0;
+        }
+    }
 }
 ?> 
