@@ -172,54 +172,18 @@ $monthName = date('F', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
 $displayYear = $selectedYear;
 ?>
 
+<!-- Navigation Header Area - Remove dropdown -->
 <div class="header">
     <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
         Mood Calendar
         <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
     </h1>
-    <div class="search-box">
-        <i class="fas fa-calendar"></i>
-        <select id="monthYearSelect" style="cursor: pointer; padding-left: 30px;">
-            <?php
-            // Get available months
-            $availableMonths = $mood->getAvailableMonths($userId);
-            
-            // Add current and surrounding months
-            $currentMonthYear = date('Y-m');
-            $showingMonths = [];
-            
-            // Add 12 months before and after current month
-            for ($i = -12; $i <= 12; $i++) {
-                $timeStamp = strtotime("$i months");
-                $formattedDate = date('Y-m', $timeStamp);
-                $showingMonths[$formattedDate] = date('F Y', $timeStamp);
-            }
-            
-            // Add any available months from database
-            foreach ($availableMonths as $monthStr) {
-                $timestamp = strtotime($monthStr . '-01');
-                $showingMonths[$monthStr] = date('F Y', $timestamp);
-            }
-            
-            // Sort years and months
-            ksort($showingMonths);
-            
-            // Current selection
-            $selectedMonthYear = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT);
-            
-            // Output options
-            foreach ($showingMonths as $value => $label) {
-                echo '<option value="' . $value . '"' . 
-                     ($value == $selectedMonthYear ? ' selected' : '') . 
-                     '>' . $label . '</option>';
-            }
-            ?>
-        </select>
-    </div>
+    <!-- Remove the month selection dropdown entirely -->
 </div>
 
+<!-- Month Navigation Controls -->
 <div class="card" style="padding: 20px; background-color: #f8dfeb; margin-bottom: 20px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; text-align: center; display: flex; justify-content: space-between; align-items: center;">
-    <a href="#" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
+    <a href="javascript:void(0)" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
        style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
         <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
         <?php echo date('M', mktime(0, 0, 0, $prevMonth, 1, $prevYear)); ?>
@@ -227,23 +191,14 @@ $displayYear = $selectedYear;
     
     <h2 style="margin: 0; color: #4a3347; font-size: 1.4rem;">
         <?php 
-        // Show range of months being displayed
-        $startMonth = date('M', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
-        $endMonth = date('M', mktime(0, 0, 0, $nextMonth3, 1, $nextYear3));
-        $startYear = $selectedYear;
-        $endYear = $nextYear3;
-        
-        if ($startYear == $endYear) {
-            echo "$startMonth - $endMonth $startYear";
-        } else {
-            echo "$startMonth $startYear - $endMonth $endYear";
-        }
+        // Show current month only 
+        echo date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
         ?>
     </h2>
     
-    <a href="#" id="nextMonthBtn" data-month="<?php echo $nextMonth3; ?>" data-year="<?php echo $nextYear3; ?>" 
+    <a href="javascript:void(0)" id="nextMonthBtn" data-month="<?php echo $nextMonth; ?>" data-year="<?php echo $nextYear; ?>" 
        style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
-        <?php echo date('M', mktime(0, 0, 0, $nextMonth3, 1, $nextYear3)); ?>
+        <?php echo date('M', mktime(0, 0, 0, $nextMonth, 1, $nextYear)); ?>
         <i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
     </a>
 </div>
