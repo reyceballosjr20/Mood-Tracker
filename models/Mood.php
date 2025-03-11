@@ -119,5 +119,61 @@ class Mood {
             return false;
         }
     }
+
+    /**
+     * Check if user already has a mood entry for today
+     * 
+     * @param int $userId User ID
+     * @return array|false The mood data for today or false if none exists
+     */
+    public function getTodaysMood($userId) {
+        try {
+            $sql = "SELECT id, mood_type, mood_text, created_at 
+                    FROM mood_entries 
+                    WHERE user_id = :user_id 
+                    AND DATE(created_at) = CURDATE()
+                    LIMIT 1";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                return $result ?: false;
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log('Error checking today\'s mood: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Update an existing mood entry
+     * 
+     * @param int $moodId The ID of the mood entry to update
+     * @param string $moodType Type of mood (sad, happy, etc.)
+     * @param string $moodText Optional text describing the mood
+     * @return bool Success or failure
+     */
+    public function updateMood($moodId, $moodType, $moodText = '') {
+        try {
+            $sql = "UPDATE mood_entries 
+                    SET mood_type = :mood_type, mood_text = :mood_text, 
+                        created_at = NOW() 
+                    WHERE id = :id";
+            
+            $stmt = $this->db->conn->prepare($sql);
+            $stmt->bindParam(':mood_type', $moodType, PDO::PARAM_STR);
+            $stmt->bindParam(':mood_text', $moodText, PDO::PARAM_STR);
+            $stmt->bindParam(':id', $moodId, PDO::PARAM_INT);
+            
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Error updating mood: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?> 

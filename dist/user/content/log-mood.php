@@ -13,6 +13,10 @@ if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
     <h1 class="page-title" style="color: #d1789c;">Track My Mood</h1>
 </div>
 
+<div class="info-message" style="margin-bottom: 20px; background-color: #fff3f8; border-left: 4px solid #d1789c; padding: 12px 15px; font-size: 0.9rem; color: #8a5878; border-radius: 4px;">
+    <i class="fas fa-info-circle" style="margin-right: 8px;"></i> You can log one mood per day. If you change your mind, you can update your mood any time today.
+</div>
+
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0;">
     <div class="card" style="background-color: #fff9fb; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-right: 0; border-radius: 10px 0 0 10px;">
         <div style="padding: 25px;">

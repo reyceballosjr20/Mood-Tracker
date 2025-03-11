@@ -17,8 +17,12 @@ function initMoodTracker() {
     }
     
     let selectedMood = null;
+    let existingMoodId = null;
+    let isEditMode = false;
+    
     const moodInfluence = document.getElementById('moodInfluence');
     const saveMoodBtn = document.getElementById('saveMoodBtn');
+    const formTitle = document.querySelector('h2[style*="font-size: 1.2rem"]');
     
     console.log('Mood tracker elements found:', {
         'moodCircles': moodCircles.length,
@@ -91,6 +95,56 @@ function initMoodTracker() {
             "Your clarity and concentration can move mountains today."
         ]
     };
+    
+    // Function to set edit mode
+    function setEditMode(mood) {
+        isEditMode = true;
+        existingMoodId = mood.id;
+        
+        // Update title and button text
+        if (formTitle) {
+            formTitle.innerHTML = 'Update today\'s mood:';
+        }
+        
+        if (saveMoodBtn) {
+            saveMoodBtn.textContent = 'UPDATE';
+        }
+        
+        // Select the current mood
+        moodCircles.forEach(circle => {
+            if (circle.dataset.mood === mood.mood_type) {
+                // Trigger a click on this mood
+                circle.click();
+            }
+        });
+        
+        // Set the mood influence text if it exists
+        if (moodInfluence && mood.mood_text) {
+            moodInfluence.value = mood.mood_text;
+        }
+        
+        console.log('Edit mode set for mood ID:', existingMoodId);
+    }
+    
+    // Check if user already has a mood for today
+    async function checkTodaysMood() {
+        try {
+            const response = await fetch('check-todays-mood.php');
+            const data = await response.json();
+            
+            if (data.success && data.hasExistingMood) {
+                console.log('User already has a mood for today:', data.data);
+                setEditMode(data.data);
+            } else {
+                console.log('No mood logged for today yet');
+            }
+        } catch (error) {
+            console.error('Error checking today\'s mood:', error);
+        }
+    }
+    
+    // Run the check immediately
+    checkTodaysMood();
     
     // Function to update the inspirational message
     function updateInspirationalMessage(mood) {
@@ -176,17 +230,25 @@ function initMoodTracker() {
             // Disable button during saving to prevent double-submission
             this.disabled = true;
             this.classList.add('disabled');
-            this.textContent = 'Saving...';
+            this.textContent = isEditMode ? 'Updating...' : 'Saving...';
+            
+            // Prepare data for saving
+            const moodData = {
+                mood_type: selectedMood,
+                mood_text: moodInfluence.value
+            };
+            
+            // Add mood ID if we're in edit mode
+            if (isEditMode && existingMoodId) {
+                moodData.mood_id = existingMoodId;
+            }
             
             const response = await fetch('save-mood.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    mood_type: selectedMood,
-                    mood_text: moodInfluence.value
-                })
+                body: JSON.stringify(moodData)
             });
 
             const data = await response.json();
@@ -204,7 +266,11 @@ function initMoodTracker() {
                 successMsg.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
                 successMsg.style.zIndex = '1000';
                 successMsg.style.transition = 'opacity 0.5s ease-in-out';
-                successMsg.innerHTML = '<strong>Success!</strong> Your mood has been logged.';
+                
+                // Update message based on whether we were editing or creating
+                successMsg.innerHTML = isEditMode ? 
+                    '<strong>Success!</strong> Your mood has been updated.' :
+                    '<strong>Success!</strong> Your mood has been logged.';
                 
                 document.body.appendChild(successMsg);
                 
@@ -216,35 +282,30 @@ function initMoodTracker() {
                     }, 500);
                 }, 3000);
                 
-                // Reset form
-                moodCircles.forEach(c => c.classList.remove('selected'));
-                moodInfluence.value = '';
-                selectedMood = null;
+                // Update the existing mood ID in case it was a new entry
+                existingMoodId = data.data.id;
+                isEditMode = true;
+                
+                // Update form to reflect edit mode
+                if (formTitle) {
+                    formTitle.innerHTML = 'Update today\'s mood:';
+                }
                 
                 // Reset button
-                this.textContent = 'SAVE';
-                this.disabled = true;
-                this.classList.add('disabled');
-                
-                // Reset inspirational message
-                inspirationalMessage.style.opacity = '0';
-                setTimeout(() => {
-                    inspirationalMessage.innerHTML = `
-                        <p style="font-size: 1.1rem; line-height: 1.6; color: #8a5878; font-style: italic;">"Select a mood to see a personalized message"</p>
-                    `;
-                    inspirationalMessage.style.opacity = '1';
-                }, 300);
+                this.textContent = 'UPDATE';
+                this.disabled = false;
+                this.classList.remove('disabled');
                 
             } else {
                 throw new Error(data.message);
             }
         } catch (error) {
-            alert('Error saving mood: ' + error.message);
+            alert('Error ' + (isEditMode ? 'updating' : 'saving') + ' mood: ' + error.message);
             
             // Reset button state on error
             this.disabled = false;
             this.classList.remove('disabled');
-            this.textContent = 'SAVE';
+            this.textContent = isEditMode ? 'UPDATE' : 'SAVE';
         }
     });
     
