@@ -27,11 +27,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 const pageTitle = document.getElementById('pageTitle');
                 pageTitle.textContent = ''; // Remove the duplicate title
                 
-                // Reinitialize mood tracker if we're on the log-mood page
-                if (page === 'log-mood') {
-                    if (typeof reinitMoodTracker === 'function') {
-                        reinitMoodTracker();
-                    }
+                // Initialize page-specific functionality
+                switch(page) {
+                    case 'log-mood':
+                        if (typeof reinitMoodTracker === 'function') {
+                            reinitMoodTracker();
+                        }
+                        break;
+                        
+                    case 'calendar':
+                        if (typeof initCalendar === 'function') {
+                            initCalendar();
+                        }
+                        break;
+                        
+                    case 'profile':
+                        if (typeof setupProfileFunctionality === 'function') {
+                            setupProfileFunctionality();
+                        }
+                        break;
                 }
             })
             .catch(error => {
