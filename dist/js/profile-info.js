@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Change submit button to loading state
             const submitBtn = profileForm.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        ;
             submitBtn.disabled = true;
             
             // Send AJAX request
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showErrorAlert('An error occurred while updating your profile.');
             })
             .finally(() => {
-                // Restore button state
+                // Restore button state - ensure "Saving..." is removed
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
             });
