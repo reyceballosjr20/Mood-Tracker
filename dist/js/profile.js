@@ -1,6 +1,6 @@
 /**
  * Profile Image Preview Functionality
- * Provides real-time preview of selected profile images before upload
+ * Replaces the current profile image with a preview when an image is selected
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Function to initialize image preview on profile page
@@ -15,50 +15,33 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log("Profile image input found, setting up listeners");
         
-        // Find the avatar container
-        let avatarContainer = document.querySelector('.user-avatar');
-        if (document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]')) {
-            avatarContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
-        }
+        // Find the existing image container - this will be the one we'll update
+        let imageContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
         
-        // Create preview container if not exists
-        let previewContainer = document.querySelector('.image-preview-container');
-        if (!previewContainer) {
-            previewContainer = document.createElement('div');
-            previewContainer.className = 'image-preview-container';
-            previewContainer.style.width = '160px';
-            previewContainer.style.height = '160px';
-            previewContainer.style.borderRadius = '50%';
-            previewContainer.style.overflow = 'hidden';
-            previewContainer.style.margin = '0 auto 10px auto';
-            previewContainer.style.boxShadow = '0 10px 20px rgba(209, 120, 156, 0.2)';
-            previewContainer.style.border = '4px solid #fff';
-            previewContainer.style.position = 'relative';
-            previewContainer.style.backgroundColor = '#f5d7e3';
-            
-            // Add label to the preview
-            const previewLabel = document.createElement('div');
-            previewLabel.textContent = 'Preview';
-            previewLabel.style.textAlign = 'center';
-            previewLabel.style.marginTop = '10px';
-            previewLabel.style.fontSize = '0.9rem';
-            previewLabel.style.color = '#d1789c';
-            previewLabel.style.fontWeight = '500';
-            
-            // Insert the preview container
-            if (avatarContainer && avatarContainer.parentNode) {
-                avatarContainer.parentNode.insertBefore(previewContainer, avatarContainer.nextSibling);
-                avatarContainer.parentNode.insertBefore(previewLabel, previewContainer.nextSibling);
-                
-                // Initially hide the preview
-                previewContainer.style.display = 'none';
-                previewLabel.style.display = 'none';
-            }
+        // Store the original content to restore if needed
+        let originalContent = null;
+        if (imageContainer) {
+            originalContent = imageContainer.innerHTML;
         }
         
         // Handle file selection
         fileInput.addEventListener('change', function(e) {
             const file = this.files[0];
+            
+            // If we don't have an image container, try to find it again
+            // (in case it was loaded after initial page load)
+            if (!imageContainer) {
+                imageContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
+                if (imageContainer) {
+                    originalContent = imageContainer.innerHTML;
+                }
+            }
+            
+            // If we still don't have an image container, we can't proceed
+            if (!imageContainer) {
+                console.error("Cannot find image container to update");
+                return;
+            }
             
             if (file) {
                 // Check file type
@@ -74,25 +57,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // Show the preview container and label
-                previewContainer.style.display = 'block';
-                if (previewContainer.nextSibling && previewContainer.nextSibling.textContent === 'Preview') {
-                    previewContainer.nextSibling.style.display = 'block';
-                }
-                
                 // Add loading state
-                previewContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #d1789c;"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i></div>';
+                imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #d1789c;"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i></div>';
+                
+                // Add "Preview" label if it doesn't exist
+                let previewLabel = document.getElementById('image-preview-label');
+                if (!previewLabel) {
+                    previewLabel = document.createElement('div');
+                    previewLabel.id = 'image-preview-label';
+                    previewLabel.textContent = 'Preview';
+                    previewLabel.style.textAlign = 'center';
+                    previewLabel.style.marginTop = '10px';
+                    previewLabel.style.fontSize = '0.9rem';
+                    previewLabel.style.color = '#d1789c';
+                    previewLabel.style.fontWeight = '500';
+                    
+                    // Insert the label after the image container
+                    if (imageContainer.parentNode) {
+                        imageContainer.parentNode.insertBefore(previewLabel, imageContainer.nextSibling);
+                    }
+                } else {
+                    previewLabel.style.display = 'block';
+                }
                 
                 // Create FileReader to display image
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewContainer.innerHTML = '';
+                    imageContainer.innerHTML = '';
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.width = '100%';
                     img.style.height = '100%';
                     img.style.objectFit = 'cover';
-                    previewContainer.appendChild(img);
+                    imageContainer.appendChild(img);
                 };
                 
                 // Read the file
@@ -101,10 +98,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Clear any errors
                 clearError();
             } else {
-                // Hide preview if no file selected
-                previewContainer.style.display = 'none';
-                if (previewContainer.nextSibling && previewContainer.nextSibling.textContent === 'Preview') {
-                    previewContainer.nextSibling.style.display = 'none';
+                // If no file is selected, restore original content
+                if (originalContent) {
+                    imageContainer.innerHTML = originalContent;
+                }
+                
+                // Hide preview label
+                const previewLabel = document.getElementById('image-preview-label');
+                if (previewLabel) {
+                    previewLabel.style.display = 'none';
                 }
             }
         });
@@ -132,10 +134,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset the file input
             fileInput.value = '';
             
-            // Hide preview
-            previewContainer.style.display = 'none';
-            if (previewContainer.nextSibling && previewContainer.nextSibling.textContent === 'Preview') {
-                previewContainer.nextSibling.style.display = 'none';
+            // Restore original image
+            if (imageContainer && originalContent) {
+                imageContainer.innerHTML = originalContent;
+            }
+            
+            // Hide preview label
+            const previewLabel = document.getElementById('image-preview-label');
+            if (previewLabel) {
+                previewLabel.style.display = 'none';
             }
         }
         
