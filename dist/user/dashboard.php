@@ -941,6 +941,8 @@ if (isset($_GET['page'])) {
     <script src="../js/calendar.js"></script>
     <script src="../js/profile.js"></script>
     <script src="../js/profile-info.js"></script>
+    <script src="../js/password-update.js"></script>
+
 
     <script>
         // DOM Elements

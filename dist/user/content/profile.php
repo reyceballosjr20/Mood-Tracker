@@ -311,7 +311,7 @@ function getImagePath($path) {
                 
                 <h2 style="font-size: 1.25rem; margin-bottom: 25px; color: #d1789c; font-weight: 500; border-bottom: 1px solid #f9e8f0; padding-bottom: 12px; position: relative; z-index: 1;">Change Password</h2>
                 
-                <form action="" method="post" style="position: relative; z-index: 1;" id="password-form">
+                <form action="api/update_password.php" method="post" style="position: relative; z-index: 1;" id="password-form">
                     <div style="margin-bottom: 20px;">
                         <label for="current_password" style="display: block; margin-bottom: 8px; font-size: 0.95rem; color: #666; font-weight: 500;">Current Password</label>
                         <input type="password" id="current_password" name="current_password" required
