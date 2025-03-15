@@ -939,6 +939,7 @@ if (isset($_GET['page'])) {
     <script src="../js/sidebar.js"></script>
     <script src="../js/mood-tracker.js"></script>
     <script src="../js/calendar.js"></script>
+    <script src="../js/profile.js"></script>
 
     <script>
         // DOM Elements
