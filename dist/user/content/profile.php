@@ -175,31 +175,29 @@ function trackUserActivity($userId, $activity) {
 // Always track profile page visit
 trackUserActivity($userId, "profile_visit");
 
-// Function to check if file exists and is readable
+// Simplified Profile Image Path Function
 function getImagePath($path) {
-    // If the path already has the right structure, return it
-    if (strpos($path, '../uploads/') === 0) {
-        return $path;
+    // Remove leading slash if present
+    if (strpos($path, '/') === 0) {
+        $path = substr($path, 1);
     }
     
-    // Check if path begins with "uploads/"
-    if (strpos($path, 'uploads/') === 0) {
-        // Path to the uploads folder within dist directory
-        $distPath = "../../uploads/" . substr($path, 8); // Remove "uploads/" prefix
+    // If path contains "uploads/profile_images", simplify by targeting the known location
+    if (strpos($path, 'uploads/profile_images/') !== false) {
+        // Extract just the filename (e.g., profile_1_1234567890.jpg)
+        $filename = basename($path);
         
-        if (file_exists($distPath) && is_readable($distPath)) {
-            return $distPath;
-        }
+        // Construct path relative to the content directory
+        $imagePath = "../uploads/profile_images/{$filename}";
         
-        // Try a direct path from the user folder
-        $userPath = "../uploads/" . substr($path, 8);
-        if (file_exists($userPath) && is_readable($userPath)) {
-            return $userPath;
+        // Check if file exists at this location
+        if (file_exists($imagePath) && is_readable($imagePath)) {
+            return $imagePath;
         }
     }
     
-    // If we can't find the image, return the path as is
-    return $path;
+    // Fallback: return the original path or try direct path in uploads folder
+    return "../" . $path;
 }
 ?>
 
