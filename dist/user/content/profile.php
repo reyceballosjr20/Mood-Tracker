@@ -15,6 +15,17 @@ $userId = $_SESSION['user_id'];
 $successMessage = "";
 $errorMessage = "";
 
+// Check for session messages at the top of the file
+if (isset($_SESSION['success_message'])) {
+    $successMessage = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $errorMessage = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
+
 // Get current user data
 try {
     $stmt = $pdo->prepare("SELECT id, first_name, last_name, email, bio, profile_image FROM users WHERE id = ?");

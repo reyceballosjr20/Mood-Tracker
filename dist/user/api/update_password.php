@@ -73,13 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Redirect back to profile page
-    header("Location: ../content/profile.php");
+    // CHANGED: Redirect back to dashboard with profile tab loaded
+    header("Location: ../dashboard.php?page=profile");
     exit();
 }
 
 // If someone accesses this file directly without POST data
 $_SESSION['error_message'] = "Invalid request method.";
-header("Location: ../content/profile.php");
+header("Location: ../dashboard.php?page=profile");
 exit();
 ?> 
