@@ -5,14 +5,11 @@
 
 // Main initialization function that will be called when content is loaded
 function initMoodTracker() {
-    console.log('Initializing Mood Tracker...');
-    
     // Check if we're on the mood logging page
     const moodCircles = document.querySelectorAll('.mood-circle');
     const inspirationalMessage = document.getElementById('inspirationalMessage');
     
     if (!moodCircles.length || !inspirationalMessage) {
-        console.log('Not on mood tracking page, skipping initialization');
         return; // Exit if we're not on the mood tracking page
     }
     
@@ -29,18 +26,10 @@ function initMoodTracker() {
     const saveMoodBtn = document.getElementById('saveMoodBtn');
     const formTitle = document.querySelector('h2[style*="font-size: 1.2rem"]');
     
-    console.log('Mood tracker elements found:', {
-        'moodCircles': moodCircles.length,
-        'inspirationalMessage': !!inspirationalMessage,
-        'moodInfluence': !!moodInfluence,
-        'saveMoodBtn': !!saveMoodBtn
-    });
-    
     // Initially disable save button
     if (saveMoodBtn) {
         saveMoodBtn.disabled = true;
         saveMoodBtn.classList.add('disabled');
-        console.log('Save button initially disabled');
     }
     
     // Add change listener to mood influence textarea
@@ -193,8 +182,7 @@ function initMoodTracker() {
         if (moodInfluence && mood.mood_text) {
             moodInfluence.value = mood.mood_text;
         }
-        
-        console.log('Edit mode set for mood ID:', existingMoodId);
+       
     }
     
     // Check if user already has a mood for today
@@ -204,13 +192,10 @@ function initMoodTracker() {
             const data = await response.json();
             
             if (data.success && data.hasExistingMood) {
-                console.log('User already has a mood for today:', data.data);
                 setEditMode(data.data);
-            } else {
-                console.log('No mood logged for today yet');
             }
         } catch (error) {
-            console.error('Error checking today\'s mood:', error);
+            // Error handling without console.error
         }
     }
     
@@ -219,10 +204,7 @@ function initMoodTracker() {
     
     // Function to update the inspirational message
     function updateInspirationalMessage(mood) {
-        console.log(`Updating message for mood: ${mood}`);
-        
         if (!moodMessages[mood]) {
-            console.error(`No messages found for mood: ${mood}`);
             return;
         }
         
@@ -236,8 +218,6 @@ function initMoodTracker() {
             const randomIndex = Math.floor(Math.random() * messages.length);
             const newMessage = messages[randomIndex];
             
-            console.log(`Selected message index ${randomIndex} for mood ${mood}: "${newMessage}"`);
-            
             // Update message content
             inspirationalMessage.innerHTML = `
                 <p style="font-size: 1.1rem; line-height: 1.6; color: #8a5878; font-style: italic;">"${newMessage}"</p>
@@ -249,12 +229,10 @@ function initMoodTracker() {
             
             // Fade in new message
             inspirationalMessage.style.opacity = '1';
-            console.log('New message displayed and faded in');
             
             // Remove animation class after animation completes
             setTimeout(() => {
                 inspirationalMessage.classList.remove('message-animation');
-                console.log('Animation class removed');
             }, 500);
         }, 300);
     }
@@ -263,19 +241,14 @@ function initMoodTracker() {
     moodCircles.forEach(circle => {
         circle.addEventListener('click', function() {
             const selectedMoodType = this.dataset.mood;
-            console.log(`Mood selected: ${selectedMoodType}`);
             
             // Remove selected class from all circles
             moodCircles.forEach(c => {
-                if (c.classList.contains('selected')) {
-                    console.log(`Removing selected class from: ${c.dataset.mood}`);
-                }
                 c.classList.remove('selected');
             });
             
             // Add selected class to clicked circle
             this.classList.add('selected');
-            console.log(`Added selected class to: ${selectedMoodType}`);
             selectedMood = selectedMoodType;
             
             // In edit mode, check if mood changed from original
@@ -299,7 +272,6 @@ function initMoodTracker() {
     // Handle save button click
     saveMoodBtn.addEventListener('click', async function() {
         if (!selectedMood || this.disabled) {
-            console.log('Cannot save: No mood selected or button disabled');
             return;
         }
 
@@ -396,19 +368,15 @@ function initMoodTracker() {
             this.textContent = isEditMode ? 'UPDATE' : 'SAVE';
         }
     });
-    
-    console.log('Mood tracker initialization complete');
 }
 
 // Event listener for content loaded via AJAX
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded');
     // Initialize immediately if we're already on the page
     initMoodTracker();
 });
 
 // This function will be called when dynamic content is loaded in dashboard
 function reinitMoodTracker() {
-    console.log('Reinitializing mood tracker for dynamically loaded content');
     initMoodTracker();
 }

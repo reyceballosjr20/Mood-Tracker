@@ -12,20 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to load page content
     function loadPage(page) {
-        console.log(`Loading page: ${page}`);
-        
         // Show loading state
         contentContainer.innerHTML = '<div class="loading">Loading...</div>';
         
-        // Add this debug line
-        const fetchUrl = `content/${page}.php`;
-        console.log('Attempting to fetch from URL:', fetchUrl);
-        
         // Fetch the page content
-        fetch(fetchUrl)
+        fetch(`content/${page}.php`)
             .then(response => {
-                // Add this debug line
-                console.log('Response status:', response.status);
                 if (!response.ok) {
                     throw new Error('Page not found');
                 }
@@ -60,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error loading page:', error);
                 contentContainer.innerHTML = '<div class="error">Error loading content</div>';
             });
     }
