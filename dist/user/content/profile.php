@@ -83,7 +83,7 @@ if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) 
     } else {
         try {
             // Create uploads directory if it doesn't exist
-            $uploadDir = "../../uploads/profile_images/";
+            $uploadDir = "../../../uploads/profile_images/";
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
@@ -183,9 +183,7 @@ function getImagePath($path) {
             return '/Mood-Tracker/' . $path; // Return web-accessible path
         }
     }
-    
-    // Return default image if original not found
-    return '/Mood-Tracker/assets/images/default-profile.png';
+
 }
 ?>
 
@@ -230,7 +228,7 @@ function getImagePath($path) {
                 <?php endif; ?>
             </div>
             
-            <form action="" method="post" enctype="multipart/form-data" style="position: relative; z-index: 1;">
+            <form action="api/upload_profile_image.php" method="post" enctype="multipart/form-data" style="position: relative; z-index: 1;">
                 <div style="margin-bottom: 20px;">
                     <label for="profile_image" style="display: block; margin-bottom: 10px; font-size: 0.95rem; color: #666; font-weight: 500;">Update Profile Picture</label>
                     <input type="file" id="profile_image" name="profile_image" accept="image/*" 

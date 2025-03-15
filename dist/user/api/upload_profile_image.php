@@ -4,29 +4,19 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    $response = [
-        'success' => false,
-        'message' => 'User not authenticated'
-    ];
-    echo json_encode($response);
+    $_SESSION['error_message'] = 'User not authenticated';
+    header("Location: ../dashboard.php?page=profile");
     exit;
 }
 
 // Include database connection
 require_once '../../includes/db-connect.php';
 
-// Set up response array
-$response = [
-    'success' => false,
-    'message' => '',
-    'file_path' => ''
-];
-
 // Check if file was uploaded
 if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
     $errorMessages = [
-        UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
-        UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive in the HTML form',
+        UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the maximum file size',
+        UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the form\'s maximum file size',
         UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded',
         UPLOAD_ERR_NO_FILE => 'No file was uploaded',
         UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder',
@@ -35,8 +25,8 @@ if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UP
     ];
     
     $errorCode = $_FILES['profile_image']['error'] ?? UPLOAD_ERR_NO_FILE;
-    $response['message'] = $errorMessages[$errorCode] ?? 'Unknown upload error';
-    echo json_encode($response);
+    $_SESSION['error_message'] = $errorMessages[$errorCode] ?? 'Unknown upload error';
+    header("Location: ../dashboard.php?page=profile");
     exit;
 }
 
@@ -56,15 +46,15 @@ $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
 // Validate file extension
 if (!in_array($fileExt, $allowedExtensions)) {
-    $response['message'] = 'Only JPG, JPEG, PNG, and GIF files are allowed';
-    echo json_encode($response);
+    $_SESSION['error_message'] = 'Only JPG, JPEG, PNG, and GIF files are allowed';
+    header("Location: ../dashboard.php?page=profile");
     exit;
 }
 
 // Validate file size (5MB max)
 if ($fileSize > 5 * 1024 * 1024) {
-    $response['message'] = 'File size must be less than 5MB';
-    echo json_encode($response);
+    $_SESSION['error_message'] = 'File size must be less than 5MB';
+    header("Location: ../dashboard.php?page=profile");
     exit;
 }
 
@@ -72,8 +62,8 @@ if ($fileSize > 5 * 1024 * 1024) {
 $uploadDir = "../../uploads/profile_images/";
 if (!file_exists($uploadDir)) {
     if (!mkdir($uploadDir, 0755, true)) {
-        $response['message'] = 'Failed to create upload directory';
-        echo json_encode($response);
+        $_SESSION['error_message'] = 'Failed to create upload directory';
+        header("Location: ../dashboard.php?page=profile");
         exit;
     }
 }
@@ -85,8 +75,8 @@ $uploadPath = $uploadDir . $newFileName;
 
 // Move uploaded file to the upload directory
 if (!move_uploaded_file($fileTmpPath, $uploadPath)) {
-    $response['message'] = 'Failed to move uploaded file';
-    echo json_encode($response);
+    $_SESSION['error_message'] = 'Failed to move uploaded file';
+    header("Location: ../dashboard.php?page=profile");
     exit;
 }
 
@@ -114,15 +104,13 @@ try {
             }
         }
         
-        // Success response
-        $response['success'] = true;
-        $response['message'] = 'Profile image uploaded successfully';
-        $response['file_path'] = $relativePath;
+        // Set success message
+        $_SESSION['success_message'] = 'Profile image updated successfully';
     } else {
-        $response['message'] = 'Failed to update database';
+        $_SESSION['error_message'] = 'Failed to update database';
     }
 } catch (PDOException $e) {
-    $response['message'] = 'Database error: ' . $e->getMessage();
+    $_SESSION['error_message'] = 'Database error: ' . $e->getMessage();
     
     // If there's a database error, remove the uploaded file
     if (file_exists($uploadPath)) {
@@ -130,7 +118,6 @@ try {
     }
 }
 
-// Return JSON response
-header('Content-Type: application/json');
-echo json_encode($response);
+// Redirect back to profile page
+header("Location: ../dashboard.php?page=profile");
 exit; 
