@@ -82,8 +82,8 @@ if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) 
         $errorMessage = "File size must be less than 5MB.";
     } else {
         try {
-            // Create uploads directory if it doesn't exist
-            $uploadDir = "../../../uploads/profile_images/";
+            // Create uploads directory if it doesn't exist - CORRECTED PATH
+            $uploadDir = "../../uploads/profile_images/";
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
@@ -93,13 +93,16 @@ if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) 
             $uploadPath = $uploadDir . $newFileName;
             
             if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-                // Store database path relative to project root
-                $relativeImagePath = "uploads/profile_images/" . $newFileName;
+                // Store database path with correct prefix for later retrieval
+                $relativeImagePath = "/uploads/profile_images/" . $newFileName;
                 $imageStmt = $pdo->prepare("UPDATE users SET profile_image = ?, updated_at = NOW() WHERE id = ?");
                 $imageStmt->bindParam(1, $relativeImagePath, PDO::PARAM_STR);
                 $imageStmt->bindParam(2, $userId, PDO::PARAM_INT);
                 
                 if ($imageStmt->execute()) {
+                    // Update the session with the new image path
+                    $_SESSION['profile_image'] = $relativeImagePath;
+                    
                     $successMessage = "Profile image updated successfully!";
                     $userData['profile_image'] = $relativeImagePath;
                 } else {
@@ -174,30 +177,29 @@ trackUserActivity($userId, "profile_visit");
 
 // Function to check if file exists and is readable
 function getImagePath($path) {
+    // If the path already has the right structure, return it
+    if (strpos($path, '../uploads/') === 0) {
+        return $path;
+    }
+    
     // Check if path begins with "uploads/"
     if (strpos($path, 'uploads/') === 0) {
-        // First try the absolute path from project root
-        $absolutePath = $_SERVER['DOCUMENT_ROOT'] . '/Mood-Tracker/' . $path;
+        // Path to the uploads folder within dist directory
+        $distPath = "../../uploads/" . substr($path, 8); // Remove "uploads/" prefix
         
-        if (file_exists($absolutePath) && is_readable($absolutePath)) {
-            return '/Mood-Tracker/' . $path; // Return web-accessible path
+        if (file_exists($distPath) && is_readable($distPath)) {
+            return $distPath;
         }
         
-        // If that doesn't work, try relative to current directory
-        $relativePath = "../../../" . $path;
-        if (file_exists($relativePath) && is_readable($relativePath)) {
-            return "../../../" . $path;
-        }
-        
-        // Another common option is to check relative to document root
-        $webPath = "../" . $path;
-        if (file_exists($_SERVER['DOCUMENT_ROOT'] . $webPath) && is_readable($_SERVER['DOCUMENT_ROOT'] . $webPath)) {
-            return $webPath;
+        // Try a direct path from the user folder
+        $userPath = "../uploads/" . substr($path, 8);
+        if (file_exists($userPath) && is_readable($userPath)) {
+            return $userPath;
         }
     }
     
-    // Return default image if original not found
-    return "../assets/images/default-profile.png";
+    // If we can't find the image, return the path as is
+    return $path;
 }
 ?>
 
