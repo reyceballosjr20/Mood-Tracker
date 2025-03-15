@@ -3,94 +3,80 @@
  * Shows a preview of the selected image before uploading
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to initialize image preview on profile page
+    console.log("Initializing profile image preview...");
+    
     function initProfileImagePreview() {
-        console.log("Initializing profile image preview...");
         const fileInput = document.getElementById('profile_image');
         
         if (!fileInput) {
             console.log("Profile image input not found");
-            return; // Exit if we're not on the profile page
+            return;
         }
         
-        console.log("Profile image input found, setting up listeners");
+        console.log("Profile image input found, setting up preview");
         
-        // Find the existing image container
-        let imageContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
-        
-        // Store the original content to restore if needed
-        let originalContent = null;
-        if (imageContainer) {
-            originalContent = imageContainer.innerHTML;
+        // Find the image container
+        const imageContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
+        if (!imageContainer) {
+            console.log("Image container not found");
+            return;
         }
         
-        // Add an input field to store the original image path
-        if (imageContainer) {
-            const img = imageContainer.querySelector('img');
-            if (img) {
-                const form = fileInput.closest('form');
-                if (form) {
-                    // Check if hidden input for old image already exists
-                    let oldImageInput = form.querySelector('input[name="old_image"]');
-                    if (!oldImageInput) {
-                        oldImageInput = document.createElement('input');
-                        oldImageInput.type = 'hidden';
-                        oldImageInput.name = 'old_image';
-                        oldImageInput.value = img.getAttribute('src');
-                        form.appendChild(oldImageInput);
-                    }
+        // Store original content
+        const originalContent = imageContainer.innerHTML;
+        
+        // Add a hidden input field to track the original image path
+        const form = fileInput.closest('form');
+        if (form) {
+            // Look for existing image
+            const existingImg = imageContainer.querySelector('img');
+            if (existingImg && existingImg.src) {
+                // Add hidden input for old image if it doesn't exist
+                if (!form.querySelector('input[name="old_image"]')) {
+                    const oldImageInput = document.createElement('input');
+                    oldImageInput.type = 'hidden';
+                    oldImageInput.name = 'old_image';
+                    oldImageInput.value = existingImg.src;
+                    form.appendChild(oldImageInput);
                 }
             }
         }
         
-        // Handle file selection for preview
+        // Handle file selection
         fileInput.addEventListener('change', function(e) {
-            const file = this.files[0];
-            
-            // If we don't have an image container, try to find it again
-            if (!imageContainer) {
-                imageContainer = document.querySelector('[style*="width: 160px; height: 160px; border-radius: 50%"]');
-                if (imageContainer) {
-                    originalContent = imageContainer.innerHTML;
-                }
-            }
-            
-            // If we still don't have an image container, we can't proceed
-            if (!imageContainer) {
-                console.error("Cannot find image container to update");
-                return;
-            }
-            
-            if (file) {
-                // Check file type
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Validate file type
                 const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
                 if (!validTypes.includes(file.type)) {
-                    showError('Please select a valid image file (JPG, PNG, or GIF)');
+                    alert('Please select a valid image file (JPG, PNG, or GIF)');
+                    this.value = '';
                     return;
                 }
                 
-                // Check file size (max 5MB)
+                // Validate file size (5MB max)
                 if (file.size > 5 * 1024 * 1024) {
-                    showError('Image file is too large. Maximum size is 5MB.');
+                    alert('File size must be less than 5MB');
+                    this.value = '';
                     return;
                 }
                 
-                // Add loading state
-                imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #d1789c;"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i></div>';
+                // Show loading state
+                imageContainer.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; background-color: #f5d7e3;"><i class="fas fa-spinner fa-spin" style="color: #d1789c; font-size: 24px;"></i></div>';
                 
-                // Add "Preview" label if it doesn't exist
-                let previewLabel = document.getElementById('image-preview-label');
+                // Create preview label if it doesn't exist
+                let previewLabel = document.getElementById('preview-label');
                 if (!previewLabel) {
                     previewLabel = document.createElement('div');
-                    previewLabel.id = 'image-preview-label';
+                    previewLabel.id = 'preview-label';
                     previewLabel.textContent = 'Preview';
                     previewLabel.style.textAlign = 'center';
                     previewLabel.style.marginTop = '10px';
-                    previewLabel.style.fontSize = '0.9rem';
                     previewLabel.style.color = '#d1789c';
+                    previewLabel.style.fontSize = '0.9rem';
                     previewLabel.style.fontWeight = '500';
                     
-                    // Insert the label after the image container
                     if (imageContainer.parentNode) {
                         imageContainer.parentNode.insertBefore(previewLabel, imageContainer.nextSibling);
                     }
@@ -98,93 +84,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     previewLabel.style.display = 'block';
                 }
                 
-                // Create FileReader to display image
+                // Create FileReader to create preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    imageContainer.innerHTML = '';
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
-                    imageContainer.appendChild(img);
+                    imageContainer.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
                 };
-                
-                // Read the file
                 reader.readAsDataURL(file);
-                
-                // Clear any errors
-                clearError();
             } else {
-                // If no file is selected, restore original content
-                if (originalContent) {
-                    imageContainer.innerHTML = originalContent;
-                }
+                // If no file is selected (or selection canceled), restore original
+                imageContainer.innerHTML = originalContent;
                 
                 // Hide preview label
-                const previewLabel = document.getElementById('image-preview-label');
+                const previewLabel = document.getElementById('preview-label');
                 if (previewLabel) {
                     previewLabel.style.display = 'none';
                 }
             }
         });
-        
-        // Error handling functions
-        function showError(message) {
-            let errorEl = document.getElementById('image-upload-error');
-            
-            if (!errorEl) {
-                errorEl = document.createElement('div');
-                errorEl.id = 'image-upload-error';
-                errorEl.style.color = '#c62828';
-                errorEl.style.fontSize = '0.9rem';
-                errorEl.style.marginTop = '8px';
-                errorEl.style.padding = '8px 12px';
-                errorEl.style.backgroundColor = '#ffebee';
-                errorEl.style.borderRadius = '8px';
-                errorEl.style.borderLeft = '3px solid #ef5350';
-                fileInput.parentNode.appendChild(errorEl);
-            }
-            
-            errorEl.textContent = message;
-            errorEl.style.display = 'block';
-            
-            // Reset the file input
-            fileInput.value = '';
-            
-            // Restore original image
-            if (imageContainer && originalContent) {
-                imageContainer.innerHTML = originalContent;
-            }
-            
-            // Hide preview label
-            const previewLabel = document.getElementById('image-preview-label');
-            if (previewLabel) {
-                previewLabel.style.display = 'none';
-            }
-        }
-        
-        function clearError() {
-            const errorEl = document.getElementById('image-upload-error');
-            if (errorEl) {
-                errorEl.style.display = 'none';
-            }
-        }
     }
     
-    // Initialize when DOM is loaded
+    // Initialize when the DOM is loaded
     initProfileImagePreview();
     
-    // Re-initialize when content changes (for SPA navigation)
+    // Initialize when content is dynamically loaded (for SPA)
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList' && document.getElementById('profile_image')) {
-                initProfileImagePreview();
+                // Small delay to ensure all elements are loaded
+                setTimeout(initProfileImagePreview, 100);
             }
         });
     });
     
-    // Observe the content container for changes
+    // Observe content container for changes
     const contentContainer = document.getElementById('contentContainer');
     if (contentContainer) {
         observer.observe(contentContainer, { childList: true, subtree: true });

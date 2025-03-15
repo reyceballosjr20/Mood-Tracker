@@ -176,14 +176,28 @@ trackUserActivity($userId, "profile_visit");
 function getImagePath($path) {
     // Check if path begins with "uploads/"
     if (strpos($path, 'uploads/') === 0) {
-        // Absolute path from project root
+        // First try the absolute path from project root
         $absolutePath = $_SERVER['DOCUMENT_ROOT'] . '/Mood-Tracker/' . $path;
         
         if (file_exists($absolutePath) && is_readable($absolutePath)) {
             return '/Mood-Tracker/' . $path; // Return web-accessible path
         }
+        
+        // If that doesn't work, try relative to current directory
+        $relativePath = "../../../" . $path;
+        if (file_exists($relativePath) && is_readable($relativePath)) {
+            return "../../../" . $path;
+        }
+        
+        // Another common option is to check relative to document root
+        $webPath = "../" . $path;
+        if (file_exists($_SERVER['DOCUMENT_ROOT'] . $webPath) && is_readable($_SERVER['DOCUMENT_ROOT'] . $webPath)) {
+            return $webPath;
+        }
     }
-
+    
+    // Return default image if original not found
+    return "../assets/images/default-profile.png";
 }
 ?>
 
