@@ -1,452 +1,249 @@
 <?php
-// Initialize session if needed
-session_start();
-
 // Check if user is logged in
-if(!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
-    echo "Authorization required";
-    exit;
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
 }
 
-// Get user data from session
-$user = [
-    'first_name' => $_SESSION['first_name'] ?? 'User',
-    'last_name' => $_SESSION['last_name'] ?? '',
-    'email' => $_SESSION['email'] ?? '',
-    'bio' => $_SESSION['bio'] ?? 'I\'m tracking my mood to improve my mental well-being and understand my emotional patterns.',
-    'profile_image' => $_SESSION['profile_image'] ?? '',
-];
+$userId = $_SESSION['user_id'];
+$successMessage = "";
+$errorMessage = "";
 
-// Get user ID from session
-$user_id = $_SESSION['user_id'] ?? 0;
+// Get current user data
+$stmt = $conn->prepare("SELECT first_name, last_name, email, bio, profile_image FROM users WHERE id = ?");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
 
-// Get user bio and profile image from database if not in session
-if ($user_id > 0) {
-    try {
-        // Include database connection
-        require_once '../../includes/db-connect.php';
+if ($result->num_rows === 0) {
+    $errorMessage = "User not found!";
+} else {
+    $userData = $result->fetch_assoc();
+}
+
+// Handle profile update form submission
+if (isset($_POST['update_profile'])) {
+    $firstName = trim($_POST['first_name']);
+    $lastName = trim($_POST['last_name']);
+    $bio = trim($_POST['bio']);
+    
+    // Validate inputs
+    if (empty($firstName) || empty($lastName)) {
+        $errorMessage = "First name and last name are required.";
+    } else {
+        // Update user profile information
+        $updateStmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, bio = ? WHERE id = ?");
+        $updateStmt->bind_param("sssi", $firstName, $lastName, $bio, $userId);
         
-        $stmt = $pdo->prepare("SELECT bio, profile_image FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($userData) {
-            $user['bio'] = $userData['bio'] ?? $user['bio'];
-            $user['profile_image'] = $userData['profile_image'] ?? '';
+        if ($updateStmt->execute()) {
+            // Update session data
+            $_SESSION['first_name'] = $firstName;
+            $_SESSION['last_name'] = $lastName;
+            
+            $successMessage = "Profile updated successfully!";
+            
+            // Refresh user data
+            $userData['first_name'] = $firstName;
+            $userData['last_name'] = $lastName;
+            $userData['bio'] = $bio;
+        } else {
+            $errorMessage = "Error updating profile: " . $conn->error;
         }
-    } catch (PDOException $e) {
-        // Silently fail and use session data
+    }
+}
+
+// Handle profile image upload
+if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
+    $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    $fileName = $_FILES['profile_image']['name'];
+    $fileSize = $_FILES['profile_image']['size'];
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Validate file extension and size
+    if (!in_array($fileExt, $allowed)) {
+        $errorMessage = "Only JPG, JPEG, PNG, and GIF files are allowed.";
+    } elseif ($fileSize > 5000000) { // 5MB limit
+        $errorMessage = "File size must be less than 5MB.";
+    } else {
+        // Create uploads directory if it doesn't exist
+        $uploadDir = "../uploads/profile_images/";
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        // Generate unique filename
+        $newFileName = uniqid('profile_') . '.' . $fileExt;
+        $uploadPath = $uploadDir . $newFileName;
+        
+        if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
+            // Update profile image in database
+            $relativeImagePath = "uploads/profile_images/" . $newFileName;
+            $imageStmt = $conn->prepare("UPDATE users SET profile_image = ? WHERE id = ?");
+            $imageStmt->bind_param("si", $relativeImagePath, $userId);
+            
+            if ($imageStmt->execute()) {
+                $successMessage = "Profile image updated successfully!";
+                $userData['profile_image'] = $relativeImagePath;
+            } else {
+                $errorMessage = "Error updating profile image: " . $conn->error;
+            }
+        } else {
+            $errorMessage = "Error uploading image.";
+        }
+    }
+}
+
+// Handle password change
+if (isset($_POST['update_password'])) {
+    $currentPassword = $_POST['current_password'];
+    $newPassword = $_POST['new_password'];
+    $confirmPassword = $_POST['confirm_password'];
+    
+    // Get current hashed password from database
+    $passwordStmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+    $passwordStmt->bind_param("i", $userId);
+    $passwordStmt->execute();
+    $passwordResult = $passwordStmt->get_result();
+    $passwordData = $passwordResult->fetch_assoc();
+    
+    // Verify current password
+    if (!password_verify($currentPassword, $passwordData['password'])) {
+        $errorMessage = "Current password is incorrect.";
+    } elseif (strlen($newPassword) < 8) {
+        $errorMessage = "New password must be at least 8 characters.";
+    } elseif ($newPassword !== $confirmPassword) {
+        $errorMessage = "New passwords do not match.";
+    } else {
+        // Hash and update the new password
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $updatePasswordStmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $updatePasswordStmt->bind_param("si", $hashedPassword, $userId);
+        
+        if ($updatePasswordStmt->execute()) {
+            $successMessage = "Password updated successfully!";
+        } else {
+            $errorMessage = "Error updating password: " . $conn->error;
+        }
     }
 }
 ?>
 
-<div class="header">
-    <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
-        Your Profile
-        <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
-    </h1>
-</div>
-
-<div id="profileAlert" class="alert" style="display: none; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;"></div>
-
-<div class="profile-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px;">
-    <!-- Profile Image Section -->
-    <div class="card" style="margin-bottom: 0; text-align: center; background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
-        <div style="padding: 20px;">
-            <div id="profileImageContainer" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #d1789c, #e896b8); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 60px; font-weight: 300; overflow: hidden; position: relative;">
-                <?php 
-                // Get profile image from session or database
-                $profile_image = $user['profile_image'] ?? '';
-                
-                if (!empty($profile_image)): 
-                    // Check if it's just a filename or a full path
-                    if (strpos($profile_image, '/') !== false) {
-                        // It's already a path
-                        $image_path = $profile_image;
-                    } else {
-                        // It's just a filename, construct the path
-                        $image_path = 'uploads/profile_images/' . $profile_image;
-                    }
+<div class="container py-4">
+    <h1 class="mb-4">My Profile</h1>
+    
+    <?php if (!empty($successMessage)): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?php echo $successMessage; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (!empty($errorMessage)): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php echo $errorMessage; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    
+    <div class="row g-4">
+        <!-- Left column: Profile Image -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Profile Image</h5>
+                    <div class="profile-image-container mb-3">
+                        <?php if (!empty($userData['profile_image'])): ?>
+                            <img src="../<?php echo htmlspecialchars($userData['profile_image']); ?>" 
+                                 class="img-fluid rounded-circle profile-image" 
+                                 alt="Profile Image" 
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="default-profile-image rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                 style="width: 150px; height: 150px; margin: 0 auto;">
+                                <i class="bi bi-person-fill text-white" style="font-size: 72px;"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                     
-                    // Debug output to check paths
-                    echo "<!-- Debug: Image path = $image_path -->";
-                    echo "<!-- Debug: Full path = " . realpath('../../' . $image_path) . " -->";
-                    
-                    // Check if file exists
-                    if (file_exists('../../' . $image_path)):
-                ?>
-                    <img src="../<?php echo htmlspecialchars($image_path); ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
-                <?php else: ?>
-                    <!-- Image file not found -->
-                    <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
-                <?php endif; ?>
-                <?php else: ?>
-                    <!-- No profile image set -->
-                    <?php echo strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)); ?>
-                <?php endif; ?>
-            </div>
-            
-            <!-- Make sure the file input is properly defined -->
-            <input type="file" id="profileImageInput" name="profile_image" accept="image/*" style="position: absolute; left: -9999px; visibility: hidden;">
-            
-            <!-- Use a regular link for the change photo button as a fallback -->
-            <button id="changePhotoBtn" class="profile-btn primary-btn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 15px; border-radius: 25px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">
-                <i class="fas fa-camera"></i> Change Photo
-            </button>
-            
-            <!-- Add a direct file input as a fallback -->
-            <label for="directFileInput" style="display: none;">Or select a file directly:</label>
-            <input type="file" id="directFileInput" name="direct_profile_image" accept="image/*" style="display: none; margin-bottom: 10px;">
-            
-            <button id="removePhotoBtn" class="profile-btn secondary-btn" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 10px 15px; border-radius: 25px; cursor: pointer; width: 100%; font-weight: 500;">
-                <i class="fas fa-trash"></i> Remove
-            </button>
-        </div>
-    </div>
-    
-    <!-- Profile Details Section -->
-    <div class="card" style="margin-bottom: 0; background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
-        <div class="card-header" style="padding: 15px 20px; border-bottom: 1px solid #f9e8f0;">
-            <h2 class="card-title" style="font-size: 1.25rem; color: #d1789c; font-weight: 500; margin: 0;">Personal Information</h2>
-            <div class="card-icon">
-                <i class="fas fa-user-edit" style="color: #d1789c;"></i>
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="profile_image" class="form-label">Change Profile Image</label>
+                            <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                            <div class="form-text">Max size: 5MB. JPG, PNG or GIF only.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload Image</button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div style="padding: 20px;">
-            <form id="profileForm">
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">First Name</label>
-                        <input type="text" id="firstName" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Last Name</label>
-                        <input type="text" id="lastName" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
-                    </div>
+        
+        <!-- Right column: Profile Information and Password Change -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Profile Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Profile Information</h5>
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Email</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
+                <div class="card-body">
+                    <form action="" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="<?php echo htmlspecialchars($userData['first_name'] ?? ''); ?>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="<?php echo htmlspecialchars($userData['last_name'] ?? ''); ?>" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" 
+                                   value="<?php echo htmlspecialchars($userData['email'] ?? ''); ?>" readonly>
+                            <div class="form-text">Email cannot be changed directly for security reasons.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="4"><?php echo htmlspecialchars($userData['bio'] ?? ''); ?></textarea>
+                        </div>
+                        
+                        <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
+                    </form>
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Bio</label>
-                    <textarea id="bio" name="bio" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; height: 100px; resize: vertical; background-color: #fffcfd; font-family: inherit;"><?php echo htmlspecialchars($user['bio']); ?></textarea>
-                </div>
-                
-                <!-- Add the save button here, after the bio textarea -->
-                <div style="margin-top: 20px;">
-                    <button id="saveChangesBtn" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25); display: flex; align-items: center; transition: all 0.3s ease; width: 100%; justify-content: center;">
-                        <i class="fas fa-save" style="margin-right: 8px;"></i> 
-                        <span>Save Changes</span>
-                        <div id="saveSpinner" style="display: none; margin-left: 8px; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite;"></div>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="card" style="background-color: #fff; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; transition: none; overflow: hidden;">
-    <div class="card-header" style="padding: 15px 20px; border-bottom: 1px solid #f9e8f0;">
-        <h2 class="card-title" style="font-size: 1.25rem; color: #d1789c; font-weight: 500; margin: 0;">Security Settings</h2>
-        <div class="card-icon">
-            <i class="fas fa-shield-alt" style="color: #d1789c;"></i>
-        </div>
-    </div>
-    <div style="padding: 20px;">
-        <div>
-            <h3 style="font-size: 16px; margin-bottom: 15px; color: #6e3b5c;">Change Password</h3>
-            <form id="passwordForm">
-                <input type="hidden" name="action" value="change_password">
-                <div class="password-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Current Password</label>
-                        <input type="password" id="currentPassword" name="current_password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
-                    </div>
-                    <div class="password-spacer"></div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">New Password</label>
-                        <input type="password" id="newPassword" name="new_password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6e3b5c;">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" name="confirm_password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #f5d7e3; border-radius: 8px; background-color: #fffcfd;">
-                    </div>
-                </div>
-                <button id="updatePasswordBtn" type="button" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin-top: 15px; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25);">
-                    Update Password
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Card styling */
-    .card {
-        transition: none !important;
-    }
-    
-    .card:hover {
-        transform: none !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.07) !important;
-    }
-    
-    /* Form input focus states */
-    input:focus, textarea:focus {
-        border-color: #d1789c !important;
-        box-shadow: 0 0 0 3px rgba(209, 120, 156, 0.15) !important;
-        outline: none !important;
-    }
-    
-    /* Toggle switch styling */
-    .toggle-switch span:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    
-    .toggle-switch input:checked + span {
-        background-color: #d1789c;
-    }
-    
-    .toggle-switch input:checked + span:before {
-        transform: translateX(26px);
-    }
-    
-    /* Button hover states */
-    .primary-btn:hover {
-        background: linear-gradient(135deg, #c76490, #e48db0) !important;
-    }
-    
-    .secondary-btn:hover {
-        background: #f9f9f9 !important;
-        border-color: #d1789c !important;
-    }
-    
-    #saveChangesBtn:hover, #updatePasswordBtn:hover {
-        background: linear-gradient(135deg, #c76490, #e48db0) !important;
-    }
-    
-    /* Alert styling */
-    .alert {
-        border-radius: 8px;
-        padding: 12px 15px;
-        margin-bottom: 20px;
-    }
-    
-    .alert-success {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #c8e6c9;
-    }
-    
-    .alert-danger {
-        background-color: #ffebee;
-        color: #c62828;
-        border: 1px solid #ffcdd2;
-    }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 992px) {
-        .profile-grid {
-            gap: 15px !important;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        /* Fix the gap between sidebar and content */
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        
-        .container-fluid,
-        .row,
-        main,
-        .content-area {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-        }
-        
-        /* Ensure the sidebar connects directly with content */
-        .sidebar {
-            margin-right: 0;
-            padding-right: 0;
-        }
-        
-        /* Adjust profile grid for mobile */
-        .profile-grid {
-            grid-template-columns: 1fr !important;
-            gap: 20px !important;
-        }
-        
-        /* Center the page title on mobile */
-        h1.page-title {
-            font-size: 1.6rem !important;
-            text-align: center;
-            display: block !important;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        h1.page-title span {
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-        }
-        
-        /* Adjust header layout */
-        .header {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .search-box {
-            margin-top: 15px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-        
-        #saveChangesBtn {
-            width: 100%;
-            max-width: 250px;
-            padding: 12px 20px;
-        }
-        
-        /* Adjust password grid */
-        .password-grid {
-            grid-template-columns: 1fr !important;
-        }
-        
-        .password-spacer {
-            display: none;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        /* Further adjustments for very small screens */
-        .form-row {
-            grid-template-columns: 1fr !important;
-        }
-        
-        .card-header {
-            padding: 15px !important;
-        }
-        
-        div[style*="padding: 20px"] {
-            padding: 15px !important;
-        }
-        
-        h2.card-title {
-            font-size: 1.1rem !important;
-        }
-    }
-    
-    /* Add this to your existing styles */
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    #saveChangesBtn {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    #saveChangesBtn:hover {
-        background: linear-gradient(135deg, #c76490, #e48db0) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(209, 120, 156, 0.35) !important;
-    }
-    
-    #saveChangesBtn:active {
-        transform: translateY(0);
-        box-shadow: 0 4px 8px rgba(209, 120, 156, 0.25) !important;
-    }
-    
-    #saveChangesBtn.saving {
-        background: linear-gradient(135deg, #b85980, #d485a7) !important;
-        pointer-events: none;
-    }
-    
-    /* Pulse animation for the save button when saving */
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(209, 120, 156, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(209, 120, 156, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(209, 120, 156, 0); }
-    }
-    
-    .pulse {
-        animation: pulse 1.5s infinite;
-    }
-</style>
-
-<form id="fallbackUploadForm" action="../save-profile.php" method="post" enctype="multipart/form-data" style="display: none;">
-    <input type="file" name="profile_image" id="fallbackFileInput" accept="image/*">
-    <input type="hidden" name="redirect" value="dashboard.php?page=profile">
-    <input type="submit" value="Upload">
-</form>
-
-<script>
-// Add this inline script as a last resort
-document.addEventListener('DOMContentLoaded', function() {
-    // Last resort fallback
-    const changeBtn = document.getElementById('changePhotoBtn');
-    if (changeBtn) {
-        changeBtn.addEventListener('click', function() {
-            const fallbackInput = document.getElementById('fallbackFileInput');
-            if (fallbackInput) {
-                fallbackInput.click();
-            }
-        });
-    }
-    
-    const fallbackInput = document.getElementById('fallbackFileInput');
-    if (fallbackInput) {
-        fallbackInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                document.getElementById('fallbackUploadForm').submit();
-            }
-        });
-    }
-});
-</script>
-
-<!-- Modal Component -->
-<div id="profileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;">
-    <div class="modal-content" style="background-color: white; border-radius: 16px; width: 90%; max-width: 400px; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; transform: translateY(20px); transition: transform 0.3s ease;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #d1789c, #e896b8); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="modalTitle" style="margin: 0; font-size: 18px; font-weight: 500;">Confirmation</h3>
-            <button id="modalClose" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
-        </div>
-        <div class="modal-body" style="padding: 20px;">
-            <p id="modalMessage" style="margin-top: 0; margin-bottom: 20px; color: #6e3b5c;">Are you sure you want to proceed?</p>
-            <div id="modalImagePreview" style="display: none; width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(209, 120, 156, 0.2);">
-                <img id="previewImage" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button id="modalCancel" class="btn-secondary" style="background: white; border: 1px solid #f5d7e3; color: #6e3b5c; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;">Cancel</button>
-                <button id="modalConfirm" class="btn-primary" style="background: linear-gradient(135deg, #d1789c, #e896b8); border: none; color: white; padding: 8px 15px; border-radius: 25px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(209, 120, 156, 0.25); transition: all 0.2s ease;">Confirm</button>
-            </div>
-        </div>
-        <div id="modalStatus" class="modal-status" style="display: none; padding: 25px 20px; text-align: center; border-top: 1px solid #f9e8f0; background-color: #fffcfd; position: relative; overflow: hidden;">
-            <canvas id="confettiCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;"></canvas>
-            <div class="status-content" style="position: relative; z-index: 2;">
-                <div class="status-icon" style="margin-bottom: 15px; font-size: 60px; transform: scale(0.5); opacity: 0; transition: all 0.3s ease;">
-                    <i id="statusIcon" class="fas fa-check-circle" style="color: #4CAF50;"></i>
+            
+            <!-- Password Change -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Change Password</h5>
                 </div>
-                <p id="statusMessage" style="margin: 0 0 15px 0; color: #6e3b5c; font-weight: 500; font-size: 18px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease 0.1s;">Operation completed successfully!</p>
-                <div id="statusProgress" style="width: 100%; height: 4px; background-color: #f5d7e3; border-radius: 2px; margin-top: 20px; overflow: hidden; display: none;">
-                    <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #d1789c, #e896b8); transition: width 1.5s linear;"></div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" 
+                                       minlength="8" required>
+                                <div class="form-text">Minimum 8 characters</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                       minlength="8" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" name="update_password" class="btn btn-primary">Update Password</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -454,71 +251,15 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
-    /* Modal animations and hover effects */
-    #modalCancel:hover {
-        background-color: #f9f9f9;
-        border-color: #e0b9c7;
+/* Additional responsive styling */
+@media (max-width: 767.98px) {
+    .profile-image-container {
+        margin-bottom: 1.5rem;
     }
     
-    #modalConfirm:hover {
-        background: linear-gradient(135deg, #c76490, #e48db0);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(209, 120, 156, 0.35);
+    .profile-image, .default-profile-image {
+        width: 120px !important;
+        height: 120px !important;
     }
-    
-    #modalConfirm:active, #modalCancel:active {
-        transform: translateY(1px);
-    }
-    
-    /* Loading animation */
-    @keyframes pulse-ring {
-        0% { transform: scale(0.8); opacity: 0.8; }
-        50% { transform: scale(1.1); opacity: 0.5; }
-        100% { transform: scale(0.8); opacity: 0.8; }
-    }
-    
-    .pulse-animation {
-        animation: pulse-ring 1.5s infinite;
-    }
-    
-    /* Success animation */
-    @keyframes success-bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0) scale(1); }
-        40% { transform: translateY(-20px) scale(1.1); }
-        60% { transform: translateY(-10px) scale(1.05); }
-    }
-    
-    .success-animation {
-        animation: success-bounce 1s forwards;
-    }
-    
-    /* Error shake animation */
-    @keyframes error-shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
-    
-    .error-animation {
-        animation: error-shake 0.5s forwards;
-    }
-    
-    /* Confetti animation */
-    @keyframes confetti-slow {
-        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
-        100% { transform: translate3d(25px, 105vh, 0) rotateX(360deg) rotateY(180deg); }
-    }
-    
-    @keyframes confetti-medium {
-        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
-        100% { transform: translate3d(100px, 105vh, 0) rotateX(100deg) rotateY(360deg); }
-    }
-    
-    @keyframes confetti-fast {
-        0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); }
-        100% { transform: translate3d(-50px, 105vh, 0) rotateX(10deg) rotateY(250deg); }
-    }
+}
 </style>
-
-<!-- Add this before closing body tag -->
-<script src="../js/personal-info.js"></script> 

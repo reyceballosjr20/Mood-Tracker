@@ -980,6 +980,12 @@ if (isset($_GET['page'])) {
                 .then(html => {
                     contentContainer.innerHTML = html;
 
+                    // If this is the profile page, make sure the image functionality works
+                    if (page === 'profile') {
+                        console.log('Profile page loaded, will ensure image functionality works');
+                        // Let the inline script in profile.php handle initialization
+                    }
+
                     // After loading content, initialize/reinitialize any scripts
                     if (typeof reinitMoodTracker === 'function') {
                         console.log('Calling reinitMoodTracker for dynamically loaded content');

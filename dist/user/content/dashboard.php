@@ -697,6 +697,29 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
         margin-right: 0;
         width: 100%;
     }
+    
+    /* Fix input fields and forms on mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea,
+    select,
+    button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Improve forms on small screens */
+    form {
+        max-width: 100%;
+    }
+    
+    /* Ensure modals don't overflow */
+    .modal-content {
+        width: 95%;
+        max-width: 350px;
+        margin: 0 auto;
+    }
 }
 
 @media (max-width: 480px) {
