@@ -267,7 +267,7 @@ function getImagePath($path) {
                 
                 <h2 style="font-size: 1.25rem; margin-bottom: 25px; color: #d1789c; font-weight: 500; border-bottom: 1px solid #f9e8f0; padding-bottom: 12px; position: relative; z-index: 1;">Personal Information</h2>
                 
-                <form action="" method="post" style="position: relative; z-index: 1;" id="profile-form">
+                <form action="javascript:void(0);" method="post" style="position: relative; z-index: 1;" id="profile-form">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div>
                             <label for="first_name" style="display: block; margin-bottom: 8px; font-size: 0.95rem; color: #666; font-weight: 500;">First Name</label>
