@@ -17,9 +17,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading state
         contentContainer.innerHTML = '<div class="loading">Loading...</div>';
         
+        // Add this debug line
+        const fetchUrl = `content/${page}.php`;
+        console.log('Attempting to fetch from URL:', fetchUrl);
+        
         // Fetch the page content
-        fetch(`content/${page}.php`)
-            .then(response => response.text())
+        fetch(fetchUrl)
+            .then(response => {
+                // Add this debug line
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Page not found');
+                }
+                return response.text();
+            })
             .then(html => {
                 contentContainer.innerHTML = html;
                 
