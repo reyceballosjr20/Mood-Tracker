@@ -148,27 +148,7 @@ $moodStats = $mood->getMoodStatsByMonth($userId, $currentMonth, $currentYear);
                 </div>
             <?php endif; ?>
         </div>
-        
-        <!-- Quick Actions Card -->
-        <div class="summary-card actions-card">
-            <div class="card-header">
-                <h3>Quick Actions</h3>
-                <div class="icon-circle">
-                    <i class="fas fa-bolt"></i>
-                </div>
-            </div>
-            <div class="action-buttons">
-                <a href="dashboard.php?page=log-mood" class="action-btn primary-action">
-                    <i class="fas fa-plus"></i> Log Mood
-                </a>
-                <a href="dashboard.php?page=calendar" class="action-btn">
-                    <i class="fas fa-calendar"></i> View Calendar
-                </a>
-                <a href="dashboard.php?page=mood-history" class="action-btn">
-                    <i class="fas fa-history"></i> View History
-                </a>
-            </div>
-        </div>
+
     </div>
     
     <!-- Mood Summary Section -->
