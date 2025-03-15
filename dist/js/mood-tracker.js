@@ -195,7 +195,7 @@ function initMoodTracker() {
                 setEditMode(data.data);
             }
         } catch (error) {
-            // Error handling without console.error
+            // Silent error handling without console.error
         }
     }
     

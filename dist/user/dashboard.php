@@ -35,8 +35,7 @@ if (isset($_GET['page'])) {
     <!-- Load the mood tracker script -->
     <script src="../js/mood-tracker.js"></script>
     <script src="../js/calendar.js"></script>
-    <script src="../js/profile.js"></script>
-    <script src="../js/profile.js"></script>
+
 
 
     <style>
@@ -940,13 +939,12 @@ if (isset($_GET['page'])) {
     <script src="../js/sidebar.js"></script>
     <script src="../js/mood-tracker.js"></script>
     <script src="../js/calendar.js"></script>
-    <script src="../js/profile.js"></script>
-    <script src="../js/personal-info.js"></script>
+
     <script>
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
-        const mobileToggle = document.getElementById('mobileToggle');
-        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mainContent = document.getElementById('content');
         const menuLinks = document.querySelectorAll('.menu-link[data-page]');
         const loadingOverlay = document.getElementById('loadingOverlay');
 
@@ -1063,14 +1061,15 @@ if (isset($_GET['page'])) {
         });
 
         // Toggle sidebar on mobile
-        mobileToggle.addEventListener('click', function () {
+        sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
         });
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function (event) {
             if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target) && sidebar.classList.contains('active')) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target) && sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
                 }
             }
@@ -1109,7 +1108,7 @@ if (isset($_GET['page'])) {
         const sidebarOverlay = createOverlay();
 
         // Update mobile toggle functionality
-        mobileToggle.addEventListener('click', function () {
+        sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('active');
             sidebarOverlay.classList.toggle('active');
         });
@@ -1184,9 +1183,8 @@ if (isset($_GET['page'])) {
 
         // Add to your JavaScript
         document.addEventListener('DOMContentLoaded', function() {
-            // Get both toggle buttons
-            const mobileToggle = document.getElementById('mobileToggle');
-            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+            // Get toggle button
+            const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             
             // Toggle function for sidebar
@@ -1195,7 +1193,7 @@ if (isset($_GET['page'])) {
                 
                 // On larger screens, adjust main content margin
                 if (window.innerWidth > 768) {
-                    const mainContent = document.getElementById('mainContent');
+                    const mainContent = document.getElementById('content');
                     if (sidebar.classList.contains('active')) {
                         mainContent.style.marginLeft = '250px';
                     } else {
@@ -1216,13 +1214,9 @@ if (isset($_GET['page'])) {
                 }
             }
             
-            // Add event listeners to both toggle buttons
-            if (mobileToggle) {
-                mobileToggle.addEventListener('click', toggleSidebar);
-            }
-            
-            if (sidebarToggleBtn) {
-                sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            // Add event listener to toggle button
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
             }
         });
     </script>

@@ -78,6 +78,9 @@ function fetchNewCalendar(month, year) {
     const newUrl = `dashboard.php?page=calendar&month=${month}&year=${year}`;
     window.history.pushState({}, '', newUrl);
     
+   
+    contentContainer.innerHTML += `<div style="display:none" id="debug-info">Trying to fetch: ${contentUrl}</div>`;
+    
     // Fetch the updated calendar content via AJAX
     fetch(contentUrl)
         .then(response => {
@@ -167,19 +170,22 @@ function setupMoodColors() {
     // Apply hover effects for mood entries
     const moodEntries = document.querySelectorAll('.mood-entry');
     moodEntries.forEach(entry => {
-        const moodType = entry.querySelector('.calendar-mood-icon').dataset.mood;
-        if (moodType && moodColors[moodType]) {
-            entry.addEventListener('mouseenter', function() {
-                this.querySelector('.calendar-mood-icon').style.transform = 'scale(1.1)';
-                this.querySelector('.calendar-mood-icon').style.boxShadow = 
-                    `0 4px 8px ${moodColors[moodType]}80`; // 80 is for 50% opacity
-            });
+        const moodIcon = entry.querySelector('.calendar-mood-icon');
+        if (moodIcon && moodIcon.dataset && moodIcon.dataset.mood) {
+            const moodType = moodIcon.dataset.mood;
+            if (moodType && moodColors[moodType]) {
+                entry.addEventListener('mouseenter', function() {
+                    this.querySelector('.calendar-mood-icon').style.transform = 'scale(1.1)';
+                    this.querySelector('.calendar-mood-icon').style.boxShadow = 
+                        `0 4px 8px ${moodColors[moodType]}80`; // 80 is for 50% opacity
+                });
 
-            entry.addEventListener('mouseleave', function() {
-                this.querySelector('.calendar-mood-icon').style.transform = 'scale(1)';
-                this.querySelector('.calendar-mood-icon').style.boxShadow = 
-                    '0 2px 5px rgba(209, 120, 156, 0.2)';
-            });
+                entry.addEventListener('mouseleave', function() {
+                    this.querySelector('.calendar-mood-icon').style.transform = 'scale(1)';
+                    this.querySelector('.calendar-mood-icon').style.boxShadow = 
+                        '0 2px 5px rgba(209, 120, 156, 0.2)';
+                });
+            }
         }
     });
 }

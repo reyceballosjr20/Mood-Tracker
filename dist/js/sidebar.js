@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Update page title
                 const pageTitle = document.getElementById('pageTitle');
-                pageTitle.textContent = ''; // Remove the duplicate title
+                if (pageTitle) {
+                    pageTitle.textContent = ''; // Remove the duplicate title
+                }
                 
                 // Initialize page-specific functionality
                 switch(page) {
