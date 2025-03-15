@@ -24,19 +24,16 @@ $moodRecommendations = [
             'title' => 'Share Your Joy',
             'icon' => 'fa-smile-beam',
             'description' => 'Spread your happiness by connecting with others or doing something kind.',
-            'action' => 'Get Ideas',
         ],
         [
             'title' => 'Creative Expression',
             'icon' => 'fa-paint-brush',
             'description' => 'Channel your positive energy into a creative project or hobby.',
-            'action' => 'Start Creating',
         ],
         [
             'title' => 'Gratitude Practice',
             'icon' => 'fa-heart',
             'description' => 'Write down what made you happy today to remember and revisit later.',
-            'action' => 'Begin Writing',
         ]
     ],
     'sad' => [
@@ -44,19 +41,16 @@ $moodRecommendations = [
             'title' => 'Gentle Movement',
             'icon' => 'fa-sad-tear',
             'description' => 'A short walk outside can help lift your mood and provide a change of scenery.',
-            'action' => 'Get Started',
         ],
         [
             'title' => 'Connect with Someone',
             'icon' => 'fa-phone',
             'description' => 'Reaching out to a friend or family member can provide comfort and perspective.',
-            'action' => 'See Suggestions',
         ],
         [
             'title' => 'Self-Compassion Practice',
             'icon' => 'fa-heart',
             'description' => 'Be kind to yourself today. Try a guided self-compassion meditation.',
-            'action' => 'Try Now',
         ]
     ],
     'angry' => [
@@ -64,19 +58,16 @@ $moodRecommendations = [
             'title' => 'Release Exercise',
             'icon' => 'fa-angry',
             'description' => 'Channel your energy into physical activity to release tension.',
-            'action' => 'Start Moving',
         ],
         [
             'title' => 'Breathing Technique',
             'icon' => 'fa-wind',
             'description' => 'Try deep breathing exercises to help calm your nervous system.',
-            'action' => 'Learn More',
         ],
         [
             'title' => 'Express Yourself',
             'icon' => 'fa-pencil-alt',
             'description' => 'Write down your thoughts or feelings to process your anger constructively.',
-            'action' => 'Start Writing',
         ]
     ],
     'anxious' => [
@@ -84,19 +75,16 @@ $moodRecommendations = [
             'title' => 'Grounding Exercise',
             'icon' => 'fa-bolt',
             'description' => 'Try the 5-4-3-2-1 technique to anchor yourself in the present moment.',
-            'action' => 'Start Now',
         ],
         [
             'title' => 'Calming Breath',
             'icon' => 'fa-wind',
             'description' => 'Practice the 4-7-8 breathing technique to reduce anxiety.',
-            'action' => 'Begin Exercise',
         ],
         [
             'title' => 'Worry List',
             'icon' => 'fa-list-ul',
             'description' => 'Write down your worries and categorize them into "can control" and "cannot control".',
-            'action' => 'Make List',
         ]
     ],
     'stressed' => [
@@ -104,19 +92,16 @@ $moodRecommendations = [
             'title' => 'Quick Meditation',
             'icon' => 'fa-head-side-virus',
             'description' => 'Take a 5-minute break for a guided stress-relief meditation.',
-            'action' => 'Start Now',
         ],
         [
             'title' => 'Priority Reset',
             'icon' => 'fa-tasks',
             'description' => 'List and organize your tasks to make them more manageable.',
-            'action' => 'Get Organized',
         ],
         [
             'title' => 'Tension Release',
             'icon' => 'fa-cloud-sun',
             'description' => 'Try progressive muscle relaxation to release physical tension.',
-            'action' => 'Begin Exercise',
         ]
     ],
     'calm' => [
@@ -124,19 +109,16 @@ $moodRecommendations = [
             'title' => 'Mindful Moment',
             'icon' => 'fa-peace',
             'description' => 'Use this peaceful state for mindful reflection or meditation.',
-            'action' => 'Start Practice',
         ],
         [
             'title' => 'Creative Flow',
             'icon' => 'fa-paint-brush',
             'description' => 'Engage in a creative activity while in this balanced state.',
-            'action' => 'Explore Ideas',
         ],
         [
             'title' => 'Goal Setting',
             'icon' => 'fa-bullseye',
             'description' => 'Use this clear mindset to plan and set meaningful goals.',
-            'action' => 'Plan Now',
         ]
     ],
     'tired' => [
@@ -144,19 +126,16 @@ $moodRecommendations = [
             'title' => 'Rest Timer',
             'icon' => 'fa-bed',
             'description' => 'Set a timer for a short power nap or relaxation break.',
-            'action' => 'Set Timer',
         ],
         [
             'title' => 'Gentle Stretching',
             'icon' => 'fa-child',
             'description' => 'Easy stretching exercises to boost energy without exhaustion.',
-            'action' => 'Start Stretching',
         ],
         [
             'title' => 'Energy Check',
             'icon' => 'fa-battery-half',
             'description' => 'Review your energy levels and identify what might help restore them.',
-            'action' => 'Begin Review',
         ]
     ],
     'energetic' => [
@@ -164,19 +143,16 @@ $moodRecommendations = [
             'title' => 'Channel Energy',
             'icon' => 'fa-bolt',
             'description' => 'Direct your energy into a productive or creative project.',
-            'action' => 'Get Started',
         ],
         [
             'title' => 'Active Goals',
             'icon' => 'fa-trophy',
             'description' => 'Work on challenging tasks that require high energy.',
-            'action' => 'Set Goals',
         ],
         [
             'title' => 'Social Connection',
             'icon' => 'fa-users',
             'description' => 'Share your energy with others through social activities.',
-            'action' => 'Connect Now',
         ]
     ],
     'neutral' => [
@@ -184,19 +160,16 @@ $moodRecommendations = [
             'title' => 'Mood Exploration',
             'icon' => 'fa-meh',
             'description' => 'Use this balanced state to explore what might enhance your day.',
-            'action' => 'Explore Now',
         ],
         [
             'title' => 'Mindful Check-in',
             'icon' => 'fa-bell',
             'description' => 'Take a moment to check in with your thoughts and feelings.',
-            'action' => 'Start Check-in',
         ],
         [
             'title' => 'New Experience',
             'icon' => 'fa-star',
             'description' => 'Try something new while in this receptive state.',
-            'action' => 'Discover More',
         ]
     ],
     'excited' => [
@@ -204,19 +177,16 @@ $moodRecommendations = [
             'title' => 'Creative Project',
             'icon' => 'fa-grin-stars',
             'description' => 'Channel your excitement into something creative or innovative.',
-            'action' => 'Start Creating',
         ],
         [
             'title' => 'Share Joy',
             'icon' => 'fa-share-alt',
             'description' => 'Connect with others and spread your positive energy.',
-            'action' => 'Connect Now',
         ],
         [
             'title' => 'Future Planning',
             'icon' => 'fa-calendar-alt',
             'description' => 'Use this enthusiastic energy to plan future activities.',
-            'action' => 'Plan Now',
         ]
     ],
     'frustrated' => [
@@ -224,19 +194,16 @@ $moodRecommendations = [
             'title' => 'Problem Solving',
             'icon' => 'fa-angry',
             'description' => 'Break down what\'s frustrating you into smaller, manageable parts.',
-            'action' => 'Start Now',
         ],
         [
             'title' => 'Physical Release',
             'icon' => 'fa-dumbbell',
             'description' => 'Channel frustration into physical activity for release.',
-            'action' => 'Get Moving',
         ],
         [
             'title' => 'Perspective Shift',
             'icon' => 'fa-sync',
             'description' => 'Try looking at the situation from a different angle.',
-            'action' => 'Learn How',
         ]
     ],
     'grateful' => [
@@ -244,19 +211,16 @@ $moodRecommendations = [
             'title' => 'Gratitude Journal',
             'icon' => 'fa-heart',
             'description' => 'Write down specific things you\'re thankful for today.',
-            'action' => 'Start Writing',
         ],
         [
             'title' => 'Express Thanks',
             'icon' => 'fa-envelope',
             'description' => 'Share your appreciation with someone who made a difference.',
-            'action' => 'Send Message',
         ],
         [
             'title' => 'Pay It Forward',
             'icon' => 'fa-hand-holding-heart',
             'description' => 'Channel your gratitude into an act of kindness for others.',
-            'action' => 'Get Ideas',
         ]
     ],
     'none' => [
@@ -264,19 +228,16 @@ $moodRecommendations = [
             'title' => 'Mood Check-in',
             'icon' => 'fa-clipboard-check',
             'description' => 'Take a moment to reflect on how you\'re feeling right now.',
-            'action' => 'Start Check-in',
         ],
         [
             'title' => 'Mindful Moment',
             'icon' => 'fa-leaf',
             'description' => 'Try a quick mindfulness exercise to connect with your emotions.',
-            'action' => 'Begin Now',
         ],
         [
             'title' => 'Activity Boost',
             'icon' => 'fa-walking',
             'description' => 'Choose a mood-lifting activity to enhance your day.',
-            'action' => 'See Activities',
         ]
     ]
 ];
@@ -289,200 +250,200 @@ $moodResources = [
     'sad' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Understanding and Coping with Sadness"',
+            'title' => 'Video: "How to cope with depression"',
             'time' => '7 min watch',
-            'link' => 'https://www.youtube.com/watch?v=8Su5VtKeXU8'
+            'link' => 'https://www.youtube.com/watch?v=2UiX4dUUjWc'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Self-Care Practices for Low Mood"',
+            'title' => 'Video: "Self-compassion during difficult times"',
             'time' => '10 min watch',
-            'link' => 'https://www.youtube.com/watch?v=TFbv757kup4'
+            'link' => 'https://www.youtube.com/watch?v=IvtZBUSplr4'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Finding Hope During Difficult Times"',
-            'time' => '25 min watch',
-            'link' => 'https://www.youtube.com/watch?v=xRxT9cOKiM8'
+            'title' => 'Video: "The habits of happiness"',
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=fLJsdqxnZb0'
         ]
     ],
     'unhappy' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Turning a Bad Day Around"',
-            'time' => '5 min watch',
-            'link' => 'https://www.youtube.com/watch?v=7s0S6FeS5Z0'
+            'title' => 'Video: "How to change your mindset"',
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=zVTL_w3pV0c'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Quick Mood Boosters That Work"',
+            'title' => 'Video: "Quick ways to improve mood"',
             'time' => '8 min watch',
-            'link' => 'https://www.youtube.com/watch?v=F28MGLlpP90'
+            'link' => 'https://www.youtube.com/watch?v=eC7xzavzEKY'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Reframing Negative Thoughts"',
-            'time' => '22 min watch',
-            'link' => 'https://www.youtube.com/watch?v=1vx8iUvfyCY'
+            'title' => 'Video: "Reframing negative thoughts"',
+            'time' => '12 min watch',
+            'link' => 'https://www.youtube.com/watch?v=3VDsFztk4z0'
         ]
     ],
     'neutral' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Finding Meaning in Everyday Life"',
-            'time' => '6 min watch',
+            'title' => 'Video: "Finding meaning in everyday life"',
+            'time' => '18 min watch',
             'link' => 'https://www.youtube.com/watch?v=HdqVF7-8wng'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Mindfulness for Emotional Awareness"',
-            'time' => '15 min watch',
-            'link' => 'https://www.youtube.com/watch?v=w6T02g5hnT4'
+            'title' => 'Video: "Mindfulness for beginners"',
+            'time' => '10 min watch',
+            'link' => 'https://www.youtube.com/watch?v=6p_yaNFSYao'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Creating More Engaging Days"',
-            'time' => '28 min watch',
-            'link' => 'https://www.youtube.com/watch?v=fLJsdqxnZb0'
+            'title' => 'Video: "How to motivate yourself"',
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=sDEiZMuNv2s'
         ]
     ],
     'good' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Building on Positive Momentum"',
-            'time' => '5 min watch',
-            'link' => 'https://www.youtube.com/watch?v=ZizdB0TgAVM'
+            'title' => 'Video: "The power of positive psychology"',
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=fLbXAn8ndmI'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Habits That Maintain Good Moods"',
+            'title' => 'Video: "Habits of happy people"',
             'time' => '12 min watch',
-            'link' => 'https://www.youtube.com/watch?v=75d_29QWELk'
+            'link' => 'https://www.youtube.com/watch?v=GXy__kBVq1M'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "The Science of Positive Emotions"',
-            'time' => '30 min watch',
-            'link' => 'https://www.youtube.com/watch?v=GXy__kBVq1M'
+            'title' => 'Video: "Finding your inner strength"',
+            'time' => '20 min watch',
+            'link' => 'https://www.youtube.com/watch?v=xx163_aIv-w'
         ]
     ],
     'energetic' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Channeling Energy Productively"',
-            'time' => '4 min watch',
+            'title' => 'Video: "Productivity tips for high energy"',
+            'time' => '10 min watch',
             'link' => 'https://www.youtube.com/watch?v=Tz9iJ7TlQiw'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "High-Energy Workout Routines"',
+            'title' => 'Video: "High-energy workout"',
             'time' => '20 min watch',
-            'link' => 'https://www.youtube.com/watch?v=ml6cT4AZdqI'
+            'link' => 'https://www.youtube.com/watch?v=UBMk30rjy0o'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Maintaining Sustainable Energy"',
-            'time' => '35 min watch',
-            'link' => 'https://www.youtube.com/watch?v=uju-8P7zcFU'
+            'title' => 'Video: "Sustaining energy throughout the day"',
+            'time' => '15 min watch',
+            'link' => 'https://www.youtube.com/watch?v=kwTKk6u30x4'
         ]
     ],
     'excellent' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Making the Most of Peak Experiences"',
-            'time' => '6 min watch',
-            'link' => 'https://www.youtube.com/watch?v=qzR62JJCMBQ'
+            'title' => 'Video: "How to maintain positivity"',
+            'time' => '12 min watch',
+            'link' => 'https://www.youtube.com/watch?v=1-xBhQF3bSs'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Creating More Peak Moments"',
-            'time' => '11 min watch',
-            'link' => 'https://www.youtube.com/watch?v=nT1TpVzGRVQ'
+            'title' => 'Video: "Creating moments of joy"',
+            'time' => '18 min watch',
+            'link' => 'https://www.youtube.com/watch?v=A_u2WFTfbcg'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "The Psychology of Flow States"',
-            'time' => '40 min watch',
-            'link' => 'https://www.youtube.com/watch?v=znwUCNrjpD4'
+            'title' => 'Video: "The psychology of flow"',
+            'time' => '20 min watch',
+            'link' => 'https://www.youtube.com/watch?v=8h6IMYRoCZw'
         ]
     ],
     'anxious' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Quick Techniques to Reduce Anxiety"',
+            'title' => 'Video: "Quick techniques to reduce anxiety"',
             'time' => '5 min watch',
             'link' => 'https://www.youtube.com/watch?v=WWloIAQpMcQ'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Guided Anxiety Relief Meditation"',
+            'title' => 'Video: "Guided anxiety relief meditation"',
             'time' => '15 min watch',
             'link' => 'https://www.youtube.com/watch?v=O-6f5wQXSu8'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Understanding Your Anxiety Triggers"',
-            'time' => '32 min watch',
-            'link' => 'https://www.youtube.com/watch?v=BVJkf8IuRjE'
+            'title' => 'Video: "How to overcome anxiety"',
+            'time' => '12 min watch',
+            'link' => 'https://www.youtube.com/watch?v=ZidGozDhOjg'
         ]
     ],
     'tired' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Energy Management vs. Time Management"',
-            'time' => '7 min watch',
-            'link' => 'https://www.youtube.com/watch?v=PCRSVRD2EAk'
+            'title' => 'Video: "Energy management techniques"',
+            'time' => '8 min watch',
+            'link' => 'https://www.youtube.com/watch?v=nls-c2v_Y3Y'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Yoga for Energy Restoration"',
-            'time' => '18 min watch',
+            'title' => 'Video: "Yoga for energy restoration"',
+            'time' => '15 min watch',
             'link' => 'https://www.youtube.com/watch?v=UEEsdXn8oG8'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Sleep Science and Recovery"',
-            'time' => '45 min watch',
-            'link' => 'https://www.youtube.com/watch?v=5MuIMqhT8DM'
+            'title' => 'Video: "Sleep science and recovery"',
+            'time' => '20 min watch',
+            'link' => 'https://www.youtube.com/watch?v=gedoSfZvBgE'
         ]
     ],
     'focused' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Maintaining Deep Focus States"',
+            'title' => 'Video: "How to maintain deep focus"',
             'time' => '8 min watch',
             'link' => 'https://www.youtube.com/watch?v=Hu4Yvq-g7_Y'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Productivity Techniques for Flow"',
-            'time' => '14 min watch',
-            'link' => 'https://www.youtube.com/watch?v=y2X7c9TUQJ8'
+            'title' => 'Video: "Productivity techniques"',
+            'time' => '12 min watch',
+            'link' => 'https://www.youtube.com/watch?v=ZFQu7yuBxOA'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Deep Work and Focus in a Distracted World"',
-            'time' => '38 min watch',
+            'title' => 'Video: "Deep work in a distracted world"',
+            'time' => '15 min watch',
             'link' => 'https://www.youtube.com/watch?v=3E7hkPZ-HTk'
         ]
     ],
     'none' => [
         [
             'icon' => 'video',
-            'title' => 'Video: "Understanding Your Emotions"',
-            'time' => '6 min watch',
+            'title' => 'Video: "Understanding your emotions"',
+            'time' => '10 min watch',
             'link' => 'https://www.youtube.com/watch?v=vXAr5dh23zU'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "Introduction to Mood Tracking"',
-            'time' => '9 min watch',
-            'link' => 'https://www.youtube.com/watch?v=W1-qN3YDsVQ'
+            'title' => 'Video: "Benefits of mood tracking"',
+            'time' => '8 min watch',
+            'link' => 'https://www.youtube.com/watch?v=UU2rZ3tPE8U'
         ],
         [
             'icon' => 'video',
-            'title' => 'Video: "The Science of Happiness"',
-            'time' => '30 min watch',
+            'title' => 'Video: "The science of happiness"',
+            'time' => '12 min watch',
             'link' => 'https://www.youtube.com/watch?v=GXy__kBVq1M'
         ]
     ]
@@ -614,10 +575,6 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
         <div class="recommendation-content">
             <h3 class="recommendation-title"><?php echo htmlspecialchars($rec['title']); ?></h3>
             <p class="recommendation-text"><?php echo htmlspecialchars($rec['description']); ?></p>
-            <button class="action-button">
-                <?php echo htmlspecialchars($rec['action']); ?>
-                <i class="fas fa-chevron-right"></i>
-            </button>
         </div>
     </div>
     <?php endforeach; ?>
@@ -786,32 +743,8 @@ $moodEmoji = $moodEmojis[$currentMood] ?? $moodEmojis['none'];
         color: #8a5878;
         font-size: 0.95rem;
         line-height: 1.5;
-        margin-bottom: 20px;
+        margin-bottom: 0;
         flex: 1;
-    }
-    
-    .action-button {
-        background: linear-gradient(135deg, #d1789c, #e99ab7);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: 500;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        transition: transform 0.2s ease;
-        align-self: flex-start;
-    }
-    
-    .action-button i {
-        margin-left: 8px;
-        font-size: 0.8rem;
-    }
-    
-    .action-button:hover {
-        transform: translateX(5px);
     }
     
     /* Section Header */
