@@ -56,12 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         if ($updatePasswordStmt->execute()) {
                             $_SESSION['success_message'] = "Password updated successfully!";
-                            
-                            // Optional: Log the password change
-                            $logStmt = $pdo->prepare("INSERT INTO user_activity_log (user_id, activity_type, activity_description, ip_address) VALUES (?, 'password_change', 'User changed their password', ?)");
-                            $logStmt->bindParam(1, $userId, PDO::PARAM_INT);
-                            $logStmt->bindParam(2, $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
-                            $logStmt->execute();
                         } else {
                             $_SESSION['error_message'] = "Error updating password. Please try again.";
                         }
@@ -73,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // CHANGED: Redirect back to dashboard with profile tab loaded
+    // Redirect back to dashboard with profile tab loaded
     header("Location: ../dashboard.php?page=profile");
     exit();
 }
