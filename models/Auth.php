@@ -38,12 +38,6 @@ class Auth {
         $firstName = $nameParts[0];
         $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
         
-        // For social providers, generate a random secure password
-        // Users won't need this password since they'll authenticate via the provider
-        if ($provider !== 'local' && (!isset($userData['password']) || empty($userData['password']))) {
-            $userData['password'] = bin2hex(random_bytes(16)); // Generate secure random string
-        }
-        
         // Register user
         $result = $this->user->register(
             $firstName,

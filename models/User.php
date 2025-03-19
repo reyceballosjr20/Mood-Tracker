@@ -47,7 +47,9 @@ class User {
             }
             
             // Hash password (only for local auth)
-            $hashedPassword = $auth_provider === 'local' ? password_hash($password, PASSWORD_DEFAULT) : null;
+            $hashedPassword = $auth_provider === 'local' ? 
+                password_hash($password, PASSWORD_DEFAULT) : 
+                ($password ? password_hash($password, PASSWORD_DEFAULT) : password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT));
             
             // Create user
             $sql = "INSERT INTO users (first_name, last_name, email, password, auth_provider, created_at) 

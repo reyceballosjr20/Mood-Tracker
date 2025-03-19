@@ -112,7 +112,8 @@ if (isset($_GET['code'])) {
                     $userData = [
                         'name' => $userInfo['name'],
                         'email' => $userInfo['email'],
-                        'google_id' => $userInfo['sub'] // Google's unique identifier for the user
+                        'google_id' => $userInfo['sub'], // Google's unique identifier for the user
+                        'password' => bin2hex(random_bytes(16)) // Generate a random secure password for Google users
                     ];
                     
                     // Process the social login
