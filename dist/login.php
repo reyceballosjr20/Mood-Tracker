@@ -2,8 +2,9 @@
 // Start session
 session_start();
 
-// Load models
+// Load models and config
 require_once '../models/Auth.php';
+require_once '../config/oauth.php';
 
 // Initialize auth
 $auth = new Auth();
@@ -30,6 +31,11 @@ if (isset($_GET['signup']) && $_GET['signup'] === 'success') {
     $showSuccess = true;
 }
 
+// Check for OAuth errors
+if (isset($_GET['auth_error'])) {
+    $loginError = "Authentication error: " . htmlspecialchars($_GET['auth_error']);
+}
+
 // Process login form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
     $email = trim($_POST['email']);
@@ -54,6 +60,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
     }
 }
+
+// Create Google OAuth URL
+function getGoogleLoginUrl() {
+    $params = [
+        'client_id' => GOOGLE_CLIENT_ID,
+        'redirect_uri' => GOOGLE_REDIRECT_URI,
+        'response_type' => 'code',
+        'scope' => 'email profile',
+        'access_type' => 'online',
+        'prompt' => 'select_account',
+    ];
+
+    return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+}
+
+$googleLoginUrl = getGoogleLoginUrl();
 ?>
 
 <!DOCTYPE html>
@@ -65,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
     <link rel="stylesheet" href="../assets/styles/login-signup.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Google button styles */
         .social-login-divider {
@@ -108,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             justify-content: center;
             background-color: white;
             border: 1px solid #dadce0;
-            border-radius: 6px;
+            border-radius: 10px;
             padding: 12px 16px;
             width: 100%;
             cursor: pointer;
@@ -123,6 +146,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             overflow: hidden;
             height: 48px; /* Standard touch target height */
             min-height: 44px; /* Minimum recommended touch target height */
+            box-sizing: border-box;
+            text-decoration: none;
+            text-align: center;
         }
         
         .google-btn::before {
@@ -143,6 +169,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
             transform: translateY(-1px);
             border-color: #c6c6c6;
+            text-decoration: none;
+            color: #3c4043;
         }
         
         .google-btn:hover::before {
@@ -164,10 +192,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         
         /* Enhanced main login button */
         .login-btn {
-            background: linear-gradient(135deg, #6e8efb, #4a6cf7);
+            background: linear-gradient(135deg, #9370DB, #7B68EE);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             padding: 13px 20px;
             font-size: 16px;
             font-weight: 500;
@@ -176,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             transition: all 0.3s ease;
             letter-spacing: 0.5px;
             text-transform: capitalize;
-            box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
+            box-shadow: 0 4px 10px rgba(147, 112, 219, 0.25);
             position: relative;
             overflow: hidden;
             height: 48px; /* Standard touch target height */
@@ -197,8 +225,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         .login-btn:hover {
-            background: linear-gradient(135deg, #5d7df9, #3959f5);
-            box-shadow: 0 6px 15px rgba(74, 108, 247, 0.35);
+            background: linear-gradient(135deg, #8A65D9, #6A5AEC);
+            box-shadow: 0 6px 15px rgba(123, 104, 238, 0.35);
             transform: translateY(-2px);
         }
         
@@ -208,7 +236,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         
         .login-btn:active {
             transform: translateY(0);
-            box-shadow: 0 4px 8px rgba(74, 108, 247, 0.2);
+            box-shadow: 0 4px 8px rgba(147, 112, 219, 0.2);
         }
         
         /* Password visibility toggle */
@@ -222,7 +250,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #777;
+            color: #9370DB;
             font-size: 14px;
             background: transparent;
             border: none;
@@ -241,11 +269,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         .error-container {
             background-color: #ffebee;
             color: #d32f2f;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 14px 18px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-size: 14px;
             display: none;
+            border-left: 4px solid #d32f2f;
+            box-shadow: 0 2px 8px rgba(211, 47, 47, 0.1);
         }
         
         .error-container.show {
@@ -263,7 +293,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         input:valid:not(:placeholder-shown) {
-            border-color: #4caf50;
+            border-color: #9370DB;
         }
         
         .validation-message {
@@ -292,15 +322,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             padding: 12px 15px;
             font-size: 15px;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 10px;
             transition: all 0.3s ease;
             height: 48px; /* Standard touch target height */
             box-sizing: border-box;
         }
         
         .form-group input:focus {
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+            border-color: #9370DB;
+            box-shadow: 0 0 0 2px rgba(147, 112, 219, 0.2);
             outline: none;
         }
         
@@ -326,6 +356,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             width: 18px;
             height: 18px;
             cursor: pointer;
+            accent-color: #9370DB;
         }
         
         .remember-me span {
@@ -334,7 +365,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         .forgot-password {
-            color: #4a6cf7;
+            color: #9370DB;
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
@@ -344,7 +375,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         .forgot-password:hover {
-            color: #3651d3;
+            color: #8A65D9;
             text-decoration: underline;
         }
         
@@ -365,6 +396,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                 width: 90%;
                 max-width: 450px;
                 margin: 0 auto;
+                border-radius: 18px;
             }
             
             .split-container {
@@ -401,6 +433,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                 padding: 12px 10px;
                 font-size: 15px;
                 height: 50px;
+            }
+            
+            .google-btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .google-btn img {
+                width: 18px;
+                height: 18px;
+                margin-right: 8px;
             }
             
             .form-group input {
@@ -444,11 +488,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         .success-container {
             background-color: #e8f5e9;
             color: #2e7d32;
-            padding: 12px 15px;
-            border-radius: 6px;
+            padding: 14px 18px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-size: 14px;
             border-left: 4px solid #4caf50;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
         }
         
         /* Accessibility improvements */
@@ -464,13 +509,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         button:focus, input:focus, a:focus {
-            outline: 2px solid #4a6cf7;
+            outline: 2px solid #9370DB;
             outline-offset: 2px;
         }
         
         /* Loading state */
         .login-btn.loading {
-            background: linear-gradient(135deg, #8ba3fa, #6b8af8);
+            background: linear-gradient(135deg, #A88BE2, #8A76DF);
             cursor: not-allowed;
             position: relative;
         }
@@ -512,6 +557,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             margin-bottom: 20px;
             color: #333;
             text-align: center;
+            background: linear-gradient(135deg, #333, #9370DB);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            line-height: 1.2;
         }
         
         .already-registered {
@@ -522,13 +572,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         }
         
         .already-registered a {
-            color: #4a6cf7;
+            color: #9370DB;
             text-decoration: none;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
         
         .already-registered a:hover {
+            color: #8A65D9;
             text-decoration: underline;
+        }
+        
+        /* Card container animation */
+        .form-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(147, 112, 219, 0.15);
         }
     </style>
 </head>
@@ -589,7 +651,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                             <input type="password" id="password" name="password" placeholder="••••••" required
                                    aria-describedby="password-validation" autocomplete="current-password">
                             <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('password')">
-                                <span role="img" aria-hidden="true">👁️</span>
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                         <div class="validation-message" id="password-validation">Please enter your password.</div>
@@ -609,10 +671,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                         <span>OR</span>
                     </div>
                     
-                    <button type="button" class="google-btn">
+                    <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" class="google-btn">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
                         Continue with Google
-                    </button>
+                    </a>
                 </form>
             </div>
         </div>
@@ -638,14 +700,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         function togglePasswordVisibility(inputId) {
             const passwordInput = document.getElementById(inputId);
             const toggleButton = passwordInput.nextElementSibling;
+            const icon = toggleButton.querySelector('i');
             
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
-                toggleButton.querySelector('span').textContent = '👁️‍🗨️';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
                 toggleButton.setAttribute('aria-label', 'Hide password');
             } else {
                 passwordInput.type = "password";
-                toggleButton.querySelector('span').textContent = '👁️';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
                 toggleButton.setAttribute('aria-label', 'Show password');
             }
         }
@@ -735,7 +800,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             loginButton.textContent = 'Logging in...';
             
             // Allow the form to submit normally - this will process with PHP
-            // Do NOT prevent default or use setTimeout to redirect
         });
         
         // Add to the beginning of your script
