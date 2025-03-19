@@ -2,8 +2,9 @@
 // Start session
 session_start();
 
-// Load models
+// Load models and config
 require_once '../models/Auth.php';
+require_once '../config/oauth.php';
 
 // Initialize auth
 $auth = new Auth();
@@ -12,6 +13,138 @@ $auth = new Auth();
 $name = $email = $password = $confirm_password = "";
 $formErrors = [];
 $signupSuccess = false;
+
+// Debug mode - set to false for production
+$debug = false;
+
+// Google OAuth Callback Handler
+if (isset($_GET['code'])) {
+    // Handle Google OAuth callback
+    
+    // Get the authorization code
+    $code = $_GET['code'];
+    
+    // Exchange the authorization code for tokens
+    $tokenUrl = 'https://oauth2.googleapis.com/token';
+    $params = [
+        'code' => $code,
+        'client_id' => GOOGLE_CLIENT_ID,
+        'client_secret' => GOOGLE_CLIENT_SECRET,
+        'redirect_uri' => GOOGLE_REDIRECT_URI,
+        'grant_type' => 'authorization_code'
+    ];
+    
+    // Create cURL request to get tokens
+    $ch = curl_init($tokenUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    
+    // Execute request
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    // Check for cURL errors
+    if ($error) {
+        if ($debug) {
+            echo "cURL Error: " . $error;
+            exit();
+        }
+        $formErrors[] = "Failed to connect to Google: $error";
+    } else {
+        // Decode the response
+        $tokens = json_decode($response, true);
+        
+        // Check for error in the response
+        if (isset($tokens['error'])) {
+            if ($debug) {
+                echo "Token Error: " . $tokens['error'];
+                if (isset($tokens['error_description'])) {
+                    echo "<br>Description: " . $tokens['error_description'];
+                }
+                exit();
+            }
+            $formErrors[] = $tokens['error'];
+        } else {
+            // Get the ID token and access token
+            $idToken = $tokens['id_token'];
+            $accessToken = $tokens['access_token'];
+            
+            // Get user info using the access token
+            $userInfoUrl = 'https://www.googleapis.com/oauth2/v3/userinfo';
+            $ch = curl_init($userInfoUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
+            
+            // Execute request
+            $response = curl_exec($ch);
+            $error = curl_error($ch);
+            curl_close($ch);
+            
+            // Check for cURL errors
+            if ($error) {
+                if ($debug) {
+                    echo "User Info cURL Error: " . $error;
+                    exit();
+                }
+                $formErrors[] = "Failed to get user info: $error";
+            } else {
+                // Decode the user info
+                $userInfo = json_decode($response, true);
+                
+                // Check for error in the response
+                if (isset($userInfo['error'])) {
+                    if ($debug) {
+                        echo "User Info Error: " . $userInfo['error'];
+                        exit();
+                    }
+                    $formErrors[] = $userInfo['error'];
+                } else {
+                    // Prepare user data
+                    $userData = [
+                        'name' => $userInfo['name'],
+                        'email' => $userInfo['email'],
+                        'google_id' => $userInfo['sub'], // Google's unique identifier for the user
+                        'password' => bin2hex(random_bytes(16)) // Generate a random secure password for Google users
+                    ];
+                    
+                    // Process the social login
+                    $result = $auth->socialLogin($userData, 'google');
+                    
+                    if ($result['status'] === 'success') {
+                        // Make sure session variables are set correctly
+                        if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+                            // If the Auth class didn't set these properly, set them here
+                            $_SESSION['is_logged_in'] = true;
+                            
+                            if (!isset($_SESSION['user_id']) && isset($result['user_id'])) {
+                                $_SESSION['user_id'] = $result['user_id'];
+                            }
+                        }
+                        
+                        // Redirect to dashboard with welcome parameter
+                        header('Location: user/dashboard.php?welcome=new');
+                        exit();
+                    } else {
+                        $formErrors[] = $result['message'];
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Handle Google OAuth error response
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    if ($error === 'access_denied') {
+        $formErrors[] = "You declined to grant access. Please try again and allow the necessary permissions.";
+    } else {
+        $formErrors[] = "Authentication error: " . htmlspecialchars($error);
+    }
+}
 
 // Check if form is submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
@@ -47,6 +180,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
         }
     }
 }
+
+// Create Google OAuth URL
+function getGoogleLoginUrl() {
+    $params = [
+        'client_id' => GOOGLE_CLIENT_ID,
+        'redirect_uri' => GOOGLE_REDIRECT_URI,
+        'response_type' => 'code',
+        'scope' => 'email profile',
+        'access_type' => 'online',
+        'prompt' => 'select_account',
+    ];
+
+    return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+}
+
+$googleLoginUrl = getGoogleLoginUrl();
 ?>
 
 <!DOCTYPE html>
@@ -497,10 +646,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
                         <span>OR</span>
                     </div>
                     
-                    <button type="button" class="google-btn">
+                    <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" class="google-btn">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
                         Continue with Google
-                    </button>
+                    </a>
                 </form>
             </div>
         </div>
