@@ -778,7 +778,7 @@ $googleLoginUrl = getGoogleLoginUrl();
                             <input type="checkbox" name="remember" id="remember">
                             <span>Remember me</span>
                         </label>
-                        <a href="#" class="forgot-password">Forgot password?</a>
+                        <a href="forgot-password.php" class="forgot-password">Forgot password?</a>
                     </div>
                     
                     <button type="submit" name="login" class="login-btn" id="login-btn">Login</button>

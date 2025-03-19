@@ -1,5 +1,6 @@
 <?php
 require_once 'User.php';
+require_once 'Database.php';
 
 class Auth {
     private $user;
@@ -11,6 +12,15 @@ class Auth {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+    }
+    
+    /**
+     * Get the User model instance
+     * 
+     * @return User
+     */
+    public function getUser() {
+        return $this->user;
     }
     
     /**
@@ -258,10 +268,10 @@ class Auth {
      * @return void
      */
     public function logout() {
-        // Unset all session variables
-        $_SESSION = [];
+        // Clear session variables
+        $_SESSION = array();
         
-        // Delete the session cookie
+        // If a session cookie is used, destroy it
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
@@ -275,11 +285,189 @@ class Auth {
             );
         }
         
-        // Clear remember-me cookie
+        // Remove remember me cookie
         setcookie('remember_me', '', time() - 3600, '/');
         
         // Destroy the session
         session_destroy();
+    }
+    
+    /**
+     * Request a password reset
+     * 
+     * @param string $email User's email
+     * @return array Result of the request
+     */
+    public function requestPasswordReset($email) {
+        try {
+            // Check if email exists
+            if (!$this->user->emailExists($email)) {
+                return [
+                    'status' => 'error',
+                    'message' => 'If your email is registered, we will send you a password reset link.'
+                ];
+            }
+            
+            // Get user details
+            $userData = $this->user->getUserByEmail($email);
+            
+            // Check if the user is a local user
+            if ($userData['auth_provider'] !== 'local') {
+                return [
+                    'status' => 'error',
+                    'message' => 'This account uses ' . ucfirst($userData['auth_provider']) . ' authentication. Please reset your password through ' . ucfirst($userData['auth_provider']) . '.'
+                ];
+            }
+            
+            // Generate a token
+            $token = bin2hex(random_bytes(32));
+            
+            // Store the token in the database with expiration (2 hours)
+            $expiryTime = date('Y-m-d H:i:s', time() + 7200); // 2 hours from now
+            
+            // Get database connection
+            $db = new Database();
+            
+            // Store token in database
+            $stmt = $db->conn->prepare("
+                INSERT INTO password_reset_tokens (email, token, expiry_time)
+                VALUES (:email, :token, :expiry_time)
+                ON DUPLICATE KEY UPDATE token = :token, expiry_time = :expiry_time
+            ");
+            
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':token', $token);
+            $stmt->bindParam(':expiry_time', $expiryTime);
+            $stmt->execute();
+            
+            // Generate the reset URL
+            $resetUrl = "http://" . $_SERVER['HTTP_HOST'] . "/dist/reset-password.php?token=$token&email=" . urlencode($email);
+            
+            // Here you would normally send an email with the reset link
+            // For development purposes, we'll return the URL
+            // In production, use a mail service like PHPMailer, SendGrid, etc.
+            
+            /* 
+            // Example email sending (implement this with your preferred email solution)
+            $subject = "Reset Your Password - Mood Tracker";
+            $message = "Hello,\n\nYou requested a password reset for your Mood Tracker account. To reset your password, click the link below:\n\n$resetUrl\n\nThis link will expire in 2 hours.\n\nIf you did not request this password reset, please ignore this email.\n\nRegards,\nThe Mood Tracker Team";
+            $headers = "From: noreply@moodtracker.com";
+            
+            mail($email, $subject, $message, $headers);
+            */
+            
+            return [
+                'status' => 'success',
+                'message' => 'Password reset instructions have been sent to your email address.',
+                'debug_url' => $resetUrl // Remove this in production
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Failed to process your request: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Verify a password reset token
+     * 
+     * @param string $email User's email
+     * @param string $token Reset token
+     * @return array Result of verification
+     */
+    public function verifyPasswordResetToken($email, $token) {
+        try {
+            // Get database connection
+            $db = new Database();
+            
+            // Check if the token exists and is valid
+            $stmt = $db->conn->prepare("
+                SELECT * FROM password_reset_tokens 
+                WHERE email = :email AND token = :token AND expiry_time > NOW()
+            ");
+            
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':token', $token);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$result) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Invalid or expired reset link. Please request a new one.'
+                ];
+            }
+            
+            return [
+                'status' => 'success',
+                'message' => 'Token is valid'
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Failed to verify token: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Reset user's password
+     * 
+     * @param string $email User's email
+     * @param string $token Reset token
+     * @param string $newPassword New password
+     * @return array Result of password reset
+     */
+    public function resetPassword($email, $token, $newPassword) {
+        try {
+            // First verify the token
+            $verifyResult = $this->verifyPasswordResetToken($email, $token);
+            
+            if ($verifyResult['status'] !== 'success') {
+                return $verifyResult;
+            }
+            
+            // Get database connection
+            $db = new Database();
+            
+            // Update the user's password
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            
+            $stmt = $db->conn->prepare("
+                UPDATE users SET password = :password WHERE email = :email
+            ");
+            
+            $stmt->bindParam(':password', $hashedPassword);
+            $stmt->bindParam(':email', $email);
+            $result = $stmt->execute();
+            
+            if (!$result) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to update password.'
+                ];
+            }
+            
+            // Delete the used token
+            $stmt = $db->conn->prepare("
+                DELETE FROM password_reset_tokens WHERE email = :email
+            ");
+            
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+            
+            return [
+                'status' => 'success',
+                'message' => 'Your password has been reset successfully.'
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Failed to reset password: ' . $e->getMessage()
+            ];
+        }
     }
 }
 ?> 
