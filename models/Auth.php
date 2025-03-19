@@ -38,6 +38,12 @@ class Auth {
         $firstName = $nameParts[0];
         $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
         
+        // For social providers, generate a random secure password
+        // Users won't need this password since they'll authenticate via the provider
+        if ($provider !== 'local' && (!isset($userData['password']) || empty($userData['password']))) {
+            $userData['password'] = bin2hex(random_bytes(16)); // Generate secure random string
+        }
+        
         // Register user
         $result = $this->user->register(
             $firstName,
@@ -93,18 +99,23 @@ class Auth {
         if ($this->user->emailExists($userData['email'])) {
             // If registered with the same provider, log them in
             if ($this->user->userExistsWithProvider($userData['email'], $provider)) {
-                $userId = $this->getUserIdByEmail($userData['email']);
+                // Get user data directly
+                $dbUser = $this->user->getUserByEmail($userData['email']);
                 
-                // Split name into first and last name
-                $nameParts = explode(' ', $userData['name'], 2);
-                $firstName = $nameParts[0];
-                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+                if (!$dbUser) {
+                    return [
+                        'status' => 'error',
+                        'message' => 'Unable to retrieve user data'
+                    ];
+                }
                 
-                $_SESSION['user_id'] = $userId;
-                $_SESSION['user_first_name'] = $firstName;
-                $_SESSION['user_last_name'] = $lastName;
-                $_SESSION['user_email'] = $userData['email'];
+                // Set up the session properly
+                $_SESSION['user_id'] = $dbUser['id'];
+                $_SESSION['first_name'] = $dbUser['first_name'];
+                $_SESSION['last_name'] = $dbUser['last_name'];
+                $_SESSION['email'] = $dbUser['email'];
                 $_SESSION['auth_provider'] = $provider;
+                $_SESSION['is_logged_in'] = true;
                 
                 return [
                     'status' => 'success',

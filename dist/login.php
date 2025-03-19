@@ -20,6 +20,137 @@ $email = $password = "";
 $loginError = "";
 $showSuccess = false;
 
+// Debug mode - set to false for production
+$debug = false;
+
+// Google OAuth Callback Handler
+if (isset($_GET['code'])) {
+    // Handle Google OAuth callback
+    
+    // Get the authorization code
+    $code = $_GET['code'];
+    
+    // Exchange the authorization code for tokens
+    $tokenUrl = 'https://oauth2.googleapis.com/token';
+    $params = [
+        'code' => $code,
+        'client_id' => GOOGLE_CLIENT_ID,
+        'client_secret' => GOOGLE_CLIENT_SECRET,
+        'redirect_uri' => GOOGLE_REDIRECT_URI,
+        'grant_type' => 'authorization_code'
+    ];
+    
+    // Create cURL request to get tokens
+    $ch = curl_init($tokenUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+    
+    // Execute request
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    // Check for cURL errors
+    if ($error) {
+        if ($debug) {
+            echo "cURL Error: " . $error;
+            exit();
+        }
+        $loginError = "Failed to connect to Google: $error";
+    } else {
+        // Decode the response
+        $tokens = json_decode($response, true);
+        
+        // Check for error in the response
+        if (isset($tokens['error'])) {
+            if ($debug) {
+                echo "Token Error: " . $tokens['error'];
+                if (isset($tokens['error_description'])) {
+                    echo "<br>Description: " . $tokens['error_description'];
+                }
+                exit();
+            }
+            $loginError = $tokens['error'];
+        } else {
+            // Get the ID token and access token
+            $idToken = $tokens['id_token'];
+            $accessToken = $tokens['access_token'];
+            
+            // Get user info using the access token
+            $userInfoUrl = 'https://www.googleapis.com/oauth2/v3/userinfo';
+            $ch = curl_init($userInfoUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
+            
+            // Execute request
+            $response = curl_exec($ch);
+            $error = curl_error($ch);
+            curl_close($ch);
+            
+            // Check for cURL errors
+            if ($error) {
+                if ($debug) {
+                    echo "User Info cURL Error: " . $error;
+                    exit();
+                }
+                $loginError = "Failed to get user info: $error";
+            } else {
+                // Decode the user info
+                $userInfo = json_decode($response, true);
+                
+                // Check for error in the response
+                if (isset($userInfo['error'])) {
+                    if ($debug) {
+                        echo "User Info Error: " . $userInfo['error'];
+                        exit();
+                    }
+                    $loginError = $userInfo['error'];
+                } else {
+                    // Prepare user data
+                    $userData = [
+                        'name' => $userInfo['name'],
+                        'email' => $userInfo['email'],
+                        'google_id' => $userInfo['sub'] // Google's unique identifier for the user
+                    ];
+                    
+                    // Process the social login
+                    $result = $auth->socialLogin($userData, 'google');
+                    
+                    if ($result['status'] === 'success') {
+                        // Make sure session variables are set correctly
+                        if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+                            // If the Auth class didn't set these properly, set them here
+                            $_SESSION['is_logged_in'] = true;
+                            
+                            if (!isset($_SESSION['user_id']) && isset($result['user_id'])) {
+                                $_SESSION['user_id'] = $result['user_id'];
+                            }
+                        }
+                        
+                        // Redirect to dashboard
+                        header("Location: user/dashboard.php");
+                        exit();
+                    } else {
+                        $loginError = $result['message'];
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Handle Google OAuth error response
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    if ($error === 'access_denied') {
+        $loginError = "You declined to grant access. Please try again and allow the necessary permissions.";
+    } else {
+        $loginError = "Authentication error: " . htmlspecialchars($error);
+    }
+}
+
 // Check success messages from URL parameters
 if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
     $successMessage = "You have been successfully logged out.";
@@ -29,11 +160,6 @@ if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
 if (isset($_GET['signup']) && $_GET['signup'] === 'success') {
     $successMessage = "Account created successfully. Please log in.";
     $showSuccess = true;
-}
-
-// Check for OAuth errors
-if (isset($_GET['auth_error'])) {
-    $loginError = "Authentication error: " . htmlspecialchars($_GET['auth_error']);
 }
 
 // Process login form submission
