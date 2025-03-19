@@ -17,8 +17,118 @@ $signupSuccess = false;
 // Debug mode - set to false for production
 $debug = false;
 
+// Facebook OAuth Callback Handler
+if (isset($_GET['code']) && isset($_GET['state']) && $_GET['state'] === 'facebook') {
+    // Handle Facebook OAuth callback
+    
+    // Get the authorization code
+    $code = $_GET['code'];
+    
+    // Exchange the authorization code for an access token
+    $tokenUrl = 'https://graph.facebook.com/v17.0/oauth/access_token';
+    $params = [
+        'client_id' => FACEBOOK_APP_ID,
+        'client_secret' => FACEBOOK_APP_SECRET,
+        'redirect_uri' => FACEBOOK_REDIRECT_URI,
+        'code' => $code
+    ];
+    
+    // Create cURL request to get token
+    $ch = curl_init($tokenUrl . '?' . http_build_query($params));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    // Execute request
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    // Check for cURL errors
+    if ($error) {
+        if ($debug) {
+            echo "cURL Error: " . $error;
+            exit();
+        }
+        $formErrors[] = "Failed to connect to Facebook: $error";
+    } else {
+        // Decode the response
+        $token = json_decode($response, true);
+        
+        // Check for error in the response
+        if (isset($token['error'])) {
+            if ($debug) {
+                echo "Token Error: " . $token['error']['message'];
+                exit();
+            }
+            $formErrors[] = "Facebook authentication error: " . $token['error']['message'];
+        } else {
+            // Get the access token
+            $accessToken = $token['access_token'];
+            
+            // Get user info using the access token
+            $userInfoUrl = 'https://graph.facebook.com/v17.0/me?fields=id,name,email&access_token=' . $accessToken;
+            $ch = curl_init($userInfoUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            // Execute request
+            $response = curl_exec($ch);
+            $error = curl_error($ch);
+            curl_close($ch);
+            
+            // Check for cURL errors
+            if ($error) {
+                if ($debug) {
+                    echo "User Info cURL Error: " . $error;
+                    exit();
+                }
+                $formErrors[] = "Failed to get user info: $error";
+            } else {
+                // Decode the user info
+                $userInfo = json_decode($response, true);
+                
+                // Check for error in the response
+                if (isset($userInfo['error'])) {
+                    if ($debug) {
+                        echo "User Info Error: " . $userInfo['error']['message'];
+                        exit();
+                    }
+                    $formErrors[] = $userInfo['error']['message'];
+                } else {
+                    // Prepare user data
+                    $userData = [
+                        'name' => $userInfo['name'],
+                        'email' => isset($userInfo['email']) ? $userInfo['email'] : $userInfo['id'] . '@facebook.com', // Fallback if email not provided
+                        'facebook_id' => $userInfo['id'],
+                        'password' => bin2hex(random_bytes(16)) // Generate a random secure password for Facebook users
+                    ];
+                    
+                    // Process the social login
+                    $result = $auth->socialLogin($userData, 'facebook');
+                    
+                    if ($result['status'] === 'success') {
+                        // Make sure session variables are set correctly
+                        if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+                            // If the Auth class didn't set these properly, set them here
+                            $_SESSION['is_logged_in'] = true;
+                            
+                            if (!isset($_SESSION['user_id']) && isset($result['user_id'])) {
+                                $_SESSION['user_id'] = $result['user_id'];
+                            }
+                        }
+                        
+                        // Redirect to dashboard with welcome parameter
+                        header('Location: user/dashboard.php?welcome=new');
+                        exit();
+                    } else {
+                        $formErrors[] = $result['message'];
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Google OAuth Callback Handler
-if (isset($_GET['code'])) {
+if (isset($_GET['code']) && (!isset($_GET['state']) || $_GET['state'] !== 'facebook')) {
     // Handle Google OAuth callback
     
     // Get the authorization code
@@ -195,7 +305,21 @@ function getGoogleLoginUrl() {
     return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
 }
 
+// Create Facebook OAuth URL
+function getFacebookLoginUrl() {
+    $params = [
+        'client_id' => FACEBOOK_APP_ID,
+        'redirect_uri' => FACEBOOK_REDIRECT_URI,
+        'response_type' => 'code',
+        'scope' => 'email',
+        'state' => 'facebook'
+    ];
+
+    return 'https://www.facebook.com/v17.0/dialog/oauth?' . http_build_query($params);
+}
+
 $googleLoginUrl = getGoogleLoginUrl();
+$facebookLoginUrl = getFacebookLoginUrl();
 ?>
 
 <!DOCTYPE html>
@@ -243,6 +367,14 @@ $googleLoginUrl = getGoogleLoginUrl();
             font-weight: 500;
         }
         
+        /* Social buttons container */
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        
         /* Enhanced Google button */
         .google-btn {
             display: flex;
@@ -283,6 +415,48 @@ $googleLoginUrl = getGoogleLoginUrl();
         .google-icon {
             margin-right: 12px;
             flex-shrink: 0;
+        }
+        
+        /* Facebook button styles */
+        .facebook-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1877F2;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            font-size: 15px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            height: 48px;
+            box-sizing: border-box;
+            margin-top: 0;
+        }
+        
+        .facebook-btn:hover {
+            background-color: #166FE5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .facebook-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .facebook-icon {
+            margin-right: 12px;
+            flex-shrink: 0;
+            filter: brightness(100);
         }
         
         .flex {
@@ -435,19 +609,19 @@ $googleLoginUrl = getGoogleLoginUrl();
                 width: 40%;
             }
             
-            .google-btn, .signup-btn {
+            .google-btn, .signup-btn, .facebook-btn {
                 padding: 12px 10px;
                 font-size: 14px;
-            }
-            
-            .google-btn {
-                display: flex;
-                justify-content: center;
-                align-items: center;
                 height: 44px;
             }
             
-            .google-icon {
+            .google-btn, .facebook-btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .google-icon, .facebook-icon {
                 width: 18px;
                 height: 18px;
                 margin-right: 8px;
@@ -474,19 +648,19 @@ $googleLoginUrl = getGoogleLoginUrl();
         }
         
         @media (max-width: 480px) {
-            .google-btn, .signup-btn {
+            .google-btn, .signup-btn, .facebook-btn {
                 padding: 11px 10px;
                 height: 50px;
             }
             
-            .google-btn {
+            .google-btn, .facebook-btn {
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 font-size: 13px;
             }
             
-            .google-icon {
+            .google-icon, .facebook-icon {
                 width: 16px;
                 height: 16px;
                 margin-right: 6px;
@@ -513,14 +687,8 @@ $googleLoginUrl = getGoogleLoginUrl();
                 padding: 20px 15px;
             }
             
-            .signup-btn, .google-btn {
-                height: 50px;
-            }
-            
-            .remember-me input {
-                width: 22px;
-                height: 22px;
-                margin-right: 10px;
+            .social-buttons {
+                gap: 10px;
             }
         }
         
@@ -662,7 +830,7 @@ $googleLoginUrl = getGoogleLoginUrl();
                         <span>OR</span>
                     </div>
                     
-                    <div class="flex justify-center">
+                    <div class="social-buttons">
                         <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" class="google-btn">
                             <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -671,6 +839,13 @@ $googleLoginUrl = getGoogleLoginUrl();
                                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                             </svg>
                             Continue with Google
+                        </a>
+                        
+                        <a href="<?php echo htmlspecialchars($facebookLoginUrl); ?>" class="facebook-btn">
+                            <svg class="facebook-icon" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Continue with Facebook
                         </a>
                     </div>
                 </form>
