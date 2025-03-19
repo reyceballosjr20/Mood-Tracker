@@ -2,16 +2,33 @@
  * Calendar functionality for the mood tracker application
  */
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Calendar script loaded');
+    
     // Initialize calendar functionality
     initCalendar();
+    
+    // Also add a listener for dynamic content changes
+    // This helps with single-page applications where content is loaded dynamically
+    setupContentChangeDetection();
 });
 
 /**
  * Initialize the calendar functionality
  */
 function initCalendar() {
-    // Set up month navigation
-    setupMonthNavigation();
+    console.log('Attempting to initialize calendar');
+    
+    // Check if calendar elements exist before initializing
+    const hasCalendarElements = document.querySelector('.month-calendar');
+    
+    if (!hasCalendarElements) {
+        console.log('No calendar elements found, skipping initialization');
+        return;
+    }
+    
+    console.log('Calendar elements found, setting up functionality');
+    
+    // Removed month navigation setup since we're showing all 12 months
     
     // Add tooltip functionality for mood entries
     setupMoodTooltips();
@@ -21,95 +38,31 @@ function initCalendar() {
     
     // Add mood-specific styling
     setupMoodColors();
+    
+    console.log('Calendar initialization complete');
 }
 
 /**
  * Set up the month navigation functionality
+ * This function is kept for backward compatibility but doesn't do anything in the all-months view
  */
 function setupMonthNavigation() {
-    // Get navigation buttons
-    const prevMonthBtn = document.getElementById('prevMonthBtn');
-    const nextMonthBtn = document.getElementById('nextMonthBtn');
-    
-    // Remove any existing event listeners
-    if (prevMonthBtn) {
-        prevMonthBtn.replaceWith(prevMonthBtn.cloneNode(true));
-        const newPrevBtn = document.getElementById('prevMonthBtn');
-        
-        newPrevBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const month = this.getAttribute('data-month');
-            const year = this.getAttribute('data-year');
-            fetchNewCalendar(month, year);
-        });
-    }
-    
-    if (nextMonthBtn) {
-        nextMonthBtn.replaceWith(nextMonthBtn.cloneNode(true));
-        const newNextBtn = document.getElementById('nextMonthBtn');
-        
-        newNextBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const month = this.getAttribute('data-month');
-            const year = this.getAttribute('data-year');
-            fetchNewCalendar(month, year);
-        });
-    }
+    console.log('Month navigation disabled in all-months view');
+    // No navigation in all-months view
 }
 
 /**
  * Fetch new calendar content - using a different function name to avoid confusion
+ * This function is kept for backward compatibility but redirects to the calendar page in the all-months view
  */
 function fetchNewCalendar(month, year) {
-    // Get the ID of the main content element - use the correct one from dashboard.php
-    const contentContainer = document.getElementById('mainContent');
-    if (!contentContainer) {
-        alert('Cannot update calendar - content container not found');
-        return;
-    }
-    
-    // Show loading indicator
-    contentContainer.innerHTML = '<div style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #d1789c;"></i><p>Loading calendar...</p></div>';
-    
-    // Try multiple possible paths (the issue might be the path)
-    let contentUrl = `content/calendar.php?month=${month}&year=${year}`;
-    
-    // Update browser history without reloading
-    const newUrl = `dashboard.php?page=calendar&month=${month}&year=${year}`;
-    window.history.pushState({}, '', newUrl);
-    
-   
-    contentContainer.innerHTML += `<div style="display:none" id="debug-info">Trying to fetch: ${contentUrl}</div>`;
-    
-    // Fetch the updated calendar content via AJAX
-    fetch(contentUrl)
-        .then(response => {
-            if (!response.ok) {
-                // Try alternate path if first one fails
-                return fetch(`../content/calendar.php?month=${month}&year=${year}`);
-            }
-            return response.text();
-        })
-        .then(html => {
-            if (!html) {
-                throw new Error('Empty response received');
-            }
-            
-            // Update content
-            contentContainer.innerHTML = html;
-            
-            // Directly call initCalendar without setTimeout
-            initCalendar();
-        })
-        .catch(error => {
-            // Try a final approach - direct page load
-            window.location.href = newUrl;
-        });
+    console.log('Redirecting to calendar page in all-months view');
+    window.location.href = 'dashboard.php?page=calendar';
 }
 
 // Override the original function to use our new approach
 function navigateToMonth(month, year) {
-    fetchNewCalendar(month, year);
+    window.location.href = 'dashboard.php?page=calendar';
 }
 
 /**
@@ -217,4 +170,42 @@ document.head.insertAdjacentHTML('beforeend', `
             transition: all 0.3s ease;
         }
     </style>
-`); 
+`);
+
+/**
+ * Set up detection for dynamic content changes
+ */
+function setupContentChangeDetection() {
+    // Create a mutation observer to watch for content container changes
+    try {
+        const contentContainer = document.getElementById('contentContainer') || 
+                               document.getElementById('content') || 
+                               document.querySelector('.content-container');
+        
+        if (contentContainer) {
+            console.log('Setting up mutation observer for calendar content');
+            
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        // Check if calendar elements are present in the new content
+                        const hasCalendarElements = contentContainer.querySelector('.month-calendar');
+                        
+                        if (hasCalendarElements) {
+                            console.log('Calendar elements detected in new content, initializing calendar');
+                            initCalendar();
+                        }
+                    }
+                });
+            });
+            
+            // Start observing the content container for DOM changes
+            observer.observe(contentContainer, { 
+                childList: true,
+                subtree: true 
+            });
+        }
+    } catch (error) {
+        console.error('Error setting up content change detection:', error);
+    }
+} 

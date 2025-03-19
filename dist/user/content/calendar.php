@@ -16,69 +16,16 @@ require_once '../../../models/Mood.php';
 $mood = new Mood();
 $userId = $_SESSION['user_id'] ?? 0;
 
-// Get selected month and year (default to current month)
-$selectedMonth = isset($_GET['month']) ? intval($_GET['month']) : date('n');
-$selectedYear = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+// Get current year
+$currentYear = date('Y');
 
-// Validate month and year values
-if ($selectedMonth < 1 || $selectedMonth > 12) {
-    $selectedMonth = date('n');
-}
-if ($selectedYear < 2000 || $selectedYear > 2100) {
-    $selectedYear = date('Y');
-}
-
-// Define the 4 months to display (2x2 grid)
+// Define all 12 months
 $calendarMonths = [];
-
-// Current month (top left)
-$calendarMonths[0] = [
-    'month' => $selectedMonth,
-    'year' => $selectedYear
-];
-
-// Next month (top right)
-$nextMonth = $selectedMonth + 1;
-$nextYear = $selectedYear;
-if ($nextMonth > 12) {
-    $nextMonth = 1;
-    $nextYear++;
-}
-$calendarMonths[1] = [
-    'month' => $nextMonth,
-    'year' => $nextYear
-];
-
-// Month after next (bottom left)
-$nextMonth2 = $nextMonth + 1;
-$nextYear2 = $nextYear;
-if ($nextMonth2 > 12) {
-    $nextMonth2 = 1;
-    $nextYear2++;
-}
-$calendarMonths[2] = [
-    'month' => $nextMonth2,
-    'year' => $nextYear2
-];
-
-// Month after that (bottom right)
-$nextMonth3 = $nextMonth2 + 1;
-$nextYear3 = $nextYear2;
-if ($nextMonth3 > 12) {
-    $nextMonth3 = 1;
-    $nextYear3++;
-}
-$calendarMonths[3] = [
-    'month' => $nextMonth3,
-    'year' => $nextYear3
-];
-
-// Get previous month for navigation
-$prevMonth = $selectedMonth - 1;
-$prevYear = $selectedYear;
-if ($prevMonth < 1) {
-    $prevMonth = 12;
-    $prevYear--;
+for ($month = 1; $month <= 12; $month++) {
+    $calendarMonths[$month - 1] = [
+        'month' => $month,
+        'year' => $currentYear
+    ];
 }
 
 // Update the mood icons mapping to match new emotions
@@ -113,116 +60,115 @@ $moodEmojis = [
     'grateful' => '🙏'
 ];
 
-// Get mood stats for the selected month (for summary cards)
-$moodStats = $mood->getMoodStatsByMonth($userId, $selectedMonth, $selectedYear);
+// Get mood stats for the entire year by combining monthly stats
 $moodCounts = [];
 $totalEntries = 0;
 $topMood = null;
 $topMoodCount = 0;
 
-if ($moodStats) {
-    foreach ($moodStats as $stat) {
-        $moodCounts[$stat['mood_type']] = $stat['count'];
-        $totalEntries += $stat['count'];
-        
-        if ($stat['count'] > $topMoodCount) {
-            $topMood = $stat['mood_type'];
-            $topMoodCount = $stat['count'];
+// Iterate through all months of the current year
+for ($month = 1; $month <= 12; $month++) {
+    $monthStats = $mood->getMoodStatsByMonth($userId, $month, $currentYear);
+    
+    if ($monthStats) {
+        foreach ($monthStats as $stat) {
+            if (!isset($moodCounts[$stat['mood_type']])) {
+                $moodCounts[$stat['mood_type']] = 0;
+            }
+            $moodCounts[$stat['mood_type']] += $stat['count'];
+            $totalEntries += $stat['count'];
+            
+            // Update top mood if necessary
+            if ($moodCounts[$stat['mood_type']] > $topMoodCount) {
+                $topMood = $stat['mood_type'];
+                $topMoodCount = $moodCounts[$stat['mood_type']];
+            }
         }
     }
 }
 
-// Calculate logging streak (simplified approach)
+// Calculate logging streak
 $streak = $mood->getUserLoggingStreak($userId);
 
-// Get mood trends, best day, etc. (all the existing calculations)
-// ...
+// Calculate year averages for each month
+$monthlyAverages = [];
+$yearAvg = 0;
+$monthCount = 0;
 
-// Get the first and last day of the month for date-based queries
-$firstDayOfSelectedMonth = $selectedYear . '-' . str_pad($selectedMonth, 2, '0', STR_PAD_LEFT) . '-01';
-$lastDayOfSelectedMonth = date('Y-m-t', strtotime($firstDayOfSelectedMonth));
-
-// Get previous month data for comparison
-$prevAnalysisMonth = $selectedMonth - 1;
-$prevAnalysisYear = $selectedYear;
-if ($prevAnalysisMonth < 1) {
-    $prevAnalysisMonth = 12;
-    $prevAnalysisYear--;
+for ($month = 1; $month <= 12; $month++) {
+    $monthlyAverages[$month] = $mood->getAverageMoodScore($userId, $month, $currentYear);
+    if ($monthlyAverages[$month] > 0) {
+        $yearAvg += $monthlyAverages[$month];
+        $monthCount++;
+    }
 }
 
-// Get mood trends - comparison with previous month
-$currentMonthAvg = $mood->getAverageMoodScore($userId, $selectedMonth, $selectedYear);
-$prevMonthAvg = $mood->getAverageMoodScore($userId, $prevAnalysisMonth, $prevAnalysisYear);
+// Calculate overall year average
+$yearAvg = $monthCount > 0 ? $yearAvg / $monthCount : 0;
+
+// Get previous year average using the same approach
+$prevYearAvg = 0;
+$prevMonthCount = 0;
+
+for ($month = 1; $month <= 12; $month++) {
+    $monthAvg = $mood->getAverageMoodScore($userId, $month, $currentYear - 1);
+    if ($monthAvg > 0) {
+        $prevYearAvg += $monthAvg;
+        $prevMonthCount++;
+    }
+}
+
+$prevYearAvg = $prevMonthCount > 0 ? $prevYearAvg / $prevMonthCount : 0;
 
 // Calculate trend
 $trendPercentage = 0;
 $trendDirection = 'stable';
-if ($prevMonthAvg > 0 && $currentMonthAvg > 0) {
-    $trendPercentage = round((($currentMonthAvg - $prevMonthAvg) / $prevMonthAvg) * 100);
+if ($prevYearAvg > 0 && $yearAvg > 0) {
+    $trendPercentage = round((($yearAvg - $prevYearAvg) / $prevYearAvg) * 100);
     $trendDirection = $trendPercentage > 0 ? 'improving' : ($trendPercentage < 0 ? 'declining' : 'stable');
 }
 
-// Get best and worst days
-$bestDay = $mood->getBestDay($userId, $selectedMonth, $selectedYear);
-$worstDay = $mood->getWorstDay($userId, $selectedMonth, $selectedYear);
+// Find best and worst days by checking each month
+$bestDay = null;
+$worstDay = null;
+$bestDayMoodScore = 0;
+$worstDayMoodScore = 10; // High initial value to be replaced
+
+for ($month = 1; $month <= 12; $month++) {
+    $monthBestDay = $mood->getBestDay($userId, $month, $currentYear);
+    $monthWorstDay = $mood->getWorstDay($userId, $month, $currentYear);
+    
+    // Process best day if found
+    if ($monthBestDay) {
+        $bestDay = $bestDay ? $bestDay : $monthBestDay;
+    }
+    
+    // Process worst day if found
+    if ($monthWorstDay) {
+        $worstDay = $worstDay ? $worstDay : $monthWorstDay;
+    }
+}
 
 // Get day of week patterns
-$dayOfWeekPatterns = $mood->getMoodPatternsByDayOfWeek($userId, $selectedMonth, $selectedYear);
+$dayOfWeekPatterns = [];
 $bestDayOfWeek = '';
 $bestDayOfWeekScore = 0;
 $dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-if ($dayOfWeekPatterns) {
-    foreach ($dayOfWeekPatterns as $pattern) {
-        if ($pattern['avg_score'] > $bestDayOfWeekScore) {
-            $bestDayOfWeekScore = $pattern['avg_score'];
-            $bestDayOfWeek = $dayNames[$pattern['day_of_week'] - 1];
-        }
-    }
-}
-
-// At the top of the file, add a debug line to see what's actually being selected:
-// echo "Debug: Selected Month/Year: $selectedMonth/$selectedYear";
-
-// We need to ensure the summary is always showing the selected month (first month in grid)
-$monthName = date('F', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
-
-// Make sure the year is correct for display
-$displayYear = $selectedYear;
+// We would need to implement day of week calculation manually here
+// For now, just initializing the variable
 ?>
 
-<!-- Navigation Header Area - Remove dropdown -->
+<!-- Navigation Header Area -->
 <div class="header">
     <h1 class="page-title" style="color: #d1789c; font-size: 1.8rem; margin-bottom: 15px; position: relative; display: inline-block; font-weight: 600;">
-        Mood Calendar
+        Mood Calendar <?php echo $currentYear; ?>
         <span style="position: absolute; bottom: -8px; left: 0; width: 40%; height: 3px; background: linear-gradient(90deg, #d1789c, #f5d7e3); border-radius: 3px;"></span>
     </h1>
-    <!-- Remove the month selection dropdown entirely -->
 </div>
 
-<!-- Month Navigation Controls -->
-<div class="card" style="padding: 20px; background-color: #f8dfeb; margin-bottom: 20px; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; text-align: center; display: flex; justify-content: space-between; align-items: center;">
-    <a href="javascript:void(0)" id="prevMonthBtn" data-month="<?php echo $prevMonth; ?>" data-year="<?php echo $prevYear; ?>" 
-       style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
-        <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>
-        <?php echo date('M', mktime(0, 0, 0, $prevMonth, 1, $prevYear)); ?>
-    </a>
-    
-    <h2 style="margin: 0; color: #4a3347; font-size: 1.4rem;">
-        <?php 
-        // Show current month only 
-        echo date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
-        ?>
-    </h2>
-    
-    <a href="javascript:void(0)" id="nextMonthBtn" data-month="<?php echo $nextMonth; ?>" data-year="<?php echo $nextYear; ?>" 
-       style="color: #6e3b5c; text-decoration: none; display: flex; align-items: center; padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s ease;">
-        <?php echo date('M', mktime(0, 0, 0, $nextMonth, 1, $nextYear)); ?>
-        <i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
-    </a>
-</div>
-
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+<!-- Year Overview Grid -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
     <?php foreach ($calendarMonths as $index => $calendarData): ?>
         <?php
         // Extract month data
@@ -246,39 +192,39 @@ $displayYear = $selectedYear;
         ?>
         
         <!-- Each month as a separate card -->
-        <div class="card month-calendar" style="padding: 25px; background-color: white; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; overflow: hidden;">
-            <!-- Month header with more padding -->
-            <div style="text-align: center; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid #f5d7e3;">
-                <h3 style="color: #d1789c; font-size: 1.2rem; margin: 0; font-weight: 500;">
-                    <?php echo $monthName . ' ' . $year; ?>
+        <div class="card month-calendar" style="padding: 20px; background-color: white; border: none; box-shadow: 0 8px 25px rgba(0,0,0,0.07); border-radius: 16px; overflow: hidden;">
+            <!-- Month header -->
+            <div style="text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #f5d7e3;">
+                <h3 style="color: #d1789c; font-size: 1.1rem; margin: 0; font-weight: 500;">
+                    <?php echo $monthName; ?>
                 </h3>
             </div>
             
-            <!-- Day headers - with more height -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 15px; font-weight: 500; color: #6e3b5c;">
-                <div style="padding: 8px 0;">M</div>
-                <div style="padding: 8px 0;">T</div>
-                <div style="padding: 8px 0;">W</div>
-                <div style="padding: 8px 0;">T</div>
-                <div style="padding: 8px 0;">F</div>
-                <div style="padding: 8px 0;">S</div>
-                <div style="padding: 8px 0;">S</div>
+            <!-- Day headers -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 10px; font-weight: 500; color: #6e3b5c; font-size: 0.8rem;">
+                <div style="padding: 4px 0;">M</div>
+                <div style="padding: 4px 0;">T</div>
+                <div style="padding: 4px 0;">W</div>
+                <div style="padding: 4px 0;">T</div>
+                <div style="padding: 4px 0;">F</div>
+                <div style="padding: 4px 0;">S</div>
+                <div style="padding: 4px 0;">S</div>
             </div>
             
-            <!-- Calendar days - increased height -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">
+            <!-- Calendar days -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
                 <?php 
                 // Add empty cells for days before the 1st of the month
                 for ($i = 1; $i < $firstDayOfMonth; $i++) {
-                    echo '<div style="height: 55px;"></div>';
+                    echo '<div style="height: 40px;"></div>';
                 }
                 
-                // Add days of the month with increased height
+                // Add days of the month
                 for ($day = 1; $day <= $daysInMonth; $day++) {
                     $isToday = ($day == date('j') && $month == date('n') && $year == date('Y'));
                     $hasMood = isset($moodsByDay[$day]);
                     
-                    $dayStyle = 'height: 55px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; position: relative; padding: 5px 0;';
+                    $dayStyle = 'height: 40px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; position: relative; padding: 3px 0;';
                     
                     if ($isToday) {
                         $dayStyle .= 'border: 2px solid #d1789c; background-color: #fff3f8;';
@@ -287,14 +233,14 @@ $displayYear = $selectedYear;
                     }
                     
                     echo '<div style="' . $dayStyle . '">';
-                    echo '<div style="font-size: 0.85rem; font-weight: 500;">' . $day . '</div>';
+                    echo '<div style="font-size: 0.75rem; font-weight: 500;">' . $day . '</div>';
                     
                     if ($hasMood) {
                         $moodType = $moodsByDay[$day]['mood_type'];
                         $moodIcon = isset($moodIcons[$moodType]) ? $moodIcons[$moodType] : 'fa-meh';
                         $moodText = $moodsByDay[$day]['mood_text'];
                         
-                        echo '<div class="mood-entry" style="font-size: 1rem; cursor: pointer;">';
+                        echo '<div class="mood-entry" style="font-size: 0.9rem; cursor: pointer;">';
                         echo '<div class="calendar-mood-icon" data-mood="' . $moodType . '">';
                         echo '<i class="fas ' . ($moodIcons[$moodType] ?? 'fa-meh') . '"></i>';
                         echo '</div>';
@@ -302,15 +248,14 @@ $displayYear = $selectedYear;
                         // Add tooltip with mood details
                         if (!empty($moodText)) {
                             echo '<div class="mood-tooltip">';
-                            echo '<div style="font-weight: 500; margin-bottom: 5px; color: #4a3347; text-transform: capitalize;">' . $moodType . '</div>';
-                            echo '<div style="font-size: 0.85rem; color: #666;">"' . htmlspecialchars($moodText) . '"</div>';
+                            echo '<div style="font-weight: 500; margin-bottom: 3px; color: #4a3347; text-transform: capitalize;">' . $moodType . '</div>';
+                            echo '<div style="font-size: 0.75rem; color: #666;">"' . htmlspecialchars($moodText) . '"</div>';
                             echo '</div>';
                         }
                         
                         echo '</div>';
                     } else {
-                        // Add an empty space holder to maintain consistent height
-                        echo '<div style="height: 24px;"></div>';
+                        echo '<div style="height: 20px;"></div>';
                     }
                     
                     echo '</div>';
@@ -325,7 +270,7 @@ $displayYear = $selectedYear;
     /* Calendar grid responsive styles */
     .month-calendar {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        min-height: 400px; /* Set a minimum height for month cards */
+        min-height: 300px;
     }
     
     .month-calendar:hover {
@@ -333,14 +278,14 @@ $displayYear = $selectedYear;
         box-shadow: 0 12px 30px rgba(0,0,0,0.1);
     }
     
-    @media (max-width: 992px) {
-        .month-calendar {
-            margin-bottom: 20px;
+    @media (max-width: 1200px) {
+        div[style*="grid-template-columns: repeat(3, 1fr)"] {
+            grid-template-columns: repeat(2, 1fr) !important;
         }
     }
     
     @media (max-width: 768px) {
-        div[style*="grid-template-columns: 1fr 1fr"] {
+        div[style*="grid-template-columns: repeat(3, 1fr)"] {
             grid-template-columns: 1fr !important;
         }
         
@@ -369,25 +314,16 @@ $displayYear = $selectedYear;
         }
         
         div[style*="display: grid; grid-template-columns: repeat(7, 1fr)"] {
-            gap: 4px !important;
+            gap: 2px !important;
         }
         
-        div[style*="height: 55px"] {
-            height: 45px !important;
+        div[style*="height: 40px"] {
+            height: 35px !important;
         }
         
-        div[style*="font-size: 1rem"] {
-            font-size: 0.9rem !important;
+        div[style*="font-size: 0.9rem"] {
+            font-size: 0.8rem !important;
         }
-    }
-    
-    /* Enhance month navigation buttons */
-    a[href="#"] {
-        transition: background-color 0.2s ease;
-    }
-    
-    a[href="#"]:hover {
-        background-color: rgba(209, 120, 156, 0.2);
     }
     
     /* Tooltip styles */
@@ -398,10 +334,10 @@ $displayYear = $selectedYear;
         transform: translateX(-50%);
         background-color: #fff;
         border-radius: 8px;
-        padding: 10px;
+        padding: 8px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         width: max-content;
-        max-width: 200px;
+        max-width: 180px;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -419,8 +355,8 @@ $displayYear = $selectedYear;
     
     /* New styles for mood icons */
     .calendar-mood-icon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         background: linear-gradient(135deg, #feeef5, #ffffff);
         display: flex;
@@ -431,47 +367,8 @@ $displayYear = $selectedYear;
     }
     
     .calendar-mood-icon i {
-        font-size: 14px;
+        font-size: 12px;
         color: #d1789c;
-    }
-    
-    .summary-mood-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #feeef5, #ffffff);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 5px 10px rgba(209, 120, 156, 0.15);
-        margin-right: 10px;
-    }
-    
-    .summary-mood-icon i {
-        font-size: 22px;
-        color: #d1789c;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
-    }
-    
-    /* Responsive styles for mood icons */
-    @media (max-width: 576px) {
-        .calendar-mood-icon {
-            width: 24px;
-            height: 24px;
-        }
-        
-        .calendar-mood-icon i {
-            font-size: 12px;
-        }
-        
-        .summary-mood-icon {
-            width: 35px;
-            height: 35px;
-        }
-        
-        .summary-mood-icon i {
-            font-size: 18px;
-        }
     }
     
     /* Add color coding based on mood type */

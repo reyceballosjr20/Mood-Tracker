@@ -34,7 +34,7 @@ if (isset($_GET['page'])) {
     <link rel="stylesheet" href="../css/sidebar.css">
     <!-- Load the mood tracker script -->
     <script src="../js/mood-tracker.js"></script>
-    <script src="../js/calendar.js"></script>
+
 
 
 
@@ -986,6 +986,28 @@ if (isset($_GET['page'])) {
                     if (page === 'profile') {
                         console.log('Profile page loaded, will ensure image functionality works');
                         // Let the inline script in profile.php handle initialization
+                    }
+                    
+                    // If this is the calendar page, initialize the calendar
+                    if (page === 'calendar') {
+                        console.log('Calendar page loaded, initializing calendar functionality');
+                        // Wait for the content to be properly rendered
+                        setTimeout(() => {
+                            if (typeof initCalendar === 'function') {
+                                initCalendar();
+                            } else {
+                                console.error('initCalendar function not found');
+                                // Try to load the calendar script dynamically
+                                const calendarScript = document.createElement('script');
+                                calendarScript.src = '../js/calendar.js';
+                                calendarScript.onload = function() {
+                                    if (typeof initCalendar === 'function') {
+                                        initCalendar();
+                                    }
+                                };
+                                document.head.appendChild(calendarScript);
+                            }
+                        }, 100);
                     }
 
                     // After loading content, initialize/reinitialize any scripts
