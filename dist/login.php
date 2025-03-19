@@ -153,11 +153,6 @@ if (isset($_GET['error'])) {
 }
 
 // Check success messages from URL parameters
-if (isset($_GET['logout']) && $_GET['logout'] === 'success') {
-    $successMessage = "You have been successfully logged out.";
-    $showSuccess = true;
-}
-
 if (isset($_GET['signup']) && $_GET['signup'] === 'success') {
     $successMessage = "Account created successfully. Please log in.";
     $showSuccess = true;
@@ -735,10 +730,6 @@ $googleLoginUrl = getGoogleLoginUrl();
                     Don't have an account? <a href="signup.php">Sign up</a>
                 </div>
                 
-                <div class="success-container" id="success-container" style="display: none;">
-                    You have been successfully logged out.
-                </div>
-                
                 <div class="error-container" id="error-container">
                     <strong>Please fix the following errors:</strong>
                     <ul class="error-list" id="error-list">
@@ -816,17 +807,7 @@ $googleLoginUrl = getGoogleLoginUrl();
         // Check URL parameters for success messages
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Show logout success message
-        if (urlParams.get('logout') === 'success') {
-            document.getElementById('success-container').style.display = 'block';
-        }
-        
-        // Show signup success message
-        if (urlParams.get('signup') === 'success') {
-            const successContainer = document.getElementById('success-container');
-            successContainer.textContent = 'Account created successfully. Please log in.';
-            successContainer.style.display = 'block';
-        }
+        // Show signup success message (success messages now only handled through PHP)
         
         // Password visibility toggle
         function togglePasswordVisibility(inputId) {
