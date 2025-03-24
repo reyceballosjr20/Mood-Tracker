@@ -292,7 +292,7 @@ $moodResources = [
             'icon' => 'video',
             'title' => 'Video: "Finding meaning in everyday life"',
             'time' => '18 min watch',
-            'link' => 'https://www.youtube.com/watch?v=HdqVF7-8wng'
+            'link' => 'https://www.youtube.com/watch?v=skZagPiKQfQ'
         ],
         [
             'icon' => 'video',
@@ -304,7 +304,7 @@ $moodResources = [
             'icon' => 'video',
             'title' => 'Video: "How to motivate yourself"',
             'time' => '15 min watch',
-            'link' => 'https://www.youtube.com/watch?v=sDEiZMuNv2s'
+            'link' => 'https://www.youtube.com/watch?v=LnJwH_PZXnM'
         ]
     ],
     'good' => [
@@ -332,19 +332,19 @@ $moodResources = [
             'icon' => 'video',
             'title' => 'Video: "Productivity tips for high energy"',
             'time' => '10 min watch',
-            'link' => 'https://www.youtube.com/watch?v=Tz9iJ7TlQiw'
+           'link' => 'https://www.youtube.com/watch?v=UBMk30rjy0o'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "High-energy workout"',
             'time' => '20 min watch',
-            'link' => 'https://www.youtube.com/watch?v=UBMk30rjy0o'
+            'link' => 'https://www.youtube.com/watch?v=ml6cT4AZdqI'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Sustaining energy throughout the day"',
             'time' => '15 min watch',
-            'link' => 'https://www.youtube.com/watch?v=kwTKk6u30x4'
+            'link' => 'https://www.youtube.com/watch?v=g_tea8ZNk5A'
         ]
     ],
     'excellent' => [
@@ -398,13 +398,13 @@ $moodResources = [
             'icon' => 'video',
             'title' => 'Video: "Yoga for energy restoration"',
             'time' => '15 min watch',
-            'link' => 'https://www.youtube.com/watch?v=UEEsdXn8oG8'
+            'link' => 'https://www.youtube.com/watch?v=LhrlwlTS55o'
         ],
         [
             'icon' => 'video',
             'title' => 'Video: "Sleep science and recovery"',
             'time' => '20 min watch',
-            'link' => 'https://www.youtube.com/watch?v=gedoSfZvBgE'
+            'link' => 'https://www.youtube.com/watch?v=LhrlwlTS55o'
         ]
     ],
     'focused' => [
@@ -438,7 +438,7 @@ $moodResources = [
             'icon' => 'video',
             'title' => 'Video: "Benefits of mood tracking"',
             'time' => '8 min watch',
-            'link' => 'https://www.youtube.com/watch?v=UU2rZ3tPE8U'
+            'link' => 'https://www.youtube.com/watch?v=KJJnMmP1soM'
         ],
         [
             'icon' => 'video',
