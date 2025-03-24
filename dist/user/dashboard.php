@@ -298,6 +298,14 @@ if (isset($_GET['page'])) {
             padding: 25px;
             transition: all 0.3s ease;
         }
+        
+        /* Page Content */
+        #content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
 
         /* Main content header */
         .content-header {
@@ -620,6 +628,13 @@ if (isset($_GET['page'])) {
                 visibility: visible;
                 box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
             }
+            
+            /* Adjust content when sidebar is closed */
+            #content {
+                margin-left: 0;
+                width: 100%;
+                transition: all 0.3s ease;
+            }
 
             /* Mobile toggle button */
             .sidebar-toggle {
@@ -638,6 +653,24 @@ if (isset($_GET['page'])) {
                 justify-content: center;
                 font-size: 18px;
                 color: #6e3b5c;
+                transition: all 0.3s ease;
+            }
+            
+            /* Toggle position changes based on sidebar state */
+            @media (min-width: 769px) {
+                .sidebar-toggle {
+                    left: 260px; /* Position when sidebar is open */
+                    transition: left 0.3s ease;
+                }
+                
+                body.sidebar-closed .sidebar-toggle {
+                    left: 15px; /* Position when sidebar is closed */
+                }
+                
+                /* When sidebar is toggled closed */
+                .sidebar:not(.active) + div .sidebar-toggle {
+                    left: 15px;
+                }
             }
 
             /* Mobile overlay */
@@ -680,6 +713,7 @@ if (isset($_GET['page'])) {
                 overflow: hidden;
                 position: fixed;
                 width: 100%;
+                height: 100%;
             }
         }
 
@@ -1086,10 +1120,73 @@ if (isset($_GET['page'])) {
             });
         });
 
-        // Toggle sidebar on mobile
-        sidebarToggle.addEventListener('click', function () {
+        // Toggle function for sidebar
+        function toggleSidebar() {
             sidebar.classList.toggle('active');
-            sidebarOverlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-closed', !sidebar.classList.contains('active'));
+            
+            // On larger screens, adjust main content margin
+            if (window.innerWidth > 768) {
+                if (sidebar.classList.contains('active')) {
+                    mainContent.style.marginLeft = '250px';
+                } else {
+                    mainContent.style.marginLeft = '0';
+                }
+            } else {
+                // On mobile, handle overlay
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (overlay) {
+                    if (sidebar.classList.contains('active')) {
+                        overlay.classList.add('active');
+                        document.body.classList.add('sidebar-open');
+                    } else {
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                    }
+                }
+            }
+        }
+        
+        // Add event listener to toggle button
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSidebar();
+            });
+        }
+        
+        // Set correct initial state for sidebar and main content
+        if (window.innerWidth > 768) {
+            sidebar.classList.add('active');
+            mainContent.style.marginLeft = '250px';
+            document.body.classList.remove('sidebar-closed');
+        } else {
+            sidebar.classList.remove('active');
+            mainContent.style.marginLeft = '0';
+            document.body.classList.add('sidebar-closed');
+        }
+        
+        // Update sidebar state on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                // On desktop, adjust content margin based on sidebar state
+                mainContent.style.marginLeft = sidebar.classList.contains('active') ? '250px' : '0';
+                document.body.classList.toggle('sidebar-closed', !sidebar.classList.contains('active'));
+            } else {
+                // On mobile, always set margin to 0
+                mainContent.style.marginLeft = '0';
+                
+                // Close sidebar if open when resizing to mobile
+                if (sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                    }
+                    document.body.classList.remove('sidebar-open');
+                    document.body.classList.add('sidebar-closed');
+                }
+            }
         });
 
         // Close sidebar when clicking outside on mobile
@@ -1125,6 +1222,8 @@ if (isset($_GET['page'])) {
             overlay.addEventListener('click', function () {
                 sidebar.classList.remove('active');
                 this.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+                document.body.classList.add('sidebar-closed');
             });
 
             return overlay;
@@ -1204,45 +1303,6 @@ if (isset($_GET['page'])) {
                 refreshBtn.addEventListener('click', function() {
                     loadPage(currentPage);
                 });
-            }
-        });
-
-        // Add to your JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get toggle button
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            // Toggle function for sidebar
-            function toggleSidebar() {
-                sidebar.classList.toggle('active');
-                
-                // On larger screens, adjust main content margin
-                if (window.innerWidth > 768) {
-                    const mainContent = document.getElementById('content');
-                    if (sidebar.classList.contains('active')) {
-                        mainContent.style.marginLeft = '250px';
-                    } else {
-                        mainContent.style.marginLeft = '0';
-                    }
-                } else {
-                    // On mobile, handle overlay
-                    const overlay = document.querySelector('.sidebar-overlay');
-                    if (overlay) {
-                        if (sidebar.classList.contains('active')) {
-                            overlay.classList.add('active');
-                            document.body.style.overflow = 'hidden';
-                        } else {
-                            overlay.classList.remove('active');
-                            document.body.style.overflow = '';
-                        }
-                    }
-                }
-            }
-            
-            // Add event listener to toggle button
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleSidebar);
             }
         });
     </script>
